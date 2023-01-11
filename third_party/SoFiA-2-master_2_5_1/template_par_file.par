@@ -1,0 +1,157 @@
+# List of template parameter settings for SoFiA
+#
+# Note that SoFiA's default parameters are actually hard-coded in the
+# file Parameter.c, and any changes to this file will have no effect.
+# This file can instead be used as a template for setting up your own
+# parameter files.
+
+
+# Global settings
+
+pipeline.verbose           =  false
+pipeline.pedantic          =  true
+pipeline.threads           =  0
+
+
+# Input
+
+input.data                 =  
+input.region               =  
+input.gain                 =  
+input.noise                =  
+input.weights              =  
+input.mask                 =  
+input.invert               =  false
+
+
+# Flagging
+
+flag.region                =  
+flag.catalog               =  
+flag.radius                =  5
+flag.auto                  =  false
+flag.threshold             =  5.0
+flag.log                   =  false
+
+
+# Continuum subtraction
+
+contsub.enable             =  false
+contsub.order              =  0
+contsub.threshold          =  2.0
+contsub.shift              =  4
+contsub.padding            =  3
+
+
+# Noise scaling
+
+scaleNoise.enable          =  false
+scaleNoise.mode            =  spectral
+scaleNoise.statistic       =  mad
+scaleNoise.fluxRange       =  negative
+scaleNoise.windowXY        =  25
+scaleNoise.windowZ         =  15
+scaleNoise.gridXY          =  0
+scaleNoise.gridZ           =  0
+scaleNoise.interpolate     =  false
+scaleNoise.scfind          =  false
+
+
+# Ripple filter
+
+rippleFilter.enable        =  false
+rippleFilter.statistic     =  median
+rippleFilter.windowXY      =  31
+rippleFilter.windowZ       =  15
+rippleFilter.gridXY        =  0
+rippleFilter.gridZ         =  0
+rippleFilter.interpolate   =  false
+
+
+# S+C finder
+
+scfind.enable              =  true
+scfind.kernelsXY           =  0, 3, 6
+scfind.kernelsZ            =  0, 3, 7, 15
+scfind.threshold           =  5.0
+scfind.replacement         =  2.0
+scfind.statistic           =  mad
+scfind.fluxRange           =  negative
+
+
+# Threshold finder
+
+threshold.enable           =  false
+threshold.threshold        =  5.0
+threshold.mode             =  relative
+threshold.statistic        =  mad
+threshold.fluxRange        =  negative
+
+
+# Linker
+
+linker.enable              =  true
+linker.radiusXY            =  1
+linker.radiusZ             =  1
+linker.minSizeXY           =  5
+linker.minSizeZ            =  5
+linker.maxSizeXY           =  0
+linker.maxSizeZ            =  0
+linker.minPixels           =  0
+linker.maxPixels           =  0
+linker.minFill             =  0.0
+linker.maxFill             =  0.0
+linker.positivity          =  false
+linker.keepNegative        =  false
+
+
+# Reliability
+
+reliability.enable         =  false
+reliability.parameters     =  peak, sum, mean
+reliability.threshold      =  0.9
+reliability.scaleKernel    =  0.4
+reliability.minSNR         =  3.0
+reliability.minPixels      =  0
+reliability.autoKernel     =  false
+reliability.iterations     =  30
+reliability.tolerance      =  0.05
+reliability.catalog        =  
+reliability.plot           =  true
+reliability.debug          =  false
+
+
+# Mask dilation
+
+dilation.enable            =  false
+dilation.iterationsXY      =  10
+dilation.iterationsZ       =  5
+dilation.threshold         =  0.001
+
+
+# Parameterisation
+
+parameter.enable           =  true
+parameter.wcs              =  true
+parameter.physical         =  false
+parameter.prefix           =  SoFiA
+parameter.offset           =  false
+
+
+# Output
+
+output.directory           =  
+output.filename            =  
+output.writeCatASCII       =  true
+output.writeCatXML         =  false
+output.writeCatSQL         =  false
+output.writeNoise          =  false
+output.writeFiltered       =  false
+output.writeMask           =  false
+output.writeMask2d         =  false
+output.writeRawMask        =  false
+output.writeMoments        =  false
+output.writeCubelets       =  false
+output.marginCubelets      =  10
+output.thresholdMom12      =  0.0
+output.overwrite           =  true

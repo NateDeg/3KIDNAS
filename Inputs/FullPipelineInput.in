@@ -1,0 +1,69 @@
+#	Name of the file containing data products
+/Users/nate/Dropbox/WALLABY/WALLABY_Hydra_DR1_May2020
+#	Name of the subfolder holding cubelets
+WALLABY_PS_Hya_DR1_source_products
+#	Name of the catalogue
+WALLABY_PS_Hya_DR1_catalog.xls
+#	Base name applied to all cubelets
+WALLABY_PS_Hya_DR1_
+#	Format of the catalogue — 1=ascii, 2= Use python script to make a catalogues
+2
+#	If the format =2, give the name of the python script
+PythonUtilityScripts/CataloguePreparation.py 
+#	The name of the fitting options file
+Inputs/FittingOptions.in
+
+
+
+
+#	Name of the file containing data products
+/Users/nate/Dropbox/WALLABY/WALLABY_Hydra_DR1_May2020
+#	Name of the subfolder holding cubelets
+WALLABY_PS_Hya_DR1_source_products
+#	Name of the catalogue
+WALLABY_PS_Hya_DR1_catalog.xls
+#	Base name applied to all cubelets
+WALLABY_PS_Hya_DR1_
+#	Format of the catalogue — 1=ascii, 2= Use python script to make a catalogues
+2
+#	If the format =2, give the name of the python script
+PythonUtilityScripts/CataloguePreparation.py 
+#	The name of the fitting options file
+Inputs/FittingOptions.in
+
+
+
+
+#	Name of the file containing data products
+/Users/nate/Dropbox/WALLABY/WALLABY_Hydra_DR1
+#	Name of the subfolder holding cubelets
+WALLABY_PS_Hya_DR1_source_products
+#	Name of the catalogue
+WALLABY_PS_Hya_DR1_catalog.xls
+#	Base name applied to all cubelets
+WALLABY_PS_Hya_DR1_
+#	Format of the catalogue — 1=ascii, 2= Use python script to make a catalogues
+2
+#	If the format =2, give the name of the python script
+PythonUtilityScripts/CataloguePreparation.py 
+#	The name of the fitting options file
+Inputs/FittingOptions.in
+
+
+
+#	Name of the file containing data products
+/Users/nate/Dropbox/KinematicPipeline_Fortran_Development/TestCube
+#	Name of the subfolder holding cubelets
+CubeletFolder
+#	Name of the catalogue
+SimpleTest_catalog.xlsx
+#	Base name applied to all cubelets
+SimpleTest_
+#	Format of the catalogue — 1=ascii, 2= Use python script to make a catalogues
+2
+#	If the format =2, give the name of the python script
+PythonUtilityScripts/CataloguePreparation.py 
+#	The name of the fitting options file
+Inputs/FittingOptions.in
+
+

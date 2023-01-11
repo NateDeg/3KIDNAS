@@ -1,0 +1,79 @@
+#	The code used for the fitting algorithm (1=internal, 2=3DBarolo)
+1
+#	The likelihood function to use (1=chi^2, 2=chi^2_log_elements, 3=LogChi2Calc)
+1
+#	The function for converting parameters into tilted ring models (1=GeneralizedParamVectorToTiltedRing, 2=SimpleFlatDiskParamToTiltedRing)
+1
+#	How to obtain the moment maps (0=Calculate the maps, 1=SoFiA maps, 2= Diff cube and mask)
+3
+#	If the map switch==2, read in the names of the Mom0, Mom1, Mom2, and profile map
+/Users/nate/Dropbox/GitProjects/21-cm-Emission/PSOFT14/MCGSuite/WALLABY_TestSuite_Check/ba_6.0.mass_8.5.inc_80.0.pa_0.0.veldisp_8.0.version_0/ba_6.0.mass_8.5.inc_80.0.pa_0.0.veldisp_8.0.version_0.fits
+/Users/nate/Dropbox/GitProjects/21-cm-Emission/PSOFT14/MCGSuite/WALLABY_TestSuite_Check/ba_6.0.mass_8.5.inc_80.0.pa_0.0.veldisp_8.0.version_0/ba_6.0.mass_8.5.inc_80.0.pa_0.0.veldisp_8.0.version_0_ConvolvedSourceCube.fits
+#	How to find the initial center estimate (0=EstimateCenter, 1=SoFiA input, 2=Center of cube)
+0
+#	How to find the initial shape estimate (0=EstimateShape, 1=SoFiA input)
+0
+#	How to find the initial size estimate (0=EstimateSize, 1=SoFiA input)
+0
+#	How to obtain VSys & Edges (0=Calculate from profile, 1=SoFiA input)
+0
+#	Fit the linear (0) or logarithmic (1) surface density
+0
+#	The cloud mode you are using
+0
+#	The base cloud surface density
+100.
+#	The number of sigma lengths for the beam
+3.5
+#	The number of rings/beam
+2
+#	X Center Fitting flags  (constant  — fixed)
+T	F
+#	Y Center Fitting flags  (constant  — fixed)
+T	F
+#	Inclination Fitting flags  (constant  — fixed)
+T	F
+#	Position Angle Fitting flags  (constant  — fixed)
+T	F
+#	Systemic Velocity Fitting flags  (constant  — fixed)
+T	F
+#	Rotation Velocity Fitting flags  (constant  — fixed)
+F	F
+#	Radial Velocity Fitting flags  (constant  — fixed)
+T	T
+#	Velocity Dispersion Fitting flags  (constant  — fixed)
+T	T
+#	Vertical Velocity Fitting flags  (constant  — fixed)
+T	T
+#	dvdz Fitting flags  (constant  — fixed)
+T	T
+#	Surface Density Fitting flags  (constant  — fixed)
+F	F
+#	Vertical Height Fitting flags  (constant  — fixed)
+T	T
+#	Vertical Gradient Start Fitting flags  (constant  — fixed)
+T	T
+
+
+
+#	If the map switch==2, read in the names of the Mom0, Mom1, Mom2, and profile map
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Hydra_DR2_VelocityCubes_Apr2021_New/WALLABY_PS_Hya_DR2_J100342-270137_cube_Vel.fits
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/WALLABY Hydra DR2/WALLABY_PS_Hya_DR2_source_products/WALLABY_J100342-270137_mask.fits.gz
+
+
+
+
+#	The function for converting parameters into tilted ring models (1=GeneralizedParamVectorToTiltedRing, 2=SimpleFlatDiskParamToTiltedRing)
+1
+#	How to obtain the moment maps (0=Calculate the maps, 1=SoFiA maps, 2= Diff cube and mask)
+3
+#	If the map switch==2, read in the names of the Mom0, Mom1, Mom2, and profile map
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Hydra_DR2_VelocityCubes_Apr2021_New/WALLABY_PS_Hya_DR2_J100342-270137_cube_Vel.fits
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/WALLABY Hydra DR2/WALLABY_PS_Hya_DR2_source_products/WALLABY_J100342-270137_mask.fits.gz
+#	How to find the initial center estimate (0=EstimateCenter, 1=SoFiA input, 2=Center of cube)
+
+
+
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Wallaby_Hydra_DR2_KinematicModels_TempTest_v2/WALLABY_J100342-270137_WithNoise/FullResolution/WALLABY_J100342-270137_FullRes_AverageModelCube_v2.fits
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Wallaby_Hydra_DR2_KinematicModels_TempTest_v2/WALLABY_J100342-270137/FullResolution/WALLABY_J100342-270137_FullRes_AverageModelCube_v2.fits
+0

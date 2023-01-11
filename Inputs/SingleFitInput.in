@@ -1,0 +1,117 @@
+#	Name of the fits file to be modelled
+/Users/nate/Dropbox/GitProjects/21-cm-Emission/PSOFT14/MCGSuite/WALLABY_TestSuite_Check/ba_6.0.mass_8.5.inc_80.0.pa_0.0.veldisp_8.0.version_0/ba_6.0.mass_8.5.inc_80.0.pa_0.0.veldisp_8.0.version_0.fits
+#	The name of the fitting options file
+Inputs/SingleGalaxyTestFittingOptions.in
+#	Using a mask switch (1=yes, 2=no,3=Use full cube)
+2
+#	If using a mask, the name of the mask (note always keep this line)
+#	Read in some catalogue values (0=no, 1=yes)
+0
+#	If reading in catalogue files the name of the catalogue file (always keep this line too)
+#	Get the value for the random seed
+-3
+#	Set the name of the output folder
+WALLABY_PixelOffSetCcheck/
+#	Set the name of the object
+ba_6.0.mass_8.5.inc_80.0.pa_0.0.veldisp_8.0.version_0
+#	Get the object noise (in Jy/beam)
+0.388067371611693
+
+
+
+
+
+#	Name of the fits file to be modelled
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Hydra_DR2_VelocityCubes_Apr2021_New/WALLABY_PS_Hya_DR2_J100342-270137_cube_Vel.fits
+#	The name of the fitting options file
+Inputs/SingleGalaxyTestFittingOptions.in
+#	Using a mask switch (1=yes, 2=no)
+1
+#	If using a mask, the name of the mask
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/WALLABY Hydra DR2/WALLABY_PS_Hya_DR2_source_products/WALLABY_J100342-270137_mask.fits.gz
+#	Get the value for the random seed
+-3
+#	Set the name of the output folder
+WALLABY_HydraTests/
+#	Set the name of the object
+WALLABY_J100342-270137
+#	Get the object noise (in Jy/beam)
+0.00388067371611693
+
+
+
+
+/Users/nate/Dropbox/WALLABY/DataReleases/Wallaby_NormaDR1V1_HydraDR2V2_KinematicModels/Wallaby_Hydra_DR2_KinematicModels_v2/WALLABY_J100342-270137/FullResolution/WALLABY_J100342-270137_FullRes_AverageModelCube_v2.fits
+
+
+#	Name of the fits file to be modelled
+/Users/nate/Dropbox/GitProjects/21-cm-Emission/PSOFT14/MCGSuite/MakeGalaxy_MGC_TestOutput/ba_5.5.mass_8.inc_45.0.pa_0.0.veldisp_8.0/ba_5.5.mass_8.inc_45.0.pa_0.0.veldisp_8.0.fits
+#	The name of the fitting options file
+Inputs/SingleGalaxyTestFittingOptions.in
+#	Using a mask switch (1=yes, 2=no)
+1
+#	If using a mask, the name of the mask
+/Users/nate/Dropbox/GitProjects/21-cm-Emission/PSOFT14/MCGSuite/MakeGalaxy_MGC_TestOutput/ba_5.5.mass_8.inc_45.0.pa_0.0.veldisp_8.0/ba_5.5.mass_8.inc_45.0.pa_0.0.veldisp_8.0_ConvolvedSourceCube.fits
+#	Get the value for the random seed
+-3
+#	Set the name of the output folder
+NoisyTestGalaxy_DetermineParams/
+
+
+
+#	Name of the fits file to be modelled
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Hydra_DR2_VelocityCubes_Apr2021_New/WALLABY_PS_Hya_DR2_J100342-270137_cube_Vel.fits
+#	The name of the fitting options file
+Inputs/SingleGalaxyTestFittingOptions.in
+#	Using a mask switch (1=yes, 2=no)
+1
+#	If using a mask, the name of the mask
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/WALLABY Hydra DR2/WALLABY_PS_Hya_DR2_source_products/WALLABY_J100342-270137_mask.fits.gz
+#	Get the value for the random seed
+-3
+#	Set the name of the output folder
+WALLABY_J100342-270137/
+
+
+
+#	Name of the fits file to be modelled
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Hydra_DR2_VelocityCubes_Apr2021_New/WALLABY_PS_Hya_DR2_J100903-290239_cube_Vel.fits
+#	The name of the fitting options file
+Inputs/SingleGalaxyTestFittingOptions.in
+#	Using a mask switch (1=yes, 2=no)
+1
+#	If using a mask, the name of the mask
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/WALLABY Hydra DR2/WALLABY_PS_Hya_DR2_source_products/WALLABY_J100903-290239_mask.fits.gz
+#	Get the value for the random seed
+-3
+#	Set the name of the output folder
+WALLABY_HydraTests/
+#	Set the name of the object
+WALLABY_J100903-290239
+#	Get the object noise (in Jy/beam)
+0.00416184385986935
+
+
+
+#	Name of the fits file to be modelled
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Hydra_DR2_VelocityCubes_Apr2021_New/WALLABY_PS_Hya_DR2_J100342-270137_cube_Vel.fits
+#	The name of the fitting options file
+Inputs/SingleGalaxyTestFittingOptions.in
+#	Using a mask switch (1=yes, 2=no)
+2
+#	If using a mask, the name of the mask (note always keep this line)
+#	Get the value for the random seed
+-3
+#	Set the name of the output folder
+WALLABY_HydraTests_New/
+#	Set the name of the object
+WALLABY_J100342-270137_4kms_2Beam_50Dens
+#	Get the object noise (in Jy/beam)
+0.00388067371611693
+
+
+
+/Users/nate/Dropbox/WALLABY/DataReleases/Wallaby_NormaDR1V1_HydraDR2V2_KinematicModels/Wallaby_Hydra_DR2_KinematicModels_v2/WALLABY_J100342-270137/FullResolution/WALLABY_J100342-270137_FullRes_AverageModelCube_v2.fits
+
+
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Wallaby_Hydra_DR2_KinematicModels_TempTest_v2/WALLABY_J100342-270137_WithNoise/FullResolution/WALLABY_J100342-270137_FullRes_AverageModelCube_v2.fits

@@ -1,0 +1,14 @@
+#    Base name for the output folder and all file names 
+MCGModelComp
+#    Minimal, Moderate, of Full Outputs (0,1, and 2 respectively)
+2 
+#    Name of the file containing the cube and beam definitions
+Inputs/MCGComp/TempMCG_DCHeader.in
+#    Name of the file containing the underlying ring model
+Inputs/MCGComp/TempMCG_TR.in
+#    Noise Unit Switch (0=mJy/beam)
+0 
+#    Noise Value
+1.6 
+#    Random Seed
+1 

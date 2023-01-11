@@ -1,0 +1,11 @@
+*.o
+*.out
+*.fits
+sofia
+unittest
+
+Analysis
+Docs
+
+html*
+.vscode

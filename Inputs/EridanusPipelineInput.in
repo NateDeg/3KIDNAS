@@ -1,0 +1,12 @@
+#	Name of the file containing all catalogue and cubelets
+Data
+#	Name of the catalogue
+EridanusCatTest.ascii
+#	Format of the catalogue — 1=ascii
+1
+#	Name of the folder containing the cubelets
+eridanus_cubelets
+#	Base name applied to all cubelets
+eridanus_sub
+#	The name of the fitting options file
+Inputs/FittingOptions.in

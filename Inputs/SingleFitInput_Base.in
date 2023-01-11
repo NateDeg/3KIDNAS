@@ -1,0 +1,18 @@
+#	Name of the fits file to be modelled
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Wallaby_Hydra_DR2_KinematicModels_TempTest_v2/TempModel_Noise10/TempModel_Noise10.fits
+#	The name of the fitting options file
+Inputs/SingleGalaxyTestFittingOptions.in
+#	Using a mask switch (1=yes, 2=no,3=Use full cube)
+2
+#	If using a mask, the name of the mask (note always keep this line)
+#	Read in some catalogue values (0=no, 1=yes)
+0
+#	If reading in catalogue files the name of the catalogue file (always keep this line too)
+#	Get the value for the random seed
+-3
+#	Set the name of the output folder
+WALLABY_NoiseTests/
+#	Set the name of the object
+WALLABY_J100342-270137_Noise10
+#	Get the object noise (in Jy/beam)
+0.388067371611693

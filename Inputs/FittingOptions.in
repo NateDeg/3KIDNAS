@@ -1,0 +1,50 @@
+#	The code used for the fitting algorithm (1=internal, 2=3DBarolo)
+1
+#	The likelihood function to use (1=chi^2, 2=chi^2_log_elements, 3=LogChi2Calc)
+1
+#	The function for converting parameters into tilted ring models (1=GeneralizedParamVectorToTiltedRing, 2=SimpleFlatDiskParamToTiltedRing)
+1
+#	How to find the initial center estimate (0=EstimateCenter, 1=SoFiA input, 2=Center of cube)
+0
+#	How to find the initial shape estimate (0=EstimateShape, 1=SoFiA input)
+1
+#	How to find the initial size estimate (0=EstimateSize, 1=SoFiA input)
+1
+#	How to obtain the moment maps (0=Calculate the maps, 1=SoFiA maps)
+1
+#	How to obtain VSys & Edges (0=Calculate from profile, 1=SoFiA input)
+1
+#	The cloud mode you are using
+0
+#	The base cloud surface density
+100.
+#	The number of sigma lengths for the beam
+3.5
+#	The number of rings/beam
+2
+#	X Center Fitting flags  (constant  — fixed)
+T	T
+#	Y Center Fitting flags  (constant  — fixed)
+T	T
+#	Inclination Fitting flags  (constant  — fixed)
+T	F
+#	Position Angle Fitting flags  (constant  — fixed)
+T	F
+#	Systemic Velocity Fitting flags  (constant  — fixed)
+T	T
+#	Rotation Velocity Fitting flags  (constant  — fixed)
+F	F
+#	Radial Velocity Fitting flags  (constant  — fixed)
+T	T
+#	Velocity Dispersion Fitting flags  (constant  — fixed)
+T	F
+#	Vertical Velocity Fitting flags  (constant  — fixed)
+T	T
+#	dvdz Fitting flags  (constant  — fixed)
+T	T
+#	Surface Density Fitting flags  (constant  — fixed)
+F	F
+#	Vertical Height Fitting flags  (constant  — fixed)
+T	T
+#	Vertical Gradient Start Fitting flags  (constant  — fixed)
+T	T

@@ -1,0 +1,19 @@
+#	Name of the input data cube
+/Users/nate/Dropbox/MockCubeGenerator_FourierMoments/MCGSuite/StronglyAsymmetric_Noise_1.6/ba_6.0.mass_9.5.inc_45.0.pa_0.0.veldisp_8.0.version_0/ba_6.0.mass_9.5.inc_45.0.pa_0.0.veldisp_8.0.version_0_ConvolvedSourceCube.fits 
+#	Name of the model data cube
+BaroloTrial/Asymmetric_BaroloTrial_FixedINC_FixedPA/TestCubemod_azim.fits
+
+
+
+
+#	Base Name of the outputs
+J103522-244506
+#	Folder for the Outputs
+J103522-244506_BootstrapSamples
+#	The number of samples to make
+100
+#	The noise to use for the samples
+0.0036864993287358105
+#	The random seed to use
+-1
+

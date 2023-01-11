@@ -1,0 +1,14 @@
+#		The format of the input file — 1=row, 2= column
+2
+#   Number of Rings in the model
+2	
+#	The cloud mode you are using
+0
+#	The base cloud surface density
+10.
+#	Central Position Switch (0=degrees, 1=arcsec), Inc/PA Unit switch (0=degrees, 1=arcsec), Velocity Units (0=m/s, 1=km/s), Brightness Units (0=Jy km/s arcsec^-2)
+0	0	1	0
+#	The parameters in each radial bin
+#	Rmid	Rwidth	Xcent		Ycent		Inc	PA	VSys		VRot	VRad	Vvert	VDisp	dvdz	Sigma		z0	zGradStart
+	15.	30.	277.67543	73.434828	55.912	84.987	4532.285	209.509	0.0	0.0	10.0	0.0	10.		1.000	5
+	45.	30.	277.67543	73.434828	54.975	81.398	4532.285	222.198	0.0	0.0	10.0	0.0	10.		1.000	5
