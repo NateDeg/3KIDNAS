@@ -3,11 +3,11 @@
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PARENT_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 
-LocModLoc=$(PARENT_DIR)/mods
-LocBinLoc=$(PARENT_DIR)/bin
+LocModLoc=$(ROOT_DIR)/mods
+LocBinLoc=$(ROOT_DIR)/bin
 
 
-#FitsLibLoc=/Users/nate/Downloads/cfitsio-4.0.0/libcfitsio.a
+
 FitsLibLoc=$(PARENT_DIR)/third_party/cfitsio/libcfitsio.a
 
 

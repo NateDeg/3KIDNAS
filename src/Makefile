@@ -24,7 +24,6 @@ LocalLib:
 	cd PreAnalysis; make;
 	cd PostAnalysis; make;
 	cd BootstrapSampler; make;
-	cd MPIRoutines; make;
 	cd ProgramMains; make;
 
 
@@ -52,7 +51,6 @@ clean:
 	cd CompareCubes; make clean;
 	cd GalaxyAnalysis; make clean;
 	cd Outputs; make clean;
-	cd MPIRoutines; make clean;
 	cd ProgramMains; make clean;
 
 

@@ -1,4 +1,4 @@
-mFlags=../src/makeflags 
+mFlags=../makeflags
 include $(mFlags)
 
 VPATH :=$(BinLoc)
@@ -23,7 +23,7 @@ SingleGalaxyFitter : SingleGalaxyFitTests.o
 
 
 install:
-	mv $(ProgramList) ../Programs
+	mv $(ProgramList) ../../Programs
 
 
 clean:
