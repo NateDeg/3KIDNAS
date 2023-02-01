@@ -24,11 +24,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       use ParameterVectorToTiltedRingMod
       implicit none
 
-  
-c      integer nProcessors,PID
-c      integer Primary
-c      parameter(Primary = 0)
-
       integer MaskSwitch,DataSwitch
       integer i
       character(100) TestMapName
