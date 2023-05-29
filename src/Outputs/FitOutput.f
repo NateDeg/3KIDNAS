@@ -49,16 +49,16 @@ c           Make a PSF convolved cube for the best fitting model
 c           Make a residual cube and output it
       call OutputResidualCube(OutputFolder,trim(CatItem%ObjName))
 c           Output the tilted ring parameters
-      call OutputTiltedRingParams(OutputFolder)
+c      call OutputTiltedRingParams(OutputFolder)
 
 c           Output the standard model output from  the proto pipeline
       call StandardModelOutput(OutputFolder,CatItem,2)
 
 c           Write out the model moment maps
-      call WriteModelMaps(OutputFolder,CatItem)
+c      call WriteModelMaps(OutputFolder,CatItem)
 
 c           Write out the model PV maps
-      call WritePVMaps(OutputFolder,CatItem)
+c      call WritePVMaps(OutputFolder,CatItem)
 
 c           Write out a file containing the set of fitting flags
       call WriteFlagFile(OutputFolder,CatItem)
@@ -78,11 +78,48 @@ c      print*, "Output initial Param",PVIni%Param(0:PVIni%nParams-1)
 c           Make a diagnostic plot
 c      call GenerateDiagnosticPlot()
 
+      call CorrectRADEC()
 
       return
       end subroutine
 ccccc
 
+
+ccccc
+      subroutine CorrectRADEC()
+      use PipelineGlobals
+      implicit none
+      integer i, j,len,indx
+      character(2000) PlotCmd
+      character(8) ValStr
+      character(500) CodePath,PythonPath
+      character(9) CodeDelim
+
+      write(ValStr,'(I4)') Version
+
+      call GetArg(0,CodePath)
+
+      CodeDelim="P"
+      indx = SCAN(trim(CodePath),CodeDelim,.True.)
+      PythonPath = CodePath(1:indx-2)
+     &          //"/src/PythonScripts/GeometryFix.py "
+
+
+      PlotCmd="python3.9 "//trim(PythonPath)//" "
+     &          //trim(GalaxyDict%OutputFolder)//" "
+     &          //trim(GalaxyDict%GalaxyName)//" "
+     &          //trim(ValStr)//" "
+
+      PlotCmd=trim(PlotCmd)//" "
+     &          //trim(GalaxyDict%DataCubeFile)//" "
+
+
+      print*, trim(PlotCmd)
+      call system(trim(PlotCmd))
+
+      return
+      end subroutine
+ccccc
 
 ccccc
 c
