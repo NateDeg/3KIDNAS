@@ -110,7 +110,7 @@ c               maps.  When using secondary cubes/masks, this is done in the pre
      &                  ,Incl,PA,RMax
      &                  ,EstimatedProfiles,EstimatedRadialProfiles
      &                  ,VSys,TR_FittingOptions,nRings
-     &                  ,LinSDLims,VRotLims
+     &                  ,LinSDLims,VRotLims,NoiseSigmaLim
      &                  )!/src/PreAnalysis/EstimateRadialProfiles.f
 c       Get an estimate of the initial velocity dispersion
       call EstimateFlatVDisp(VDisp)

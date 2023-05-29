@@ -22,7 +22,7 @@ ccccc
      &              ,incl,PA,Size
      &              ,EstimatedProfile,RadialProfile
      &              ,VSys,FittingOptions,nRings
-     &              ,SDLims,VLims)
+     &              ,SDLims,VLims,NoiseFrac)
       implicit none
       Type(DataCube),INTENT(IN) :: Maps
       Type(Beam2D),INTENT(IN) :: BEAM
@@ -32,6 +32,7 @@ ccccc
       Type(TiltedRingFittingOptions) FittingOptions
       integer,intent(INOUT) :: nRings
       real,INTENT(IN) :: SDLims(2),VLims(2)
+      real,INTENT(IN) :: NoiseFrac
 
 
 
@@ -42,12 +43,14 @@ ccccc
       real,ALLOCATABLE,INTENT(INOUT) :: EstimatedProfile(:,:)
       real,ALLOCATABLE,INTENT(INOUT) :: RadialProfile(:,:)
       real,ALLOCATABLE :: TempRadialProfile(:,:)
+      real,ALLOCATABLE :: ProjectedProfile(:,:)
       real Avg(2),t1,t2
 
       integer,ALLOCATABLE :: ModelerableRingSwitch(:)
+      integer,ALLOCATABLE :: RadialProfileModelSwitch(:)
 
       real RTest
-      real Noise_SDLim,NoiseFrac
+      real Noise_SDLim
 
       real LeadingVelProfile
 
@@ -58,8 +61,8 @@ ccccc
 
       real RCorr,dR
       integer RIndx
-      real SDL(2),SDH(2)
-      real,ALLOCATABLE :: SDCorr(:)
+      real SDL(2),SDH(2),RCL(2),RCH(2)
+      real,ALLOCATABLE :: SDCorr(:),RCCorr(:)
 
 cccc
 
@@ -71,14 +74,7 @@ c
       RTest=sqrt(RTest)/2.
       RTest=RTest/Beam%BeamMajorAxis
       nRings=int(RTest*FittingOptions%nRingsPerBeam)+1
-
-      if(FittingOptions%nTargRings .eq. -1) then
-        nRings=int(RTest*FittingOptions%nRingsPerBeam)+1
-      else
-        nRings=FittingOptions%nTargRings
-      endif
-
-c      nRings=20
+c
       nRingsMax=nRings
       print*, "Map shape", Maps%DH%nPixels(0),Maps%DH%nPixels(1),RTest
 
@@ -87,13 +83,11 @@ c      nRings=20
       print*, "Estimating shape check", PA*180./Pi, incl*180./Pi
      &                  ,VSys, Center
 
-c       Set the local nRings to that given in the fitting options
-c      nRings=FittingOptions%nRings
-      print*, 'nBeam', nRings
 c       Allocate the full profile --- due to the inclusion of zero, there is a plus one in the allocation
       ALLOCATE(EstimatedProfile(0:2,-nRings+1:nRings))
 c       Allocate the radial profile arrays
       ALLOCATE(TempRadialProfile(0:2,0:nRings-1))
+      ALLOCATE(ProjectedProfile(0:2,0:nRings-1))
 c       Allocate the number ring switch array
       ALLOCATE(ModelerableRingSwitch(0:nRings-1))
 
@@ -103,190 +97,60 @@ c       Estimate the profiles by slicing across the moment maps
      &              ,incl,PA,Size, nRings
      &              ,EstimatedProfile
      &              ,FittingOptions%nRingsPerBeam)
-
-c       By definition the profile should go from low to high velocity.  If
-c           that's not true, adjust the position angle
-
-
-
-c       Now average everything the profile together for all rings
-c
-      NoiseFrac=1.
+c       Now build the initial profiles by averaging the sliced profile
+        call BuildIniProfile(nRings, VSys,Incl
+     &              ,ModelerableRingSwitch
+     &              ,EstimatedProfile
+     &              ,TempRadialProfile
+     &              ,ProjectedProfile)
+c       Next go through the initial profiles and decide whether each ring can be modelled
+c           Start by setting the noise limit
       Noise_SDLim=NoiseFrac*Maps%DH%Uncertainty*abs(Maps%DH%ChannelSize)
-      
-
-
-      print*, "Channelsize",abs(Maps%DH%ChannelSize)
-     &          ,NoiseFrac,Maps%DH%Uncertainty
-     &          ,Noise_SDLim, SDLims
-      do i=1,nRings
-c           Assume that the ring is fine
-        ModelerableRingSwitch(i-1)=1
-
-        j=-i+1
-c           Get the absolute difference from Vsys
-        t1=abs(EstimatedProfile(2,i)-VSys)
-        t2=abs(EstimatedProfile(2,j)-VSys)
-c        print*, "Rot check", t1, t2, VSys
-c           It's possible that one of the bins might end up empty due to holes and other issues
-c               In that case set the velocity difference to the paired value
-        if(EstimatedProfile(2,i) .le. 0) t1=t2
-        if(EstimatedProfile(2,j) .le. 0) t2=t1
-
-c       Now average the velocity terms together
-        Avg(2)=(t1+t2)/2.
-c           Next average the surface density terms together
-        Avg(1)=(EstimatedProfile(1,i)+EstimatedProfile(1,j))/2.
-c           Place the averages into the radial profile structure
-        TempRadialProfile(0,i-1)=abs(EstimatedProfile(0,j))
-c       For the surface density, normalize by the cosine
-        TempRadialProfile(1,i-1)=Avg(1)*cos(Incl)
-c           For the velocity, normalize by the inclination to get a better guess
-        TempRadialProfile(2,i-1)=Avg(2)/sin(Incl)
-
-
-        print*, "SD consistency checks", i, Avg(1)
-     &              ,EstimatedProfile(1,i),EstimatedProfile(1,j)
-        print*,"Estimated Radial Profile", i,TempRadialProfile(0:2,i-1)
-     &          ,VSys
-     *          ,Noise_SDLim
-c       Do a check to see if the are problems with the ring
-c           First check on negative SDs
-        if (TempRadialProfile(1,i-1).le. 0.) then
-c            print*, "negative SD value", i, TempRadialProfile(0:2,i-1)
-            ModelerableRingSwitch(i-1) = 0
-        endif
-c           Do a second check for NaN's
-        if (TempRadialProfile(1,i-1).ne. TempRadialProfile(1,i-1)) then
-c            print*, "NaN SD value", i, TempRadialProfile(0:2,i-1)
-            ModelerableRingSwitch(i-1) = 0
-        endif
-c           Next check that the SD value isn't below the limit implied by the noise level
-        if (TempRadialProfile(1,i-1) .le. Noise_SDLim) then
-            print*, "SD initial estimate below noise"
-     &          ,i, TempRadialProfile(1,i-1),Noise_SDLim
-            ModelerableRingSwitch(i-1) = 0
-        endif
-
-c           Do a third check for low and high SD values (and replace them with the limits)
-        if (TempRadialProfile(1,i-1) .le. SDLims(1)) then
-            print*, "Low SD initial estimate"
-     &                  ,TempRadialProfile(1,i-1),SDLims(1)
-            TempRadialProfile(1,i-1)=SDLims(1)
-            ModelerableRingSwitch(i-1) = 0      !TEMPORARY FOR TESTING PURPOSES
-        endif
-        if (TempRadialProfile(1,i-1) .ge. SDLims(2)) then
-            print*, "High SD initial estimate"
-            TempRadialProfile(1,i-1)=SDLims(2)
-        endif
-c           Do the same check for the rotation velocity
-        if (TempRadialProfile(2,i-1) .le. VLims(1)) then
-            print*, "Low rotation velocity initial estimate"
-            TempRadialProfile(2,i-1)=VLims(1)
-        endif
-        if (TempRadialProfile(2,i-1) .ge. VLims(2)) then
-            print*, "High VRot initial estimate"
-            TempRadialProfile(2,i-1)=VLims(2)
-        endif
-
+c       Now go through everything on a point by point basis
+      do i=1, nRings
+        call CheckProfilePointModelability(SDLims
+     &              ,VLims,Noise_SDLim
+     &              ,TempRadialProfile(0:2,i-1)
+     &              ,ProjectedProfile(0:2,i-1)
+     &              ,ModelerableRingSwitch(i-1))
       enddo
+c       Now it's necessary to figure out the number of rings to model
 
-
-      print*, "Total modelerable rings", nRings
+      print*, "Total potentially modelable rings", nRings
+c       When not using an input profile, use the modelable switch
       if(FittingOptions%nTargRings .eq. -1) then
         nRings=sum(ModelerableRingSwitch)
+c       Otherwise use the number of input rings
       else
         nRings=FittingOptions%nTargRings
       endif
-      print*, "Recalculated number of rings", nRings,nRingsMax
+      print*, "Total modelable number of rings", nRings,nRingsMax
+c       Allocate the radial profiles
       ALLOCATE(RadialProfile(0:2,0:nRings-1))
+      ALLOCATE(RadialProfileModelSwitch(0:nRings-1))
 c       Assign the 'successful' radial profile estimates to the profile array
-      j=0
-      do i=0,nRingsMax-1
-        if(ModelerableRingSwitch(i) .eq. 1) then
-            RadialProfile(0:2,j)=TempRadialProfile(0:2,i)
-            j=j+1
-        endif
-      enddo
+c           If the code is automatically assigning the rings, just go through the main loop and use the modelerable ring switch
+      call AssignProfile(nRings,nRingsMax
+     &              ,FittingOptions
+     &              ,RadialProfile,TempRadialProfile
+     &              ,ModelerableRingSwitch
+     &              ,RadialProfileModelSwitch,Maps)
+c       When using a pre-defined grid, it's possible that a ring might be empty that needs an initial estimate as it may have been selected as not modelable
 
 c       Now fill in all the ring values
+      call FillInMisingRings(nRings
+     &          ,RadialProfile
+     &          ,RadialProfileModelSwitch)
 
-      do i=0, nRings-1
-        print*, "Radial profiles before",i,RadialProfile(0:2,i)
-c           Check if we have a value for the ring -- if not, then we'll fill it in
-        if(ModelerableRingSwitch(i) .eq. 0) then
-c           Now check if we are the first ring
-            if(i .eq. 0) then
-c           For this ring loop to the right
-                do k=i, nRings-1
-                    if(ModelerableRingSwitch(k) .eq. 1) then
-                        RadialProfile(1:2,i)=TempRadialProfile(1:2,k)
-                        RadialProfile(0,i)=TempRadialProfile(0,i)
-                        exit
-                    endif
-                enddo
-c           If there is no ring with a viable value is found, then there is no point in running the fit, so we'll stop here
-                print*, "No ring with an acceptable"
-     &                  //" surface density found"
-                stop
-c           After the first ring is done, there must be at least one value to the left of the empty ring.  We'll use that value for the current ring
-            else
-                do k=i,0,-1
-                    if(ModelerableRingSwitch(k) .eq. 1) then
-                        RadialProfile(1:2,i)=TempRadialProfile(1:2,k)
-                        RadialProfile(0,i)=TempRadialProfile(0,i)
-                        exit
-                    endif
-                enddo
-            endif
-        endif
-c       Add a print out here to check if the profiles make sense
-        print*, "Radial profiles after",i,RadialProfile(0:2,i)
-      enddo
+c       The next step is to do beam corrections
+      call BeamCorrectProfile(nRings
+     &      ,RadialProfile
+     &      ,Beam
+     &      ,SDLims,VLims)
 
 
-c       Only do corrections if there are more than one ring
-      if (nRings .ge. 2) then
-        ALLOCATE(SDCorr(0:nRings-1))
-c       Now try to correct the radial profile for the beam
-        dR=RadialProfile(0,1)-RadialProfile(0,0)
-      do i=0,nRings-1
-        print*, i, RadialProfile(0,i), RadialProfile(1,i)
-     &              , RadialProfile(2,i)
-        k=2
-c           Get the corrected radius....note that this may need some adjustment in the innermost region
-100     RCorr=RadialProfile(0,i)**2.-(Beam%BeamMajorAxis/k)**2.
-        if (RCorr .lt. 0.) then
-            k=k+1
-            goto 100
-        endif
-c        print*, RCorr,sqrt(RCorr),Beam%BeamMajorAxis,dR
-        RCorr=sqrt(RCorr)
-c           Get the index for the corrected radius
-
-        RIndx=(RCorr-RadialProfile(0,0))/dR
-        if(RIndx .eq. nRings-1) then
-            RIndx=RIndx-1
-        endif
-        SDL(1)=RadialProfile(0,RIndx)
-        SDL(2)=RadialProfile(1,RIndx)
-        SDH(1)=RadialProfile(0,RIndx+1)
-        SDH(2)=RadialProfile(1,RIndx+1)
-        call SimpleInterpolateY(SDL,SDH,RCorr,SDCorr(i))
-        print*, i, RadialProfile(0,i),RCorr,RadialProfile(1,i),SDCorr(i)
-
-      enddo
-        RadialProfile(1,0:nRings-1)=SDCorr(0:nRings-1)
-        DEALLOCATE(SDCorr)
-      endif
-
-
-c
-c      print*, "Position angle checkish",EstimatedProfile(2,nRings-1)
-c      print*, "sum again",sum(EstimatedProfile(2,-nRings+1:0)-VSys)
+c       Finally do a check on the profile to make sure that we have the PA in the right direction
       LeadingVelProfile=sum(EstimatedProfile(2,1:nRings)-VSys)
-
-
 
       print*, "PA Ini",PA
       if(LeadingVelProfile .le. 0.) then
@@ -296,52 +160,11 @@ c      print*, "sum again",sum(EstimatedProfile(2,-nRings+1:0)-VSys)
       endif
       print*, "Final PA Check", PA
 
-c           TEMPORARY -- TRY AVERAGING THE RC AND SD PROFILES
-c      if(nRings .gt. 3) then
-c        AvgSD=sum(RadialProfile(1,3:nRings-1))/(nRings-3)
-c        AvgRC=sum(RadialProfile(2,3:nRings-1))/(nRings-3)
-c        AvgR=sum(RadialProfile(0,3:nRings-1))/(nRings-3)
-c
-c        LastPoint=0
-c100     continue
-c        nUse=nRings-3-LastPoint
-c        print*, "N Rings Used", nUse
-c        if(nUse .gt. 1) then
-c            LastPoint=LastPoint+1
-c            print*, "Number use", nUse
-c            sumX=sum(RadialProfile(0,3:nRings-LastPoint))
-c            sumY=sum(RadialProfile(2,3:nRings-LastPoint))
-c            sumX2=sum(RadialProfile(0,3:nRings-LastPoint)**2.)
-c            sumXY=sum(RadialProfile(0,3:nRings-LastPoint)
-c     &                    *RadialProfile(2,3:nRings-LastPoint))
-c            print*, sumX,sumY,sumX2,sumXY
-c            b=(sumXY-sumX*sumY/nUse)/(sumX2-sumX**2./nUse)
-c            a=AvgRC-b*AvgR
-c            print*, "Intercept And Slope",a, b
-c            if( a .lt. 0.) goto 100
-c            if(a .gt. VLims(2)) goto 100
-c        else
-c            a=RadialProfile(2,3)
-c            b=0.
-c        endif
-c      else
-c        print*, "nrings is", nrings
-c        a=RadialProfile(2,nRings-1)
-c        b=0
-c      endif
 
-c      j=0
-c      do i=0,2
-c        if(ModelerableRingSwitch(i) .eq. 1) then
-c            RadialProfile(1,j)=(AvgSD+RadialProfile(1,j))/2.
-c            RadialProfile(2,j)=(AvgRC+RadialProfile(2,j))/2.
-c            RadialProfile(2,j)=a+b*RadialProfile(0,j)
-c            j=j+1
-c        endif
-c      enddo
-
-c       Finally deallocate the temporary radial profile
+c       And deallocate the temporary profiles
       DEALLOCATE(TempRadialProfile)
+      DEALLOCATE(ModelerableRingSwitch)
+      DEALLOCATE(RadialProfileModelSwitch)
 
       return
       end subroutine
@@ -449,6 +272,324 @@ c        print*, "pre average", i,AvgQuantities(0:2,i),nBin(i)
       end subroutine
 ccccccc
 
+
+cccc
+      subroutine AssignProfile(nRings,nRingsMax
+     &              ,FittingOptions
+     &              ,RadialProfile,TempRadialProfile
+     &              ,ModelerableRingSwitch
+     &              ,RadialProfileModelSwitch
+     &              ,Maps)
+      use PipelineGlobals
+      implicit none
+      integer,INTENT(IN) :: nRings, nRingsMax
+      Type(TiltedRingFittingOptions),INTENT(IN):: FittingOptions
+      real,INTENT(IN) :: TempRadialProfile(0:2,0:nRingsMax-1)
+      real,INTENT(INOUT) :: RadialProfile(0:2,0:nRings-1)
+      integer,INTENT(IN) :: ModelerableRingSwitch(0:nRingsMax-1)
+      integer, INTENT(INOUT) :: RadialProfileModelSwitch(0:nRings-1)
+      Type(DataCube),INTENT(IN) :: Maps
+
+      integer i,j
+      real PixSize
+
+
+c       Assign the 'successful' radial profile estimates to the profile array
+c           If using a supplied grid, adjust for arcsec's to pixels
+      if(FittingOptions%nTargRings .ge. 1) then
+        PixSize=abs(Maps%DH%PixelSize(0))
+        RadGrid=RadGrid/PixSize
+      endif
+c           If the code is automatically assigning the rings, just go through the main loop and use the modelerable ring switch
+      j=0
+      do i=0,nRingsMax-1
+        if(FittingOptions%nTargRings .eq. -1) then
+c           Without a grid, check on the whether the ring is modelable
+            if(ModelerableRingSwitch(i) .eq. 1) then
+                RadialProfile(0:2,j)=TempRadialProfile(0:2,i)
+                RadialProfileModelSwitch(j)=ModelerableRingSwitch(i)
+                j=j+1
+            endif
+        else
+c           With a grid, check that the radius matches
+            if( abs(TempRadialProfile(0,i)
+     &             - RadGrid(j+1)) .lt. 0.01) then
+                RadialProfile(0:2,j)=TempRadialProfile(0:2,i)
+                RadialProfileModelSwitch(j)=ModelerableRingSwitch(i)
+                j=j+1
+            endif
+        endif
+
+        print*, "Profile assigned", i,j-1
+     &                  ,RadialProfile(0:2,j-1)
+     &                  ,TempRadialProfile(0:2,i)
+     &                  ,ModelerableRingSwitch(i)
+     &                  ,RadialProfileModelSwitch(j-1)
+c        When at the end of assigning the profile, end the loop
+        if(j .eq. nRings) return
+      enddo
+
+
+
+      return
+      end subroutine
+ccccc
+
+
+ccccc
+c
+      subroutine BuildIniProfile(nRings, VSys,Incl
+     &              ,ModelerableRingSwitch
+     &              ,EstimatedProfile
+     &              ,RadialProfile
+     &              ,ProjectedProfile)
+      implicit none
+      integer, INTENT(IN) :: nRings
+      integer, INTENT(INOUT) :: ModelerableRingSwitch(0:nRings-1)
+      real, INTENT(IN) :: VSys,Incl
+      real, INTENT(IN) :: EstimatedProfile(0:2,-nRings+1:nRings)
+      real, INTENT(INOUT) :: RadialProfile(0:2,0:nRings-1)
+      real, INTENT(INOUT) :: ProjectedProfile(0:2,0:nRings-1)
+
+      real InclU
+
+      integer i, j
+      real t1,t2
+
+      if(Incl .gt. 70./180.*Pi) then
+        InclU=70./180.*Pi
+      else
+        InclU=Incl
+      endif
+
+      do i=1,nRings
+c           Assume that the ring is fine
+        ModelerableRingSwitch(i-1)=1
+
+        j=-i+1
+c           Get the absolute difference from Vsys
+          t1=abs(EstimatedProfile(2,i)-VSys)
+          t2=abs(EstimatedProfile(2,j)-VSys)
+c           It's possible that one of the bins might end up empty due to holes and other issues
+c               In that case set the velocity difference to the paired value
+        if(EstimatedProfile(2,i) .le. 0) t1=t2
+        if(EstimatedProfile(2,j) .le. 0) t2=t1
+
+c       Now average the velocity terms together
+        ProjectedProfile(2,i-1)=(t1+t2)/2.
+c           Next average the surface density terms together
+        ProjectedProfile(1,i-1)=(EstimatedProfile(1,i)
+     &              +EstimatedProfile(1,j))/2.
+c           Place the averages into the radial profile structure
+        RadialProfile(0,i-1)=abs(EstimatedProfile(0,j))
+c       For the surface density, normalize by the cosine
+        RadialProfile(1,i-1)=ProjectedProfile(1,i-1)*cos(InclU)
+c           For the velocity, normalize by the inclination to get a better guess
+        RadialProfile(2,i-1)=ProjectedProfile(2,i-1)/sin(Incl)
+      enddo
+
+      return
+      end subroutine
+ccccccc
+
+
+cccccc
+      subroutine CheckProfilePointModelability(SDLims
+     &              ,VLims,Noise_SDLim
+     &              ,ProfilePt,ProjectedProfilePt
+     &              ,ModelSwitch)
+
+      implicit none
+      real,INTENT(IN):: SDLims(2), VLims(2),Noise_SDLim
+      real,INTENT(INOUT):: ProfilePt(0:2),ProjectedProfilePt(0:2)
+      integer,INTENT(INOUT):: ModelSwitch
+
+
+c               A SET OF PRINT OUTS FOR CHECKING THINGS
+      print*,"Estimated Radial Profile", ProfilePt(0:2)
+     *          ,ProjectedProfilePt(1),Noise_SDLim
+
+c       Do a check to see if the are problems with the ring
+c           First check on negative SDs
+      if (ProfilePt(1).le. 0.) then
+c            print*, "negative SD value", i, TempRadialProfile(0:2,i-1)
+            ModelSwitch = 0
+      endif
+c           Do a second check for NaN's
+      if (ProfilePt(1).ne. ProfilePt(1)) then
+c            print*, "NaN SD value", i, TempRadialProfile(0:2,i-1)
+            ModelSwitch = 0
+      endif
+c           Next check that the SD value isn't below the limit implied by the noise level -- note that here we use the non-inclination corrected profile
+      if (ProjectedProfilePt(1) .le. Noise_SDLim) then
+c            print*, "SD initial estimate below noise"
+c     &          ,i, TempRadialProfile(1,i-1),Noise_SDLim,Avg(1)
+            ModelSwitch = 0
+      endif
+
+c           Do a third check for low and high SD values (and replace them with the limits)
+c      if (ProfilePt(1) .le. SDLims(1)) then
+cc      if (ProjectedProfilePt(1) .le. SDLims(1)) then
+c        print*, "Low SD initial estimate"
+c     &                  ,ProfilePt(0:2),SDLims(1)
+c        ProfilePt(1)=SDLims(1)
+c        ModelSwitch = 0      !TEMPORARY FOR TESTING PURPOSES
+c      endif
+      if (ProfilePt(1) .ge. SDLims(2)) then
+        print*, "High SD initial estimate"
+        ProfilePt(1)=SDLims(2)
+      endif
+c           Do the same check for the rotation velocity
+      if (ProfilePt(2) .le. VLims(1)) then
+        print*, "Low rotation velocity initial estimate"
+        ProfilePt(2)=VLims(1)
+      endif
+      if (ProfilePt(2) .ge. VLims(2)) then
+        print*, "High VRot initial estimate"
+        ProfilePt(2)=VLims(2)
+      endif
+      return
+      end subroutine
+ccccc
+
+cccc
+c
+      subroutine FillInMisingRings(nRings
+     &          , RadialProfile
+     &          , ModelerableRingSwitch)
+      implicit none
+      integer, INTENT(IN) :: nRings
+      real,INTENT(INOUT) :: RadialProfile(0:2,0:nRings-1)
+      integer,INTENT(IN) :: ModelerableRingSwitch(0:nRings-1)
+
+      integer i,j,k
+
+      do i=0, nRings-1
+        print*, "Radial profiles before",i,RadialProfile(0:2,i)
+     &              ,ModelerableRingSwitch(i)
+c           Check if we have a value for the ring -- if not, then we'll fill it in
+        if(ModelerableRingSwitch(i) .eq. 0) then
+c           Now check if we are the first ring
+            if(i .eq. 0) then
+c           For this ring loop to the right
+                do k=i, nRings-1
+                    if(ModelerableRingSwitch(k) .eq. 1) then
+                        print*, "Fill in ring by", i,k
+     &                      ,RadialProfile(0,i)
+     &                      ,RadialProfile(1:2,k)
+                        RadialProfile(1:2,i)=RadialProfile(1:2,k)
+                        exit
+                    endif
+                enddo
+c           If there is no ring with a viable value is found, then there is no point in running the fit, so we'll stop here
+                print*, "No ring with an acceptable"
+     &                  //" surface density found"
+                stop
+c           After the first ring is done, there must be at least one value to the left of the empty ring.  We'll use that value for the current ring
+        else
+                do k=i,0,-1
+                    if(ModelerableRingSwitch(k) .eq. 1) then
+                        RadialProfile(1:2,i)=RadialProfile(1:2,k)
+                        exit
+                    endif
+                enddo
+            endif
+        endif
+c       Add a print out here to check if the profiles make sense
+      print*, "Radial profiles after",i,RadialProfile(0:2,i)
+      enddo
+
+
+      return
+      end subroutine
+cccccc
+
+ccccccc
+      subroutine BeamCorrectProfile(nRings
+     &      ,RadialProfile
+     &      ,Beam
+     &      ,SDLims,VLims)
+      implicit none
+      integer, INTENT(IN) :: nRings
+      real,INTENT(INOUT) :: RadialProfile(0:2,0:nRings-1)
+      Type(Beam2D),INTENT(IN) :: BEAM
+      real,INTENT(IN):: SDLims(2), VLims(2)
+
+      real,ALLOCATABLE :: SDCorr(:),RCCorr(:)
+      real dR,RCorr
+      integer i,k,RIndx
+      real SDL(2),SDH(2),RCL(2),RCH(2)
+
+      print*, "Beam Corr", shape(RadialProfile)
+c
+c       Only do corrections if there are more than one ring
+      if (nRings .lt. 2) return
+c
+      ALLOCATE(SDCorr(0:nRings-1))
+      ALLOCATE(RCCorr(0:nRings-1))
+c       Now try to correct the radial profile for the beam
+      dR=RadialProfile(0,1)-RadialProfile(0,0)
+c       It is necessary to start RIndx at 0 and then add from there
+      do i=0,nRings-1
+        print*, i, RadialProfile(0,i), RadialProfile(1,i)
+     &              , RadialProfile(2,i)
+        k=2
+c           Get the corrected radius....note that this may need some adjustment in the innermost region
+100     RCorr=RadialProfile(0,i)**2.-(Beam%BeamMajorAxis/k)**2.
+        if (RCorr .lt. 0.) then
+            k=k+1
+            goto 100
+        endif
+c        print*, RCorr,sqrt(RCorr),Beam%BeamMajorAxis,dR
+        RCorr=sqrt(RCorr)
+c           Get the index for the corrected radius
+c               Do this by slowly increasing RIndx
+ 200    continue
+        if (RCorr .gt. RadialProfile(0,RIndx)) then
+            RIndx=RIndx+1
+            goto 200
+        endif
+
+c        RIndx=(RCorr-RadialProfile(0,0))/dR
+        if(RIndx .eq. nRings-1) then
+            RIndx=RIndx-1
+        endif
+        SDL(1)=RadialProfile(0,RIndx)
+        SDL(2)=RadialProfile(1,RIndx)
+        SDH(1)=RadialProfile(0,RIndx+1)
+        SDH(2)=RadialProfile(1,RIndx+1)
+        call SimpleInterpolateY(SDL,SDH,RCorr,SDCorr(i))
+
+        RCL(1)=RadialProfile(0,RIndx)
+        RCL(2)=RadialProfile(2,RIndx)
+        RCH(1)=RadialProfile(0,RIndx+1)
+        RCH(2)=RadialProfile(2,RIndx+1)
+        call SimpleInterpolateY(RCL,RCH,RCorr,RCCorr(i))
+
+        if(RCCorr(i) .gt. VLims(2)) then
+            RCCorr(i)=VLims(2)
+        elseif(RCCorr(i) .lt. VLims(1)) then
+            RCCorr(i)=VLims(1)
+        endif
+
+        if(SDCorr(i) .gt. SDLims(2)) then
+            SDCorr(i)=SDLims(2)
+        elseif(SDCorr(i) .lt. SDLims(1)) then
+            SDCorr(i)=SDLims(1)
+        endif
+
+c        print*, i, RadialProfile(0,i),RCorr,RadialProfile(1,i),SDCorr(i)
+c     &          ,RadialProfile(2,i),RCCorr(i)
+
+      enddo
+      RadialProfile(1,0:nRings-1)=SDCorr(0:nRings-1)
+      RadialProfile(2,0:nRings-1)=RCCorr(0:nRings-1)
+      DEALLOCATE(SDCorr)
+      DEALLOCATE(RCCorr)
+
+      return
+      end subroutine
+ccccc
 
 
       end module
