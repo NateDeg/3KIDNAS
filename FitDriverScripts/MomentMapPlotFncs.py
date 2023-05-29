@@ -4,6 +4,8 @@ from astropy.io import fits
 from astropy import units as u
 from astropy import wcs
 import copy as copy
+from astropy.visualization.wcsaxes import SphericalCircle
+
 
 import matplotlib
 import matplotlib.cm as cm
@@ -12,6 +14,12 @@ from matplotlib.ticker import MultipleLocator, FormatStrFormatter,MaxNLocator,Nu
 
 from matplotlib.patches import Ellipse
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+
+import third_party.CosmosCanvas
+import third_party.CosmosCanvas.velmap as vmap
+from third_party.colourspace import maps
+
 
 """
     This module contains a number of plotting functions that are useful for both diagnostic and average model plots.  This module contains routines focused on making moment maps.  It contains the routines:
@@ -26,6 +34,121 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
     DetermineExtent --> This function determines the extent for a moment map.
     FormatMomMap --> This function formats and cleans up the moment map panels.
 """
+
+def MakeAllMomentMapPlots(fig,Model,DataCube,ModelCube,PltOpts,GalaxyDict,GeneralDict):
+    print("Making Moment Map Plots")
+    #   Start by making moment maps for the model and data cube
+    for i in range(2):
+        if i==0:
+            CUse=DataCube
+            MSwitch=1
+        elif i==1:
+            CUse=ModelCube
+            MSwitch=0
+        CUse=QuickMaskCube(CUse,GalaxyDict)
+        CUse['Mom0'],CUse['Mom1']=MakeAllMomMaps(CUse,MSwitch)
+        
+    #   We'll also need a grid of X and Y for the making the maps
+    XX,YY=MakeGrid(DataCube)
+
+    #   Now we'll need to set up the dimensions for the moment maps
+    Size=np.shape(DataCube['Mom0'])
+    PltOpts['hU']=Size[0]/Size[1]*PltOpts['w']
+    PltOpts['base']=PltOpts['base']-(PltOpts['hU']+PltOpts['hbuf'])
+    PltOpts['lU']=PltOpts['left']
+    #   Now we can make the Mom0 panel
+    MakeMomPanel(fig,Model,DataCube,ModelCube,PltOpts,0,XX,YY)
+    
+    #   We can also make the Moment 1 panel
+    PltOpts['lU']=PltOpts['left']+PltOpts['buf']+PltOpts['w']
+    MakeMomPanel(fig,Model,DataCube,ModelCube,PltOpts,1,XX,YY)
+
+def MakeMomPanel(fig,Model,DataCube,ModelCube,PltOpts,Moment,XX,YY):
+    #   Here we'll start with making the canvas
+    placement=[PltOpts['lU'],PltOpts['base'],PltOpts['w'],PltOpts['hU']]
+    #           Use the astropy WCS projection for the panel
+    ax=fig.add_axes(placement,projection=DataCube['CubeWCS'],slices=('x', 'y', 0))
+    #       We'll also make the axis for the colorbar
+    placement=[PltOpts['lU'],PltOpts['base']+PltOpts['hU'],PltOpts['w'],PltOpts['cW']]
+    cax=fig.add_axes(placement)
+    #   Now we'll want to format the plot
+    ax=WCSPanelFmt(ax)
+    #   Set up the colormap
+    minV,maxV,CMap=SetCMap(Model,DataCube,ModelCube,Moment)
+    #   With these we can make the moment map
+    if Moment==0:
+        MKey='Mom0'
+        cLabel=r"$\Sigma$ (M$_{\odot}$ pc$^{-2})$"
+    elif Moment==1:
+        MKey='Mom1'
+        cLabel=r"V$_{\rm{los}}$ (km s$^{-1})$"
+        ax.set_facecolor('k')
+
+    im=ax.pcolormesh(XX,YY,DataCube[MKey],cmap=CMap,shading='auto',vmin=minV,vmax=maxV)
+    cbar=fig.colorbar(im,cax=cax,orientation='horizontal')
+    cax.xaxis.set_label_position('top')
+    cax.xaxis.set_ticks_position('top')
+    cax.set_xlabel(cLabel)
+    
+    
+    
+    #   Add a coordinate grid
+    ax.coords.grid(color='white', alpha=0.5, linestyle='solid')
+    #   Add an ellipse showing the beam size to the moment 0 map
+    if Moment==0:
+        ESize=DataCube['CubeHeader']['BMaj']/np.abs(DataCube['CubeHeader']['CDElT1'])
+        
+        LocX=7
+        LocY=7
+        #   Get the ellipse
+        Ell=Ellipse([LocX,LocY], ESize, ESize, 0.,edgecolor='cyan',facecolor='none',lw=2)
+        #   Add the ellipse to the map.
+        ax.add_patch(Ell)
+    elif Moment==1:
+        AddArrowToMomMap(ax,Model,DataCube)
+        AddVelContoursToMomentPlot(ax,ModelCube,Model,XX,YY)
+    #   For both figures, add the center point
+    AddCenterToMomMap(ax,Model)
+    
+    
+    
+def WCSPanelFmt(ax):
+    #   Get the longitude and latitude
+    lon = ax.coords[0]
+    lat = ax.coords[1]
+    #   Set the axis label
+    lon.set_axislabel("RA")
+    lat.set_axislabel("DEC")
+    #   And set minor ticks
+    lon.set_ticks(number=4)
+    lat.set_ticks(number=4)
+    lon.display_minor_ticks(True)
+    lat.display_minor_ticks(True)
+    lat.set_minor_frequency(5)
+    lon.set_minor_frequency(5)
+    #   make sure that we don't have overlapping ticks
+    lon.set_ticklabel(exclude_overlapping=True)
+    lat.set_ticklabel(exclude_overlapping=True)
+    
+    return ax
+    
+def SetCMap(Model,DataCube,ModelCube,Moment):
+    #   We want different colormaps for the different moments
+    if Moment==0:
+        CMap='gray'
+        #   For the moment zero map, the limits should be based on the data cube moment map
+        minV=0.
+        maxV=1.05*np.nanmax(DataCube['Mom0'])
+    elif Moment==1:
+        VS=Model['VSYS'][0]
+        dV=np.nanmax(Model['VROT'])*np.sin(Model['INCLINATION'][0]*np.pi/180.)
+        minV=VS-dV
+        maxV=VS+dV
+        CMap=vmap.create_cmap_doubleVelocity(minV,maxV,div=VS,Cval_max=35)
+        
+        
+    return minV,maxV,CMap
+
 
 def QuickMaskCube(ObsCube,ObjDict):
     """
@@ -42,12 +165,12 @@ def QuickMaskCube(ObsCube,ObjDict):
     #   Return the observed cube dictionary.
     return ObsCube
 
-def MomentPlot(fig,placement,Moment,ObsCube,XC,YC,GalaxyDict,AvgModel=False):
+def MomentPlot(fig,placement,Moment,ObsCube,XC,YC,GalaxyDict,GeneralDict,AvgModel=False):
     """
         This function makes a moment map panel on a larger canvas.
     """
     #   First set up the moment map panel on the canvas using the placement rectangle.
-    ax=fig.add_axes(placement)
+    ax=fig.add_axes(placement,projection=ObsCube['CubeWCS'],slices=('x', 'y', 0))
     #   Next mask the 'observed cube' by the SoFiA mask -- the observed cube must be at 4 km/s resolution.
     ObsCube=QuickMaskCube(ObsCube,GalaxyDict)
     
@@ -74,9 +197,15 @@ def MomentPlot(fig,placement,Moment,ObsCube,XC,YC,GalaxyDict,AvgModel=False):
             maxval=VS+1.1*dV
     #   Set the colored maps
     if Moment == 0:
-        Cmap='viridis'
+        Cmap='gray'
     elif Moment == 1:
         Cmap='jet'
+        ax.set_facecolor('black')
+        VS=(maxval+minval)/2.
+        Cmap=vmap.create_cmap_doubleVelocity(minval,maxval,div=VS,Cval_max=35)
+
+
+        
     elif Moment ==2 :
         Cmap='plasma'
     #   Format the moment map panel
@@ -137,60 +266,44 @@ def DetermineExtent(XC,YC,ObsCube):
     ExtentDict={'Extent':Extent,'nX':nX,'RefPixX':RefPixX,'RefValX':RefValX,'dX':dX,'nY':nY,'RefPixY':RefPixY,'RefValY':RefValY,'dY':dY}
     #   Return the extent dictionary
     return ExtentDict
-        
-def FormatMomPlot(ax,Moment,XC,YC,ObsCube):
-    """
-        This function formats the moment map panel
-    """
-    #   Label the panel by the type of moment map it is showing
-    PlotName="Moment "+str(Moment)
-    #   Add the label to the canvas
-    ax.text(0.5, 1.05,PlotName,fontsize=15,horizontalalignment='center',transform=ax.transAxes)
-    #   Add minor axis ticks
-    ax.xaxis.set_minor_locator(AutoMinorLocator(n=4))
-    ax.yaxis.set_minor_locator(AutoMinorLocator(n=4))
-    #   Figure out how large the panel is in arcseconds from the center
-    ExtentDict=DetermineExtent(XC,YC,ObsCube)
-    #   Set the limits to the x and y coordinates from the dictionary
-    ax.set_xlim(ExtentDict['Extent'][0],ExtentDict['Extent'][1])
-    ax.set_ylim(ExtentDict['Extent'][2],ExtentDict['Extent'][3])
-    #   Label the axes.
-    ax.set_xlabel(r"$\Delta$ RA ('')")
-    ax.set_ylabel(r"$\Delta$ DEC ('')")
-    #   Return the extent dictionary as it used for drawing a circle in the Moment0 panel.
-    return ExtentDict
+
     
-def AddCenterToMomMap(ax):
+def AddCenterToMomMap(ax,Model):
     """
         This function adds a black X mark to the center point of a moment map.  Since the maps are formatted in delta RA and delta DEC from a center point, this is always 0,0
     """
-    ax.scatter(0,0,marker='x',color='k',linewidths=3.0,s=80)
+    XC=Model['XCENTER'][0]
+    YC=Model['YCENTER'][0]
+    
+    ax.scatter(XC,YC,marker='x',color='magenta',linewidths=3.0,s=100)
     return ax
     
-def AddArrowToMomMap(ax,Angle,Length):
+def AddArrowToMomMap(ax,Model,Cube):
     """
         This function adds an arrow to a moment map panel to represent the position angle
     """
     #   First set the center coordinates of the arrow as the center of the galaxy
-    CentX=0.
-    CentY=0.
-    #   Make an empty pair of sizes
-    dX_Opts=np.zeros(2)
-    dY_Opts=np.zeros(2)
-    #   Get the distances to the edges of the plot from the center in both X and Y
-    for i in range(2):
-        dX_Opts[i]=np.abs(CentX-ax.get_xlim()[i])
-        dY_Opts[i]=np.abs(CentY-ax.get_ylim()[i])
-    #   Set the length of the arrow to be the minimum of all the distances calculated in order to ensure it ends inside the panel, but extends for a reasonable length
-    L=1.*np.min((np.min(dX_Opts),np.min(dY_Opts)))
+    CentX=Model['XCENTER'][0]
+    CentY=Model['YCENTER'][0]
+    Angle=Model['POSITIONANGLE'][0]
+    L=1.1*Model['R'][-1]/(np.abs(Cube['CubeHeader']['CDELT1'])*3600.)
+    #   Adjust the angle due to flipping the X-axis in RA
+    AngleUse=360.-Angle
     #   Use the length and the angle to get the length in x and y for the arrow
-    dX=-L*np.cos((Angle+90.)*np.pi/180.)
-    dY=L*np.sin((Angle+90.)*np.pi/180.)
+    dX=-L*np.cos((AngleUse+90.)*np.pi/180.)
+    dY=L*np.sin((AngleUse+90.)*np.pi/180.)
     #   Set the arrow width
     awidth=1.
     #   Add the arrow to the panel
-    ax.arrow(CentX,CentY,dX,dY,ls=':',color='k',shape='full',width=awidth,head_width=10*awidth)
+    ax.arrow(CentX,CentY,dX,dY,ls=':',color='white',shape='full',width=awidth,head_width=3*awidth)
     return ax
+    
+def MakeAllMomMaps(Cube,MaskSwitch):
+    
+    Mom0=MakeMomMap(Cube,0,MaskSwitch)
+    Mom0=Moment0MapUnitConvert(Mom0,Cube)
+    Mom1=MakeMomMap(Cube,1,MaskSwitch)
+    return Mom0,Mom1
     
 def MakeMomMap(Cube,Moment,MaskSwitch):
     """
@@ -271,15 +384,10 @@ def Moment0MapUnitConvert(MomMap,Cube):
     return MomMap
 
     
-def AddVelContoursToMomentPlot(ax,Cube,VSys,ObsMap,XC,YC,Model):
+def AddVelContoursToMomentPlot(ax,Cube,Model,XX,YY):
     """
         This function adds velocity contours to a moment 1 map panel from some other cube
     """
-    #   First make a moment map for the cube that will be used
-    MomMap=MakeMomMap(Cube,1,0)
-    #   Next get the extent of the panel using the center and the cube that the contours will be from
-    ExtentDict=DetermineExtent(XC,YC,Cube)
-    
     #   Figure out the velocity width of the cube
     #       Get the outermost velocity
     VOut=Model['VROT'][-1]
@@ -290,26 +398,39 @@ def AddVelContoursToMomentPlot(ax,Cube,VSys,ObsMap,XC,YC,Model):
     #   Set dV to be twice this width
     dV=1.0*VWidth
     #       Set the contour line type and linewidth
-    lTypes=('-')
+    lTypes=('--')
     LW=1
-    #   Set an array of a X and Y corresponding to the pixels using the extent dictionary
-    X=np.linspace(ExtentDict['Extent'][2],ExtentDict['Extent'][3],ExtentDict['nY'])
-    Y=np.linspace(ExtentDict['Extent'][0],ExtentDict['Extent'][1],ExtentDict['nX'])
-    #   Turn these into a meshgrid for use with the contour function
-    YY2,XX2=np.meshgrid(Y,X)
+
     #   Set the velocity steps for the contours
     delV=dV/5.
     #   Set the contour levels
     CLevels=np.zeros(11)
     j=0
     for i in range(-5,6):
-        CLevels[j]=VSys+i*dV/7.
+        CLevels[j]=Model['VSYS'][0]+i*dV/7.
         j+=1
     #   Draw on the contours
-    ax.contour(YY2,XX2,MomMap,colors='magenta',linewidths=LW,linestyles=lTypes,levels=CLevels)
+    MomMap=Cube['Mom1']
+    ax.contour(XX,YY,MomMap,colors='magenta',linewidths=LW,linestyles=lTypes,levels=CLevels)
     #       Add in a thicker contour with vsys
-    CLevels=np.array([VSys])
-    ax.contour(YY2,XX2,MomMap,colors='magenta',linewidths=LW*2.5,linestyles=lTypes,levels=CLevels)
+    lTypes=('-')
+    CLevels=np.array([Model['VSYS'][0]])
+    ax.contour(XX,YY,MomMap,colors='magenta',linewidths=2.5*LW,linestyles=lTypes,levels=CLevels)
     #   Return the panel
     return ax
     
+
+
+def MakeGrid(Cube):
+    
+    Shape=np.shape(Cube['Mom0'])
+    X=np.zeros(Shape[1])
+    Y=np.zeros(Shape[0])
+    
+    for i in range(Shape[1]):
+        X[i]=i
+    for i in range(Shape[0]):
+        Y[i]=i
+    
+    XX,YY=np.meshgrid(X,Y)
+    return XX,YY

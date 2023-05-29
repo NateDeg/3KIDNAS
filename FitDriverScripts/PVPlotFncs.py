@@ -46,7 +46,7 @@ def BasePVPlot(fig,placement,CubeInfo,PixSize):
     #   Make a meshgrid
     VV,XX=np.meshgrid(V,X)
     #   Use the cube PV array to make a colormesh PV panel that is grey-scaled
-    ax.pcolormesh(XX,VV,CubeInfo['PV'],cmap='Greys',shading='auto')
+    ax.pcolormesh(XX,VV,CubeInfo['PV'],cmap='Greys',shading='auto',vmin=CubeInfo['Lims'][0],vmax=CubeInfo['Lims'][1])
     #   Label the Y-axis -- don't label the X-axis as it may be a major or minor axis PV diagram
     ax.set_ylabel(r"V (km/s)" )
     #   Format the panel with minor tick marks
@@ -176,6 +176,7 @@ def AvgModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube):
     PV=CA.ConstructModelBasedPVDiagram(DataCube['Data'],PAUse,Model,BeamSize_Pix,DataCube)
     #   Add this all to a PV dictionary
     PVDict={'PV':PV,'CubeVels':DataCube['CubeVels']}
+    PVDict['Lims']=[np.nanmin(PVDict['PV']),np.nanmax(PVDict['PV'])]
     #   Get the noise for the PV diagram
     PVNoise=GetPVNoise(PV)
     #   Get the pixel size in arcseconds
@@ -187,13 +188,16 @@ def AvgModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube):
     #   Make a PV diagram of the model cube
     ModelPV=CA.ConstructModelBasedPVDiagram(ModelCube['Data'],PAUse,Model,BeamSize_Pix,DataCube)
     #   Adjust the PV dictionary to use the new PV array
-    PVDict={'PV':ModelPV,'CubeVels':ModelCube['CubeVels']}
+    PVDictMod={'PV':ModelPV,'CubeVels':ModelCube['CubeVels']}
     #   Add the model PV diagram contours overtop the observed PV map
-    ax=AddPVContoursToPlot(ax,PVDict,PixSize,PVNoise)
+    ax=AddPVContoursToPlot(ax,PVDictMod,PixSize,PVNoise)
     #   Set the xlabel for the plot
-    ax.set_xlabel(XLabel)
+    #ax.set_xlabel(XLabel)
+    
+    ax.xaxis.set_major_formatter(NullFormatter())
+    
  
-    return ax
+    return ax,PVDict
 
 
 def GetPVNoise(PV):
@@ -254,3 +258,54 @@ def CornerSum(PV,FullLims,nPix,RmsTot):
                 nPix+=1
                 RmsTot+=PV[i][j]**2.
     return nPix,RmsTot
+
+
+
+
+def DiffModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube,PVOri):
+
+    """
+        This function makes the PV plot for a single 'average' model
+    """
+    #   First use the average model to find the center to be used for calculating the PV diagram
+    CentPix=[Model['XCENTER'][0],Model['YCENTER'][0]]
+
+    #   Now set the Position angle and center for the PV plot
+    if MajorMinorSwitch==0:
+        PAUse=Model['POSITIONANGLE'][0]
+        XLabel=r"Major Axis ('')"
+        Center=Model['XCENTER'][0]
+    elif MajorMinorSwitch ==1:
+        PAUse=Model['POSITIONANGLE'][0]+90.
+        XLabel=r"Minor Axis ('')"
+        Center=Model['YCENTER'][0]
+    #   Normalize the useable position angle
+    if PAUse > 360.:
+        PAUse=PAUse-360.
+    elif PAUse < 0.:
+        PAUse=PAUse+360.
+    #   The PV routine needs the beamsize in pixels to figure out how things should be cut
+    BeamSize_Pix=DataCube['CubeHeader']['BMAJ']/np.abs(DataCube['CubeHeader']['CDELT1'])
+  
+  
+    DiffData=DataCube['Data']-ModelCube['Data']
+    #   Construct the PV diagram for the data cube using the average geometry
+    PV=CA.ConstructModelBasedPVDiagram(DiffData,PAUse,Model,BeamSize_Pix,DataCube)
+    #   Add this all to a PV dictionary
+    PVDict={'PV':PV,'CubeVels':DataCube['CubeVels']}
+    print(PVOri.keys())
+    PVDict['Lims']=PVOri['Lims']
+    #   Get the noise for the PV diagram
+    PVNoise=GetPVNoise(PV)
+    #   Get the pixel size in arcseconds
+    PixSize=np.abs(DataCube['CubeHeader']['CDELT1']*3600.)
+    #   Make the grey-scale PV plot
+    ax=BasePVPlot(fig,placement,PVDict,PixSize)
+    #       Add lines for vsys and the center point to the PV diagram
+    ax=AddCentLinesToPVPlot(ax,Model['VSYS'][0],0.)
+    #   Make a PV diagram of the model cube
+
+    #   Set the xlabel for the plot
+    ax.set_xlabel(XLabel)
+ 
+    return ax

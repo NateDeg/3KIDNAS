@@ -25,7 +25,7 @@ from . import MomentMapPlotFncs as MMP
     AvgPVPlots --> This function makes the pair of PV diagrams needed for the comparison plot.
 """
 
-def MakeBootstrapModelPlot(GalaxyDict):
+def MakeBootstrapModelPlot(GalaxyDict,GeneralDict):
     """
         This function makes the diagnostic plot for the average Tilted ring model.
     """
@@ -40,13 +40,12 @@ def MakeBootstrapModelPlot(GalaxyDict):
             ,'axes.labelsize': 20
             ,'legend.fontsize': 18
                 }
+                
     #   Update the default parameters to the new ones.
     matplotlib.rcParams.update(BasePlotParams)
     #   We will need to the best fitting model
     Model=GalaxyDict['BestFitModel']
     #   And we'll need both the real data cube and the best fitting model cube
-
-    
     DataCube=CA.BasicCubeAnalysis(GalaxyDict['CubeName'])
     ModelCube=CA.BasicCubeAnalysis(Model['ModelCube'])
     #   Name the plot
@@ -56,9 +55,6 @@ def MakeBootstrapModelPlot(GalaxyDict):
     Fh=10.
     fig=plt.figure(figsize=(Fw,Fh))
 
-    #   Write on all the labels due to the cube fit
-    yTextLoc=AddObjectLabels(fig,Model,GalaxyDict)
-
 
     #   Set the placement parameters that are used to organize all the different panels in the diagnostic plot
     base=-0.1
@@ -66,6 +62,10 @@ def MakeBootstrapModelPlot(GalaxyDict):
     w=0.45
     h=w/2
     buf=0.15
+    cW=0.02
+    hbuf=0.2
+    PltOpts={'base':base,'left':left,'w':w,'h':h,'buf':buf,'cW':cW,'hbuf':hbuf}
+    
     #   Add the keyword plots (see DiagnosticPlots/DiagnosticPlotFuncs.py)
     #       Add the rotation curve panel
     placement=[left,base+2*(h+buf),w,h]
@@ -77,37 +77,20 @@ def MakeBootstrapModelPlot(GalaxyDict):
     Key="SURFDENS_FACEON"
     KeywordPlot(fig,placement,Key,Model)
     
+    PltOpts['base']=base+2*(h+buf)
     #       Add the pair of PV diagram plots
-    AvgPVPlots(fig,Model,DataCube,ModelCube,left,base,w,h,buf)
+    #AvgPVPlots(fig,Model,DataCube,ModelCube,left,base,w,h,buf)
   
-    #   Rescale the sizes/boxes for the moment maps
-    ScaleFactor=1.25
-    wnew=w*ScaleFactor
-    hnew=h*ScaleFactor
-    left=left-(wnew-w)/2.
-    base=base-(hnew-h)/1.5
-    #   Make the moment 0 map
-    placement=[left-0.*(w+buf),base+1.0*(h+buf),wnew,hnew]
-    Moment=0
-    #       For the moment maps, it's necessary to give it the model center in pixels to center the maps
-    XC=Model['XCENTER'][0]
-    YC=Model['YCENTER'][0]
-   
-    #   Call the moment map function to make the basic map
-    ax,MomData=MMP.MomentPlot(fig,placement,Moment,DataCube,XC,YC,GalaxyDict)
-    #   Add a marker to the center of the map
-    ax=MMP.AddCenterToMomMap(ax)
-    placement=[left+1.*(w+buf),base+1.*(h+buf),wnew,hnew]
-   
-    #   Make the moment 1 map
-    Moment=1
-    ax,MomData=MMP.MomentPlot(fig,placement,Moment,DataCube,XC,YC,GalaxyDict)
-    #   Add the center to moment 1 map
-    ax=MMP.AddCenterToMomMap(ax)
-    #   Add the model velocity contours to the observed moment 1 map
-    ax=MMP.AddVelContoursToMomentPlot(ax,ModelCube,Model['VSYS'][0],MomData,XC,YC,Model)
-    #   Add an arrow to the PV diagram indicating the position angle of the model
-    ax=MMP.AddArrowToMomMap(ax,Model['POSITIONANGLE'][0],0.5*Model['R'][-1])
+  
+    #   Make the moment maps
+    MMP.MakeAllMomentMapPlots(fig,Model,DataCube,ModelCube,PltOpts,GalaxyDict,GeneralDict)
+    
+    
+        #       Add the pair of PV diagram plots
+    AvgPVPlots(fig,Model,DataCube,ModelCube,PltOpts)
+        #   Write on all the labels due to the cube fit
+    yTextLoc=AddObjectLabels(fig,Model,GalaxyDict,PltOpts)
+    
     
     #   Save the plot
     plt.savefig(PltName, format='png',bbox_inches='tight')
@@ -115,13 +98,13 @@ def MakeBootstrapModelPlot(GalaxyDict):
     plt.close()
 
 
-def AddObjectLabels(fig,Model,GalaxyDict):
+def AddObjectLabels(fig,Model,GalaxyDict,PltOpts):
     """
         This function adds a number of labels to the plot
     """
     #   First add the name of the plot
-    TextSize=18
-    fig.text(.6,.95, GalaxyDict['ObjName'] , ha='center',rotation=0,va='center',size=27)
+    TextSize=25
+    fig.text(.6,.95, GalaxyDict['ObjName'] , ha='center',rotation=0,va='center',size=35)
     #   Set a top location
     yTextLoc=-0.25
     #   Set size of the vertical steps for the labels
@@ -129,6 +112,8 @@ def AddObjectLabels(fig,Model,GalaxyDict):
     #   Set the horizontal location of the labels
     XTextLoc=0.35
     
+    
+    yTextLoc=PltOpts['base']-PltOpts['buf']
     #   Convert the RA into hours:minutes:seconds
     RA_S=RA_DEC_Str(Model['RA'][0],Model['RA_ERR'][0],0)
     #   Add the RA label to the plot
@@ -144,6 +129,10 @@ def AddObjectLabels(fig,Model,GalaxyDict):
     yTextLoc-=YTextStep
     #   Add the model inclination and error to the plot
     LabelStr="Inc_model \t=\t".expandtabs()+str(Model['INCLINATION'][0])+" $\pm$ " +str(Model['INCLINATION_ERR'][0])+" $^\circ$"
+    fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
+    yTextLoc-=YTextStep
+    #   Add the pixel position angle to the plot along with it's uncertainty
+    LabelStr="PA_model \t=\t".expandtabs()+str(Model['POSITIONANGLE'][0])+" $\pm$ " +str(Model['POSITIONANGLE_ERR'][0])+" $^\circ$"
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
     #   Add the global position-angle to the plot along with it's uncertainty.
@@ -162,25 +151,39 @@ def AddObjectLabels(fig,Model,GalaxyDict):
     return yTextLoc
 
     
-def AvgPVPlots(fig,Model,DataCube,ModelCube,left,base,w,h,buf):
+def AvgPVPlots(fig,Model,DataCube,ModelCube,PltOpts):
     """
         This function draws the major and minor axis PV panels onto the diagnostic plot.  It uses routines found in DiagnosticPlots/PVPlotFuncs.py
     """
     #   For the PV plots we need to load in the full resolution MCG model cubelet
-   
-  
+
+    PltOpts['h']=PltOpts['w']*0.5
+    PltOpts['base']=PltOpts['base']-PltOpts['h']-PltOpts['buf']
+
     #   Make the major axis PV plot
-    placement=[left+0.1*(w+buf),base+.0*(h+buf),w*0.8,h]
+    placement=[PltOpts['left']+0.1*(PltOpts['w']+PltOpts['buf']),PltOpts['base']+.0*(PltOpts['h']+PltOpts['buf']),PltOpts['w']*0.8,PltOpts['h']]
     MajorMinorSwitch=0
-    ax=PVP.AvgModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube)
+    ax,PVMaj=PVP.AvgModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube)
     
     #       For the major axis, add in the inclination corrected rotation curve
     PVP.AddSingleRC_to_PVPlot(ax,Model,DataCube)
     #   Make the minor axis PV plot
-    placement=[left+1.1*(w+buf),base+.0*(h+buf),w*0.8,h]
+    placement=[PltOpts['left']+1.1*(PltOpts['w']+PltOpts['buf']),PltOpts['base']+.0*(PltOpts['h']+PltOpts['buf']),PltOpts['w']*0.8,PltOpts['h']]
     MajorMinorSwitch=1
-    ax=PVP.AvgModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube)
+    ax,PVMin=PVP.AvgModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube)
     
+    
+    
+    
+    PltOpts['base']=PltOpts['base']-PltOpts['h']-0.01
+    placement=[PltOpts['left']+0.1*(PltOpts['w']+PltOpts['buf']),PltOpts['base']+.0*(PltOpts['h']+PltOpts['buf']),PltOpts['w']*0.8,PltOpts['h']]
+    MajorMinorSwitch=0
+    ax=PVP.DiffModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube,PVMaj)
+    
+
+    placement=[PltOpts['left']+1.1*(PltOpts['w']+PltOpts['buf']),PltOpts['base']+.0*(PltOpts['h']+PltOpts['buf']),PltOpts['w']*0.8,PltOpts['h']]
+    MajorMinorSwitch=1
+    ax=PVP.DiffModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube,PVMin)
 
 
 def RA_DEC_Str(ValU,Err,DType):
