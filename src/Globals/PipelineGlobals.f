@@ -41,6 +41,7 @@ c               Use the various object definition routines
       Type(DataCube) ModelPVMaps
 
       real,ALLOCATABLE :: ObservedVelocityProfile(:,:)
+      real,ALLOCATABLE :: RadGrid(:) !A grid of radii when the user specifies the rings
     
 
       Type(TiltedRingModel) ModelTiltedRing
@@ -93,5 +94,7 @@ c               Use the various object definition routines
 
 
       real,parameter,dimension(2) :: SizeLims=[2.,10.]
+
+      real :: NoiseSigmaLim
 
       end module PipelineGlobals
