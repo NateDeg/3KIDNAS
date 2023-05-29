@@ -52,6 +52,7 @@ def GalaxyFit():
     f.write(Str)
     f.close()
     
+    
     #   With WRKP now completed, the fit must be ingested
     #       It is possible that the initial fit will have failed.  In that case, we won't be able to read the output file, so we should end the program here
     try:
@@ -60,7 +61,7 @@ def GalaxyFit():
         print("No best fit model made")
         exit()
     
-
+    
     #   The next step is to estimate the uncertainties for the model parameters by running a number of bootstrap fits.
     #   Before we loop through all the bootstraps, we need set a few naming conventions
     GalaxyDict=BEA.SetErrorAnalysisVariables(GalaxyDict)
@@ -87,7 +88,7 @@ def GalaxyFit():
     BO.WriteBootstrappedFitOutputFile_Text(GalaxyDict)
     
     #   Make diagnostic plot from the bootstrapped model
-    BMP.MakeBootstrapModelPlot(GalaxyDict)
+    BMP.MakeBootstrapModelPlot(GalaxyDict,GeneralDict)
 
     #   Keep track of the total runtime
     end = time.time()

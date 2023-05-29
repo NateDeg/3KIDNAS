@@ -134,7 +134,7 @@ def BootsrapErrors_ForParam(key,ErrKey,Model,BootstrapModels):
         MeanArr[CurrIndx]=np.mean(BootstrapArr)
         ErrArr[CurrIndx]=np.std(BootstrapArr)
         print(key,i,nFits,len(BootstrapModels),nSuccessNeeded)
-        if nFits <= nSuccessNeeded:
+        if nFits < nSuccessNeeded:
             MeanArr=np.delete(MeanArr,CurrIndx)
             ErrArr=np.delete(ErrArr,CurrIndx)
             Model[key]=np.delete(Model[key],CurrIndx)

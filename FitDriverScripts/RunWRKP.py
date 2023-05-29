@@ -26,6 +26,7 @@ def NameWRKPRunFiles(GalaxyDict,BootstrapSwitch):
     if BootstrapSwitch==0:
         GalaxyDict['MainInputFile']=GalaxyDict['ObjNameU']+"_WRKP_Input.txt"
         GalaxyDict['FittingOptionsFile']=GalaxyDict['ObjNameU']+"_WRKP_Options.txt"
+        GalaxyDict['LogFile']=GalaxyDict['ObjNameU']+"_FittingLog.txt"
     
     return GalaxyDict
 
@@ -63,8 +64,17 @@ def WriteWRKPOptionsFile(WorkingOptionsLines,GalaxyDict,BootstrapSwitch):
     if BootstrapSwitch ==1:
         nRTarg=len(GalaxyDict['BestFitModel']['R'])
         #print("Bootstrap WRKP options", BootstrapSwitch)
-        WorkingOptionsLines[28]=str(nRTarg)+"\n"
+        WorkingOptionsLines[30]=str(nRTarg)+"\n"
         #print(nRTarg,WorkingOptionsLines[28])
+        RArr=GalaxyDict['BestFitModel']['R']
+        RStr=[None]*len(RArr)
+        for i in range(len(RArr)):
+            RStr[i]=str(RArr[i])
+        RStr=",".join(RStr)
+        RStr+="\n"
+        BootStrLabel="#  If using a grid, supply the radius array in arcsecs\n"
+        WorkingOptionsLines.insert(31,BootStrLabel)
+        WorkingOptionsLines.insert(32,RStr)
     
     #   Now write the contents to the temporary options file
     oFile=open(GalaxyDict['FittingOptionsFile'],'w')
@@ -95,11 +105,13 @@ def RunWRKP(GeneralDict,GalaxyDict,BSSwitch):
     
     #   Now we can run WRKP
     #       Start with making the runtime command
-    WRKPCmd=GeneralDict['FitterExecPath']+ " "+GalaxyDict['MainInputFile']
+    WRKPCmd=GeneralDict['FitterExecPath']+ " "+GalaxyDict['MainInputFile']#+" > "+ GalaxyDict['LogFile']
     #       And now run it
     os.system(WRKPCmd)
     #   And clean up the input files
     ClnCmd="rm "+GalaxyDict['MainInputFile']+" " + GalaxyDict['FittingOptionsFile'] + " " +GalaxyDict['SoFiAShapeFile']
     os.system(ClnCmd)
+    #StrCmd="rm " +GalaxyDict['LogFile']#+" "+GalaxyDict['TargFolderU']+"."
+    #os.system(StrCmd)
     #   Finally return the galaxy dictionary
     return GalaxyDict
