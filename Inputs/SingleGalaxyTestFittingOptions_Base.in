@@ -25,6 +25,8 @@
 100.
 #	The number of sigma lengths for the beam
 3.5
+#	The noise limit for getting the initial number of rings
+3.0
 #	The total number of rings
 -1
 #	The number of rings/beam
