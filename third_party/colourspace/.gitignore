@@ -1,0 +1,4 @@
+*.pyc
+.ipynb*
+slices/*
+maps/*
