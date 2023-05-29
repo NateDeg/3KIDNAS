@@ -23,6 +23,7 @@ c           This routine selects the specific format of the SoFiA catalogue file
       subroutine FittingOptionsIn()
       implicit none
       integer ParamInterfaceSwitch,i
+      character(20),ALLOCATABLE:: RadStr(:)
 
       print*, "Reading in the various fitting options"
 
@@ -170,6 +171,10 @@ c       Get the number of sigma's to use for the beam kernal calculation/convolu
       read(10,*)
       read(10,*) ObservedBeam%SigmaLengths
 
+c       Get the noise limit to reach for figuring out the number of rings
+      read(10,*)
+      read(10,*) NoiseSigmaLim
+
 c       Get the total number of rings to use.  If the total number of rings is -1, then calculate the number automatically
       read(10,*)
       read(10,*) TR_FittingOptions%nTargRings
@@ -179,6 +184,20 @@ c       Get the total number of rings to use.  If the total number of rings is -
      &      //" calculation or a positive number"
         print*, "Current value",TR_FittingOptions%nTargRings
         stop
+      endif
+c       If the number of rings is specified, read in the specific radii to be used
+      if(TR_FittingOptions%nTargRings .gt. 0) then
+c           Start by allocating the ring and string arrays
+        ALLOCATE(RadStr(TR_FittingOptions%nTargRings))
+        ALLOCATE(RadGrid(TR_FittingOptions%nTargRings))
+        read(10,*)
+c           Read all the radii as strings
+        read(10,*) RadStr(1:TR_FittingOptions%nTargRings)
+c           Convert the strings to reals
+        do i=1,TR_FittingOptions%nTargRings
+            read(RadStr(i) , '(f10.3)') RadGrid(i)
+        enddo
+        DEALLOCATE(RadStr)
       endif
 
 c       Get the number of rings/beam
