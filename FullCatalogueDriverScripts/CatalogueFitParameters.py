@@ -11,7 +11,9 @@ def SetKeyParams():
     ,['nBootstraps',int]
     ,['TargFolder',str]
     ,['nProcessors',int]
-    ,['nProcessors_Bootstrap',int]])
+    ,['nProcessors_Bootstrap',int]
+    ,['KinTR',str]
+    ])
     return KeyRTParamsList
     
     
@@ -108,3 +110,10 @@ def SetupRTDictionaries(RTParams,KeyRTParams):
             exit()
 
     return CatDict,NewGalaxyRTVals
+
+def SupplementalIni(RTDict):
+    #   Hardcode in the version of the code
+    RTDict['KinVer']="WRKP V1"
+    #   Set the name of the accepted model catalogue file
+    RTDict['AcceptedModelCatalogueFile']=RTDict['KinTR']+"_KinematicModels.csv"
+    return RTDict

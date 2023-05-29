@@ -23,7 +23,7 @@ def CubeHeaderConvert(ObjDict):
     #   Get the wcs coordinate information for the frequency cube
     w = wcs.WCS(Cubehdu[0].header)
     #   Now to the frequency-velocity conversion
-    #Cubehdu=Frequency_VelocityConversion(Cubehdu,CubeHeader)
+    Cubehdu=Frequency_VelocityConversion(Cubehdu,CubeHeader)
     #   Write out the cube with the new header to the given file name
     try:
         Cubehdu[0].writeto(OutName)

@@ -9,6 +9,7 @@ from . import CatalogueFitParameters as CFP
 from . import CatalogueInput as CI
 from . import RunSingleGalaxyFit as RSGF
 from . import CubePreprocessing as CP
+from . import GenerateAcceptedModelCatalogue as GAMC
 
 
 
@@ -18,6 +19,8 @@ def CatalogueDriverMain():
     
     #   Start by getting a dictionary of required catalogue variables and extra entries from a user-supplied python input file (set in the terminal)
     RTDict,SGDict=CFP.CatalogueRTImport()
+    #   Do a few supplemental initializations
+    RTDict=CFP.SupplementalIni(RTDict)
     #   Now load in the full source catalogue
     Cat=CI.LoadCatalogue(RTDict['CatName'])
     #   Sort the catalogue by size
@@ -33,14 +36,18 @@ def CatalogueDriverMain():
     pool.starmap(RunGalaxyFit, [(i,Cat,RTDict,SGDict) for i in range(nTot)],chunksize=1)
     
     #RunGalaxyFit(i,Cat,RTDict,SGDict)
+    
+    GAMC.GenerateAcceptedModelOutpouts(Cat,RTDict)
+    
 
 
 def RunGalaxyFit(step,Cat,RTDict,SGDict):
     #print(step)
     print(mp.current_process(),step)
 
-    #Indx=Cat['SizeIndx'][step]
-    Indx=2
+    Indx=Cat['SizeIndx'][step]
+    #Indx=step
+    #Indx=5
     #   Set up all the names that will be needed to write the input file
     GalaxyDict=RSGF.GetGalaxyDictNames(Indx,Cat,RTDict)
     #   Now do the cube pre-processing to get a velocity cube
@@ -49,8 +56,6 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
     GalaxyDict=RSGF.GetGeometryEstimates(Indx,Cat,GalaxyDict)
     #   With these in tow, the parameter file needed for the galaxy fit can be writtent
     RSGF.WriteSingleGalaxyIni(GalaxyDict,RTDict,SGDict)
-    #   Now the fitting code can be run
-    RSGF.RunSingleGalaxyFit(GalaxyDict,RTDict)
     #   The single galaxy fitting code should be one directory up from this file so, figure out that path first
     CurrFile=__file__
     DriverPath=CurrFile.rsplit("/",2)[0]
@@ -59,9 +64,16 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
     #   Now run the fitter
     FitCmd="python3.9 "+FitDriver+" "+GalaxyDict['FitParameterFile']
     os.system(FitCmd)
-    #   Finally clean things up
-    MvCmd="mv "+GalaxyDict['VelCubeName'] + " "+RTDict['TargFolder']+GalaxyDict['name_underscore']+"/."
-    os.system(MvCmd)
-    MvCmd="mv "+GalaxyDict['FitParameterFile'] + " "+RTDict['TargFolder']+GalaxyDict['name_underscore']+"/."
-    os.system(MvCmd)
+    #   Check if the fit was successful
+    if os.path.exists(RTDict['TargFolder']+GalaxyDict['name_underscore']):
+        #   Finally clean things up
+        MvCmd="mv "+GalaxyDict['VelCubeName'] + " "+RTDict['TargFolder']+GalaxyDict['name_underscore']+"/."
+        os.system(MvCmd)
+        MvCmd="mv "+GalaxyDict['FitParameterFile'] + " "+RTDict['TargFolder']+GalaxyDict['name_underscore']+"/."
+        os.system(MvCmd)
+        #   Add the provenance keywords to the cubes
+        GAMC.AddProvenanceKeywords(GalaxyDict,RTDict)
+    else:
+        RmCmd="rm "+GalaxyDict['VelCubeName']+" "+GalaxyDict['FitParameterFile']
+
 
