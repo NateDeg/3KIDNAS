@@ -226,7 +226,10 @@ def AddProvenanceKeywords(GalaxyDict,RTDict):
     #   Use the header to set the SRCVERS keywords for other fits files
     SRCVers=ProcCube[HeaderID].header['ORIGIN']
     #   Get rid of the SoFiA history here
-    del ProcCube[HeaderID].header['HISTORY']
+    try:
+        del ProcCube[HeaderID].header['HISTORY']
+    except:
+        print("No History keyword to delete in cube header")
     #   Specifically add the SRCVERS, KINVERS, and KINTR keywords
     #       Start with setting the provenance keyword dictionary
     ProvDict={"SRCVER":SRCVers,"KINVER":RTDict['KinVer'],"KINTR":RTDict['KinTR']}

@@ -24,6 +24,8 @@ def CubeHeaderConvert(ObjDict):
     w = wcs.WCS(Cubehdu[0].header)
     #   Now to the frequency-velocity conversion
     Cubehdu=Frequency_VelocityConversion(Cubehdu,CubeHeader)
+    #   Check that the header has the units for the cube header
+    Cubehdu=UnitsCheck(Cubehdu,CubeHeader)
     #   Write out the cube with the new header to the given file name
     try:
         Cubehdu[0].writeto(OutName)
@@ -85,3 +87,16 @@ def RedShiftConv(Freq,RestFreq):
     #   Next get the velocity by multiplying the redshift by the speed of light in m/s.
     Vel=z*2.9979245e8
     return Vel
+
+
+def UnitsCheck(CubeHDU,CubeHeader):
+
+    keys=['CUNIT1','CUNIT2']
+    for key in keys:
+        if key not in CubeHeader:
+            print("Missing angular unit definition", key)
+            print("Assuming that it is degrees")
+            CubeHDU[0].header.set(key,'deg')
+    return CubeHDU
+    
+    
