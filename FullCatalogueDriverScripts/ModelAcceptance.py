@@ -7,7 +7,6 @@ import multiprocessing as mp
 import astropy
 from astropy.io import fits
 from astropy import units as u
-from spectral_cube import SpectralCube
 from astropy import wcs
     
 def SetCutLimits():
