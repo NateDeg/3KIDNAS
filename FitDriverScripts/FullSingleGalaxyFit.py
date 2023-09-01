@@ -40,6 +40,9 @@ def GalaxyFit():
     
     #       The first step is create a 'catalogue' file with the initial estimates for the inclination and position angle
     GalaxyDict['SoFiAShapeFile']=SD.WriteSoFiACatFileForWRKP(GalaxyDict)
+    #       before running the fitter we'll make a folder for the galaxy.  Currently the Pipeline will make this as well, but this helps to avoid errors if the fitter fails
+    TargFolder=GalaxyDict['TargFolderU']+GalaxyDict['ObjNameU']+"/"
+    os.makedirs(TargFolder,exist_ok=True)
     #   Now run WRKP
     start = time.time() #   Time how long the fit takes
     GalaxyDict=RW.RunWRKP(GeneralDict,GalaxyDict,0)
@@ -57,6 +60,10 @@ def GalaxyFit():
     #       It is possible that the initial fit will have failed.  In that case, we won't be able to read the output file, so we should end the program here
     try:
         GalaxyDict['BestFitModel']=RWF.ReadWRKPOutputFile(GeneralDict,GalaxyDict)
+        #print(GalaxyDict['BestFitModel'])
+        if GalaxyDict['BestFitModel']['FITAchieved']==False:
+            print("No best fit model made")
+            exit()
     except:
         print("No best fit model made")
         exit()

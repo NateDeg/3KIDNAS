@@ -145,6 +145,7 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
 
     
     ResultsDict=IniResultsDict(Cat,KeyParams,SuccesParams,ProfParams)
+    #print("Results Dictionary", ResultsDict)
 
     AutoAccepted=0
     for i in range(len(Cat)):

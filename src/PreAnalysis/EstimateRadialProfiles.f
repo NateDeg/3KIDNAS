@@ -125,6 +125,10 @@ c       Otherwise use the number of input rings
         nRings=FittingOptions%nTargRings
       endif
       print*, "Total modelable number of rings", nRings,nRingsMax
+      if(nRings .eq. 0) then
+        print*, "No modelable rings have been found"
+        stop
+      endif
 c       Allocate the radial profiles
       ALLOCATE(RadialProfile(0:2,0:nRings-1))
       ALLOCATE(RadialProfileModelSwitch(0:nRings-1))
@@ -320,11 +324,13 @@ c           With a grid, check that the radius matches
             endif
         endif
 
-        print*, "Profile assigned", i,j-1
+        if(j .gt. 0) then
+            print*, "Profile assigned", i,j-1
      &                  ,RadialProfile(0:2,j-1)
      &                  ,TempRadialProfile(0:2,i)
      &                  ,ModelerableRingSwitch(i)
      &                  ,RadialProfileModelSwitch(j-1)
+        endif
 c        When at the end of assigning the profile, end the loop
         if(j .eq. nRings) return
       enddo

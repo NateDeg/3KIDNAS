@@ -28,9 +28,9 @@ def CatalogueDriverMain():
     Cat['SizeIndx']=SizeSort
     #   Now run the loop for the fitting
     i=0
-
-    nTot=1
-    #nTot=len(Cat)
+    
+    #nTot=1
+    nTot=len(Cat)
     nProcessors=RTDict['nProcessors']
     pool=mp.Pool(processes=nProcessors)
     pool.starmap(RunGalaxyFit, [(i,Cat,RTDict,SGDict) for i in range(nTot)],chunksize=1)
@@ -64,16 +64,19 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
     #   Now run the fitter
     FitCmd="python3.9 "+FitDriver+" "+GalaxyDict['FitParameterFile']
     os.system(FitCmd)
-    #   Check if the fit was successful
-    if os.path.exists(RTDict['TargFolder']+GalaxyDict['name_underscore']):
+
         #   Finally clean things up
-        MvCmd="mv "+GalaxyDict['VelCubeName'] + " "+RTDict['TargFolder']+GalaxyDict['name_underscore']+"/."
-        os.system(MvCmd)
-        MvCmd="mv "+GalaxyDict['FitParameterFile'] + " "+RTDict['TargFolder']+GalaxyDict['name_underscore']+"/."
-        os.system(MvCmd)
-        #   Add the provenance keywords to the cubes
+    MvCmd="mv "+GalaxyDict['VelCubeName'] + " "+RTDict['TargFolder']+GalaxyDict['name_underscore']+"/."
+    os.system(MvCmd)
+    MvCmd="mv "+GalaxyDict['FitParameterFile'] + " "+RTDict['TargFolder']+GalaxyDict['name_underscore']+"/."
+    os.system(MvCmd)
+   
+    #print(ResultsFile,os.path.isfile(ResultsFile))
+        #   If the fit was successful add the provenance values to the keywords
+    ResultsFile=RTDict['TargFolder']+GalaxyDict['name_underscore']+"/"+GalaxyDict['name_underscore']+"_BSModel.txt"
+    if os.path.isfile(ResultsFile):
         GAMC.AddProvenanceKeywords(GalaxyDict,RTDict)
-    else:
-        RmCmd="rm "+GalaxyDict['VelCubeName']+" "+GalaxyDict['FitParameterFile']
+    #else:
+    #    RmCmd="rm "+GalaxyDict['VelCubeName']+" "+GalaxyDict['FitParameterFile']
 
 
