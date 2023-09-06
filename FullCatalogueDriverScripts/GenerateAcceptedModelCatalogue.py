@@ -127,8 +127,13 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
     RTDict['KinFolder']=RTDict['TargFolder']+KinName+"/"
     #   Make a folder to store a copy of all the diagnostic plots to make life simpler for checking everything
     RTDict['PlotFolder']=RTDict['KinFolder']+"DiagnosticPlots/"
+    #   Also make a folder to store all diagnostic plots regardless of success
+    RTDict['AllPlotsFolder']=RTDict['TargFolder']+"DiagnosticPlots/"
+    #print("All Plots Folder",RTDict['AllPlotsFolder'])
     #   Make the model and plot folder inside the fitted folder
     os.makedirs(RTDict['PlotFolder'], exist_ok=True)
+    #   We'll also want to make the diagnostic plot folder
+    os.makedirs(RTDict['AllPlotsFolder'],exist_ok=True)
     
     #   We'll need to figure out the path of the current folder
     ModDict=GetDriverFolder()
@@ -146,6 +151,8 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
     
     ResultsDict=IniResultsDict(Cat,KeyParams,SuccesParams,ProfParams)
     #print("Results Dictionary", ResultsDict)
+    
+
 
     AutoAccepted=0
     for i in range(len(Cat)):
@@ -157,6 +164,11 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
 
         #   Load in the model results
         Results=LoadModelOutputs(ModelNames,RTDict)
+        #   If the model plot exists, copy it to the all plots folder
+        if os.path.isfile(Results['ModelPlot']):
+            CpCmd="cp "+Results['ModelPlot']+" "+RTDict['AllPlotsFolder']
+            os.system(CpCmd)
+        
         #   Get the cube header so that we can get the SoFiA size estimate in beams
         Cube=fits.open(ModelNames['OriCube'])
         CHeader=Cube[0].header
