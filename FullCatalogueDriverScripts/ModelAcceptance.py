@@ -24,6 +24,12 @@ def SetCutLimits():
     
 def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
 
+    #   Build a model check key that can be used to add to the flags file
+    ModelCheckDict={}
+    CheckKeys=['FitAchieved','nRings','size','Inc','VSys_Err','PA_Err','deltaSinI','NaNErrs','VelLims']
+    for key in CheckKeys:
+        ModelCheckDict[key]=1
+
     #   Start by assuming success
     AutoSuccess=1
     #   Set the profile keys to check
@@ -33,24 +39,34 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
     #  Check whether the model actually was fit
     if Model['ModelFitAchieved']==False:
         AutoSuccess=0
+        for key in CheckKeys:
+            ModelCheckDict[key]=-1
+        ModelCheckDict['FitAchieved']=0
     else:
         #   Check the length of the model
         nR=len(Model['Model']['R'])
         if nR <=CutLimits['lim_nR']:
             AutoSuccess=0
+            ModelCheckDict['nRings']=0
         #   Check on the size
         if Model['ell_maj_SoFiA'] <= CutLimits['lim_Size']*BeamSize_Pix:
             AutoSuccess=0
+            ModelCheckDict['size']=0
         #   Check on the VSys Error, and PA Error
         i=0
         for key in ProfKeys:
             if Model['Model'][key][0] >= CutLimits[LimProfKeys[i]]:
                 AutoSuccess=0
+                if key =='VSYS_ERR':
+                    ModelCheckDict['VSys_Err']=0
+                elif key =='POSITIONANGLE_ERR':
+                    ModelCheckDict['PA_Err']=0
             #print(key,Model['Model'][key][0],AutoSuccess)
             i+=1
         #   Check on the inclination
         if Model['Model']['INCLINATION'][0] <= CutLimits['lim_Inc']:
             AutoSuccess=0
+            ModelCheckDict['Inc']=0
         #   Check on the delta Sin I
         ILow=(Model['Model']['INCLINATION'][0]-Model['Model']['INCLINATION_ERR'][0])*np.pi/180.
         if ILow < 0.:
@@ -61,15 +77,24 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
         deltaSinI=np.sin(IHigh)-np.sin(ILow)
         if deltaSinI >=CutLimits['lim_deltaSinI']:
             AutoSuccess=0
+            ModelCheckDict['deltaSinI']=0
     #   It is possible for all the bootstraps to fail and have NaN's in the errors.  Reject any model where the geometric errors are NaNs
-    if AutoSuccess==1:
-        AutoSuccess=CheckGeoErrorForNaNs(Model)
-    #   If all other checks are passed, make sure projected velocities are inside the cube
-    if AutoSuccess==1:
-        AutoSuccess=CheckProjectedVel(Model,ModelNames)
+        SuccessCheck=CheckGeoErrorForNaNs(Model)
+        if SuccessCheck==0:
+            AutoSuccess=0
+            ModelCheckDict['NaNErrs']=0
+    #   Make sure projected velocities are inside the cube
+        SuccessCheck=CheckProjectedVel(Model,ModelNames)
+        if SuccessCheck==0:
+            AutoSuccess=0
+            ModelCheckDict['VelLims']=0
         
-    #   Add the tag to the model and return it
+    #   Add the tag to the model
     Model['ModelSuccess']=AutoSuccess
+    #   For clarity, go to the flags file and add all the checks to that file --- note that this file will only exist if the fit was achieved
+    if Model['ModelFitAchieved']:
+        AddChecksToFlagFile(Model,ModelNames,ModelCheckDict,CutLimits)
+    
     return Model
     
 def CheckProjectedVel(Model,ModelNames):
@@ -121,5 +146,40 @@ def CheckGeoErrorForNaNs(Model):
             Success=0
             return Success
 
-
+def AddChecksToFlagFile(Model,ModelNames,ModelCheckDict,CutLimits):
+    #   The flags file should contain all the information about which flags the model passed to be accepted or rejected
+    #   Open the flags file
+    Flags = open(ModelNames['FlagFile'], "a")
+    #   State whether a model was produced at all during the initial fit
+    Str="Model Acceptence/Rejection Checks (0=fail, 1=Success)\n"
+    Str+="Initial Pipeline Fit Achieved \n"
+    Str+=str(ModelCheckDict['FitAchieved'])+"\n"
+    #   State whether there are enough rings
+    Str+="The number of rings in the fits is >="+str(CutLimits['lim_nR'])+"\n"
+    Str+=str(ModelCheckDict['nRings'])+"\n"
+    #   State whether the estimate size is above the limit
+    Str+="The SoFiA estimated size (ell_maj) in beams is >="+str(CutLimits['lim_Size'])+"\n"
+    Str+=str(ModelCheckDict['size'])+"\n"
+    #   State whether the inclination is acceptable
+    Str+="The model inclination is >="+str(CutLimits['lim_Inc'])+"\n"
+    Str+=str(ModelCheckDict['Inc'])+"\n"
+    #   State whether the uncertainty in the inclination is acceptable
+    Str+="sin(i_max)-sin(i_min) <="+str(CutLimits['lim_deltaSinI'])+"\n"
+    Str+=str(ModelCheckDict['deltaSinI'])+"\n"
+    #   State whether the error on the systemic velocity is acceptable
+    Str+="The error on the systemic velocity is <="+str(CutLimits['lim_VSysErr'])+"\n"
+    Str+=str(ModelCheckDict['VSys_Err'])+"\n"
+    #   State whether the error on the position angle is acceptable
+    Str+="The error on the position angle is <="+str(CutLimits['lim_PAErr'])+"\n"
+    Str+=str(ModelCheckDict['PA_Err'])+"\n"
+    #   Make sure all the errors are real
+    Str+="No geometric error terms are NaN's\n"
+    Str+=str(ModelCheckDict['NaNErrs'])+"\n"
+    #   And that the projected RC falls within the curve
+    Str+="The projected model rotation curve falls within the datacube\n"
+    Str+=str(ModelCheckDict['VelLims'])
+    
+    Flags.write(Str)
+    Flags.close()
+    
 
