@@ -14,4 +14,4 @@ nProcessors=1
 #   And the number of processors to use for bootstraps for each individual galaxy
 nProcessors_Bootstrap=1
 #   Set the KinTR keyword -- the kinematic team release version
-KinTR="VNGC4808_KinTR1"
+KinTR="NGC4808_KinTR1"
