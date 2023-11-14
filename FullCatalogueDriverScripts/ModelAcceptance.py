@@ -61,9 +61,13 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
         deltaSinI=np.sin(IHigh)-np.sin(ILow)
         if deltaSinI >=CutLimits['lim_deltaSinI']:
             AutoSuccess=0
+    #   It is possible for all the bootstraps to fail and have NaN's in the errors.  Reject any model where the geometric errors are NaNs
+    if AutoSuccess==1:
+        AutoSuccess=CheckGeoErrorForNaNs(Model)
     #   If all other checks are passed, make sure projected velocities are inside the cube
     if AutoSuccess==1:
         AutoSuccess=CheckProjectedVel(Model,ModelNames)
+        
     #   Add the tag to the model and return it
     Model['ModelSuccess']=AutoSuccess
     return Model
@@ -107,6 +111,15 @@ def CheckProjectedVel(Model,ModelNames):
 
     return AutoSuccess
     
-    
+def CheckGeoErrorForNaNs(Model):
+    #   List the various error keys to check
+    ErrorKeys=['INCLINATION_ERR','VSYS_ERR','POSITIONANGLE_ERR','XCENTER_ERR','YCENTER_ERR','VDISP_ERR']
+    #   Loop through all the keys
+    for key in ErrorKeys:
+        ErrTest=Model['Model'][key][0]
+        if np.isnan(ErrTest):
+            Success=0
+            return Success
+
 
 
