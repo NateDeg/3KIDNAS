@@ -193,7 +193,7 @@ def RA_DEC_Str(ValU,Err,DType):
     if DType==0:
         #   For RA, use hours, minutes, seconds
         Val_Fmt=Val_Test.hms
-        LabelS=["h","m","S"]
+        LabelS=["h","m","s"]
     elif DType==1:
         #   For DEC, use degrees, arcminutes, arcseconds
         Val_Fmt=Val_Test.signed_dms
@@ -201,6 +201,12 @@ def RA_DEC_Str(ValU,Err,DType):
         
     #   Format the string
     ValStr=""
+    if DType==1:
+        ValTest=np.array(Val_Fmt[1:])
+        if Val_Fmt[0]<0:
+            ValTest[0]=-ValTest[0]
+        Val_Fmt=ValTest
+    
     for i in range(len(Val_Fmt)):
         Val=Val_Fmt[i]
         if Val < 0:
