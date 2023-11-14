@@ -198,15 +198,16 @@ def RA_DEC_Str(ValU,Err,DType):
         #   For DEC, use degrees, arcminutes, arcseconds
         Val_Fmt=Val_Test.signed_dms
         LabelS=[r"$^{\circ}$","'","''"]
-        
-    #   Format the string
-    ValStr=""
+     
+    #   For the DEC string using signed_dms, we need to format the output a bit to generate the correct string
     if DType==1:
         ValTest=np.array(Val_Fmt[1:])
         if Val_Fmt[0]<0:
             ValTest[0]=-ValTest[0]
         Val_Fmt=ValTest
-    
+        
+    #   Format the string
+    ValStr=""
     for i in range(len(Val_Fmt)):
         Val=Val_Fmt[i]
         if Val < 0:
