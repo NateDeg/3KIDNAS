@@ -274,8 +274,8 @@ def AddCenterToMomMap(ax,Model):
     """
     XC=Model['XCENTER'][0]
     YC=Model['YCENTER'][0]
-    
-    ax.scatter(XC,YC,marker='x',color='magenta',linewidths=3.0,s=100)
+    PCol='magenta'
+    ax.scatter(XC,YC,marker='x',color=PCol,linewidths=5.0,s=150)
     return ax
     
 def AddArrowToMomMap(ax,Model,Cube):
@@ -399,7 +399,7 @@ def AddVelContoursToMomentPlot(ax,Cube,Model,XX,YY):
     dV=1.0*VWidth
     #       Set the contour line type and linewidth
     lTypes=('--')
-    LW=1
+    LW=1.5
 
     #   Set the velocity steps for the contours
     delV=dV/5.
@@ -411,11 +411,12 @@ def AddVelContoursToMomentPlot(ax,Cube,Model,XX,YY):
         j+=1
     #   Draw on the contours
     MomMap=Cube['Mom1']
-    ax.contour(XX,YY,MomMap,colors='magenta',linewidths=LW,linestyles=lTypes,levels=CLevels)
+    CCol='#DEB887'
+    ax.contour(XX,YY,MomMap,colors=CCol,linewidths=LW,linestyles=lTypes,levels=CLevels)
     #       Add in a thicker contour with vsys
     lTypes=('-')
     CLevels=np.array([Model['VSYS'][0]])
-    ax.contour(XX,YY,MomMap,colors='magenta',linewidths=2.5*LW,linestyles=lTypes,levels=CLevels)
+    ax.contour(XX,YY,MomMap,colors=CCol,linewidths=2.5*LW,linestyles=lTypes,levels=CLevels)
     #   Return the panel
     return ax
     

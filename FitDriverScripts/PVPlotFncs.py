@@ -59,21 +59,25 @@ def AddCentLinesToPVPlot(ax,VSys,XCenter):
     """
         This function adds center lines to a PV panel through the midpoint and systemic velocity
     """
-    ax.axhline(y=VSys,ls=':',color='green',linewidth=2)
-    ax.axvline(x=XCenter,ls=':',color='green',linewidth=2)
+    col='#DC143C'
+    col='black'
+    ax.axhline(y=VSys,ls=':',color=col,linewidth=4)
+    ax.axvline(x=XCenter,ls=':',color=col,linewidth=4)
     return ax
     
-def AddPVContoursToPlot(ax,CubeInfo,PixSize,PVNoise):
+def AddPVContoursToPlot(ax,CubeInfo,PixSize,PVNoise,nLevels):
     """
         This function adds contours to an existing PV diagram from a different cube.  The contours levels are based on the noise in the existing PV panel.
     """
     #   Set the contour levels at 1,3, and 5 times the noise
     CLevels=np.array([1.,3,5.])*PVNoise
+    CLevels=CLevels[:nLevels]   #Select only up to nLevels
+   
 
     #   Set different line types for each contour
     lTypes=(':','--','-')
     #   Set the thickness of the contours
-    LW=1
+    LW=3
     #   Set a velocity array from the channel velocities
     V2=CubeInfo['CubeVels']/1000.
     #   Set an array of X based on the size of the cube PV diagram
@@ -86,7 +90,8 @@ def AddPVContoursToPlot(ax,CubeInfo,PixSize,PVNoise):
     #   Construct a meshgrid needed for the contours
     VV2,XX2=np.meshgrid(V2,X)
     #   Draw the contours onto the plot in magenta.
-    ax.contour(XX2,VV2,CubeInfo['PV'],levels=CLevels,colors='magenta',linewidths=LW,linestyles=lTypes)
+    CCol='#DC143C'
+    ax.contour(XX2,VV2,CubeInfo['PV'],levels=CLevels,colors=CCol,linewidths=LW,linestyles=lTypes)
     #   Return the panel
     return ax
     
@@ -154,7 +159,7 @@ def AvgModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube):
     """
     #   First use the average model to find the center to be used for calculating the PV diagram
     CentPix=[Model['XCENTER'][0],Model['YCENTER'][0]]
-
+    nLevels=3
     #   Now set the Position angle and center for the PV plot
     if MajorMinorSwitch==0:
         PAUse=Model['POSITIONANGLE'][0]
@@ -190,7 +195,7 @@ def AvgModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube):
     #   Adjust the PV dictionary to use the new PV array
     PVDictMod={'PV':ModelPV,'CubeVels':ModelCube['CubeVels']}
     #   Add the model PV diagram contours overtop the observed PV map
-    ax=AddPVContoursToPlot(ax,PVDictMod,PixSize,PVNoise)
+    ax=AddPVContoursToPlot(ax,PVDictMod,PixSize,PVNoise,nLevels)
     #   Set the xlabel for the plot
     #ax.set_xlabel(XLabel)
     
@@ -293,7 +298,6 @@ def DiffModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube,PVOr
     PV=CA.ConstructModelBasedPVDiagram(DiffData,PAUse,Model,BeamSize_Pix,DataCube)
     #   Add this all to a PV dictionary
     PVDict={'PV':PV,'CubeVels':DataCube['CubeVels']}
-    print(PVOri.keys())
     PVDict['Lims']=PVOri['Lims']
     #   Get the noise for the PV diagram
     PVNoise=GetPVNoise(PV)
@@ -304,6 +308,13 @@ def DiffModelPVPlot(fig,placement,Model,DataCube,MajorMinorSwitch,ModelCube,PVOr
     #       Add lines for vsys and the center point to the PV diagram
     ax=AddCentLinesToPVPlot(ax,Model['VSYS'][0],0.)
     #   Make a PV diagram of the model cube
+    
+    nLevels=1
+    ModelPV=CA.ConstructModelBasedPVDiagram(ModelCube['Data'],PAUse,Model,BeamSize_Pix,DataCube)
+    #   Adjust the PV dictionary to use the new PV array
+    PVDictMod={'PV':ModelPV,'CubeVels':ModelCube['CubeVels']}
+    #   Add the model PV diagram contours overtop the observed PV map
+    ax=AddPVContoursToPlot(ax,PVDictMod,PixSize,PVNoise,nLevels)
 
     #   Set the xlabel for the plot
     ax.set_xlabel(XLabel)
