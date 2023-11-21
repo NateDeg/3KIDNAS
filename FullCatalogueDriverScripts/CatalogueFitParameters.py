@@ -113,7 +113,7 @@ def SetupRTDictionaries(RTParams,KeyRTParams):
 
 def SupplementalIni(RTDict):
     #   Hardcode in the version of the code
-    RTDict['KinVer']="WRKP V1"
+    RTDict['KinVer']="3KIDNAS V1"
     #   Set the name of the accepted model catalogue file
     RTDict['AcceptedModelCatalogueFile']=RTDict['KinTR']+"_KinematicModels.csv"
     return RTDict
