@@ -110,7 +110,7 @@ def GalaxyFit():
     
     #   Once the bootstrap run is done, remove the bootstrap and SoFiA folders
     ClnCmd="rm -r "+GalaxyDict['BootstrapFolder']+" "+GalaxyDict['SoFiAFolder']
-    #os.system(ClnCmd)
+    os.system(ClnCmd)
 
 def BootstrapRunStep(step,GeneralDict,GalaxyDict):
     BootstrapModel=BEA.GetBootstrapModel(GeneralDict,GalaxyDict,step)
