@@ -121,8 +121,8 @@ def AddSingleRC_to_PVPlot(ax,Model,CubeInfo):
         This function adds a single rotation curve to a PV panel for the average model diagnostic plots
     """
     #   Set the linewidth, marker size, color, and a general label
-    LW=1
-    MW=10
+    LW=2
+    MW=15
     linecol='blue'
     linelabel=" "
     #   Draw the RC from the model onto the panel
@@ -139,14 +139,14 @@ def DrawSingleRC_onPVPanel(ax,Model,linecol,LW,MW,linelabel):
     #       Set the Y values using Vsys + Vrot*sin(Inc)
     V1=Model['VSYS']+(Model['VROT']*np.sin(Model['INCLINATION']*np.pi/180.))
     #   Plot the positive portion
-    ax.plot(X1[:nElem],V1,marker='.',ls=':',color=linecol,lw=LW,markersize=MW,label=linelabel)
+    ax.plot(X1[:nElem],V1,marker='.',ls='-',color=linecol,lw=LW,markersize=MW,label=linelabel)
     #   Do the same thing for the negative radius portion
     #       Set the X values of the line
     X2=-Model['R']
     #       Set the Y values using Vsys - Vrot*sin(Inc)
     V2=Model['VSYS']-(Model['VROT']*np.sin(Model['INCLINATION']*np.pi/180.))
     #   Plot the negative portion
-    ax.plot(X2[:nElem],V2,marker='.',ls=':',color=linecol,lw=LW,markersize=MW,label=linelabel)
+    ax.plot(X2[:nElem],V2,marker='.',ls='-',color=linecol,lw=LW,markersize=MW,label=linelabel)
 
 
 
