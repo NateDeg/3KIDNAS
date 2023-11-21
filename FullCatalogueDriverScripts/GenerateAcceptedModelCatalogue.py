@@ -38,10 +38,15 @@ def GetModelNames(FileDict,GalName):
     ModelNames['DiffCube']=ModelNames['ResultsFolder']+"DifferenceCube.fits"
     #   Set the name of the processed cube
     ModelNames['ProcCube']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_VelCube.fits"
+    #   Set the name of the PVMaps
+    ModelNames['PVMap1']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMajor_Data.fits"
+    ModelNames['PVMap2']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMinor_Data.fits"
+    ModelNames['PVMap3']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMajor_Model.fits"
+    ModelNames['PVMap4']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMinor_Model.fits"
     
-    StoreKeys=['CubeFile','ModelFile','FlagFile','DiffCube','ModelPlot','ProcCube']
-    TargKeys=['TargCubeFile','TargModelFile','TargFlagFile','TargDiffCube','TargModPlot','TargProcCube']
-    TargNames=['ModCube.fits','AvgMod.txt','Flag.txt','DiffCube.fits','DiagnosticPlot.png','ProcData.fits']
+    StoreKeys=['CubeFile','ModelFile','FlagFile','DiffCube','ModelPlot','ProcCube','PVMap1','PVMap2','PVMap3','PVMap4']
+    TargKeys=['TargCubeFile','TargModelFile','TargFlagFile','TargDiffCube','TargModPlot','TargProcCube','TargPVMap1','TargPVMap2','TargPVMap3','TargPVMap4']
+    TargNames=['ModCube.fits','AvgMod.txt','Flag.txt','DiffCube.fits','DiagnosticPlot.png','ProcData.fits','PVMajor_Data.fits','PVMinor_Data.fits','PVMajor_Model.fits','PVMinor_Model.fits']
     j=0
     for key in TargKeys:
         ModelNames[key]=ModelNames['GalName_Underscore']+"_"+FileDict['KinTR']+"_"+TargNames[j]
@@ -259,8 +264,13 @@ def AddProvenanceKeywords(GalaxyDict,RTDict):
     #   Set the name of the other two cubes to add provenance to
     ModCube=CurrFolder+GalaxyDict['name_underscore']+"_AverageModel_v1.fits"
     DiffCube=CurrFolder+"DifferenceCube.fits"
+    #   PVCubes
+    PVMap1=CurrFolder+GalaxyDict['name_underscore']+"_PVMajor_Data.fits"
+    PVMap2=CurrFolder+GalaxyDict['name_underscore']+"_PVMinor_Data.fits"
+    PVMap3=CurrFolder+GalaxyDict['name_underscore']+"_PVMajor_Model.fits"
+    PVMap4=CurrFolder+GalaxyDict['name_underscore']+"_PVMinor_Model.fits"
     #   Add provenance keywords model and difference cubes
-    CubeNames=[ModCube,DiffCube]
+    CubeNames=[ModCube,DiffCube,PVMap1,PVMap2,PVMap3,PVMap4]
     for Name in CubeNames:
         #   Open the cube
         Cube=fits.open(Name,mode='update')

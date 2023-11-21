@@ -4,6 +4,13 @@ import copy as copy
 import numpy as np
 
 
+import astropy
+from astropy.io import fits
+from astropy import units as u
+from astropy import wcs
+
+from . import CubeAnalysis as CA
+from . import PVPlotFncs as PVP
 
 from datetime import date
 
@@ -96,3 +103,64 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
     #   Finally close the kinematic model file.
     f.close()
     
+def SavePVDiagrams(GalaxyDict,GeneralDict):
+    #   Set a list of file suffixes
+    FileSuffixes=["_PVMajor_Data.fits","_PVMinor_Data.fits","_PVMajor_Model.fits","_PVMinor_Model.fits"]
+    #   Set the base name of the files
+    BaseName=GalaxyDict['WRKP_ResultsFolder']+GalaxyDict['ObjName']
+    
+    #   Set the model
+    Model=GalaxyDict['BestFitModel']
+    #   Load in the data cube and the model cube
+    DataCube=CA.BasicCubeAnalysis(GalaxyDict['CubeName'])
+    ModelCube=CA.BasicCubeAnalysis(Model['ModelCube'])
+
+    #   From the model get the center point and base PA
+    CenterX=Model['XCENTER'][0]
+    CenterY=Model['YCENTER'][0]
+    PA=Model['POSITIONANGLE'][0]
+    #   Now put everything into a set of lists
+    CUseArr=[DataCube,DataCube,ModelCube,ModelCube]
+    CentArr=[CenterX,CenterY,CenterX,CenterY]
+    PAArr=[PA,PA+90.,PA,PA+90.]
+    
+    
+    #   The PV routine needs the beamsize in pixels to figure out how things should be cut
+    BeamSize_Pix=DataCube['CubeHeader']['BMAJ']/np.abs(DataCube['CubeHeader']['CDELT1'])
+    #   It also needs the central pixel
+    CentPix=[Model['XCENTER'][0],Model['YCENTER'][0]]
+    
+    #   Now loop through the cubes and make each PV file
+    for i in range(4):
+        FName=BaseName+FileSuffixes[i]
+        CUse=CUseArr[i]
+        CentUse=CentArr[i]
+        PAUse=PAArr[i]-180.
+        #   Correct the PA to be in 0-360
+        if PAUse > 360.:
+            PAUse=PAUse-360.
+        elif PAUse < 0.:
+            PAUse=PAUse+360.
+
+        
+        PV=CA.ConstructModelBasedPVDiagram(CUse['Data'],PAUse,Model,BeamSize_Pix,DataCube)
+        PVDict={'PV':PV,'CubeVels':DataCube['CubeVels']}
+        #   Now generate a fits object with the data
+        hdu = fits.PrimaryHDU(PVDict['PV'].T)
+        #   Go through and set a lot of the keywords
+        
+        hdu.header.set('CRPIX1',np.shape(PV)[0]/2)
+        hdu.header.set('CRVAl1',0.)
+        hdu.header.set('CDELT1',np.abs(DataCube['CubeHeader']['CDELT1']))
+        hdu.header.set('CTYPE1','Offset')
+        
+        ObjKeys2=['CUNIT1','CRPIX2','CRVAL2','CDELT2','CTYPE2','CUNIT2','BUNIT','BMAJ','BMIN','BPA','OBJECT']
+        MatchKeys=['CUNIT1','CRPIX3','CRVAL3','CDELT3','CTYPE3','CUNIT3','BUNIT','BMAJ','BMIN','BPA','OBJECT']
+        for ii in range(len(ObjKeys2)):
+            hdu.header.set(ObjKeys2[ii],DataCube['CubeHeader'][MatchKeys[ii]])
+
+        hdu.header.set('CTYPE1','3KIDNAS')
+        hdul = fits.HDUList([hdu])
+        hdul.writeto(FName,overwrite=True)
+
+        
