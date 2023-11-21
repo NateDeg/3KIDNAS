@@ -163,15 +163,15 @@ c       Now iterate the center calculation until convergence
 c           First get the change in the center position
         delR=sqrt((Center(0)-CentTemp(0))**2.
      &          +(Center(1)-CentTemp(1))**2.)
-        print*, i, delR, Center, CentTemp
+c        print*, "Center CHeck",i, delR, Center, CentTemp,RLim
 c       Now set the center to the R-limited value
         Center=CentTemp
 c           If delR>0.5 pixels, then calculate the center again
-        if(delR .gt. 0.5) then
+        if(delR .gt. 0.5 .or. i .le.3) then
             call RLimited_EstimateCenter(Maps,Center
      &              ,RLim,CentTemp)
 c            print*, "New Center", i,Center, CentTemp
-c            RLim=0.8*RLim
+            RLim=Rmax/(i+2)
 c           Otherwise, finish with this center
         else
             return
