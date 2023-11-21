@@ -96,6 +96,9 @@ def GalaxyFit():
     
     #   Make diagnostic plot from the bootstrapped model
     BMP.MakeBootstrapModelPlot(GalaxyDict,GeneralDict)
+    
+    #   Save the PV diagrams to Fits files
+    BO.SavePVDiagrams(GalaxyDict,GeneralDict)
 
     #   Keep track of the total runtime
     end = time.time()
@@ -107,7 +110,7 @@ def GalaxyFit():
     
     #   Once the bootstrap run is done, remove the bootstrap and SoFiA folders
     ClnCmd="rm -r "+GalaxyDict['BootstrapFolder']+" "+GalaxyDict['SoFiAFolder']
-    os.system(ClnCmd)
+    #os.system(ClnCmd)
 
 def BootstrapRunStep(step,GeneralDict,GalaxyDict):
     BootstrapModel=BEA.GetBootstrapModel(GeneralDict,GalaxyDict,step)
