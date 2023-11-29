@@ -101,13 +101,17 @@ def CopySuccessfulModel(ModelNames,FileDict):
         j+=1
         os.system(CpCmd)
         
-def IniResultsDict(SrcCat,KeyParams,SuccesParams,ProfParams):
+def IniResultsDict(SrcCat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,ScalingParams):
     ResultsDict={}
     for x in KeyParams:
         ResultsDict[x]=[None]*len(SrcCat)
     for x in SuccesParams:
         ResultsDict[x]=[None]*len(SrcCat)
     for x in ProfParams:
+        ResultsDict[x]=[None]*len(SrcCat)
+    for x in ExtendedProfParams:
+        ResultsDict[x]=[None]*len(SrcCat)
+    for x in ScalingParams:
         ResultsDict[x]=[None]*len(SrcCat)
     print(ResultsDict.keys())
     
@@ -153,8 +157,14 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
     ProfParams=['Rad', 'Vrot_model', 'e_Vrot_model', 'Rad_SD', 'SD_model', 'e_SD_model']
     ProfParamNames=['R','VROT', 'VROT_ERR', 'R_SD','SURFDENS', 'SURFDENS_ERR']
 
+
+    ExtendedProfParams=['Rad_SD_map', 'SD_map_proj_model', 'e_SD_map_proj_model','SD_map_model', 'e_SD_map_model']
+    ExtendedProfParamNames=['R_SD','SURFDENS', 'SURFDENS_ERR','SURFDENS_FACEON', 'SURFDENS_FACEON_ERR']
     
-    ResultsDict=IniResultsDict(Cat,KeyParams,SuccesParams,ProfParams)
+    ScalingParams=['RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_low','VHI_high']
+    ScalingParamNames=['RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_low','VHI_high']
+    
+    ResultsDict=IniResultsDict(Cat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,ScalingParams)
     #print("Results Dictionary", ResultsDict)
     
 
@@ -215,6 +225,18 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
                 Arr=Results['Model'][y]
                 Str=', '.join([str(Val) for Val in Arr])
                 ResultsDict[x][k]=Str
+                
+            j=0
+            for x in ExtendedProfParams:
+                y=ExtendedProfParamNames[j]
+                Arr=Results['Model']['ExtendedSDProfile'][y]
+                Str=', '.join([str(Val) for Val in Arr])
+                ResultsDict[x][k]=Str
+                
+            for j in range(len(ScalingParams)):
+                x=ScalingParams[j]
+                y=ScalingParamNames[j]
+                ResultsDict[x][k]=Results['Model']['ScalingDict'][y]
 
             AutoAccepted+=1
             

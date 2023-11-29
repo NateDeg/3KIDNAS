@@ -180,15 +180,15 @@ def LoadBootstrappedFit(FileName):
         #   Now get the scaling relation parameters
         ScalingDict={}
         j=j+3
-        ScalingDict['SDMethod']=ScalingFlagLineAssign(Lines[j])
+        ScalingDict['RHI_flag']=ScalingFlagLineAssign(Lines[j])
         j=j+2
-        ScalingDict['RHI_AS']=ScalingMeasureLineAssign(Lines[j])
+        ScalingDict['RHI_AS'],ScalingDict['RHI_low_AS'],ScalingDict['RHI_high_AS']=ScalingMeasureLineAssign(Lines[j])
         j=j+2
-        ScalingDict['RHI_kpc']=ScalingMeasureLineAssign(Lines[j])
+        ScalingDict['RHI_kpc'],ScalingDict['RHI_low_kpc'],ScalingDict['RHI_high_kpc']=ScalingMeasureLineAssign(Lines[j])
         j=j+3
-        ScalingDict['VHIFlag']=ScalingFlagLineAssign(Lines[j])
+        ScalingDict['VHI_flag']=ScalingFlagLineAssign(Lines[j])
         j=j+2
-        ScalingDict['VHI']=ScalingMeasureLineAssign(Lines[j])
+        ScalingDict['VHI'],ScalingDict['VHI_low'],ScalingDict['VHI_high']=ScalingMeasureLineAssign(Lines[j])
         
             
         #   Close the file
