@@ -162,7 +162,34 @@ def LoadBootstrappedFit(FileName):
         for i in range(nR_SD):
             j=i+ProfileStartLine
             R_SD[i],SD_FO[i],SD_FO_Err[i]=SDProfileLineAssign(Lines[j])
+        
+        #   Load in the extend SD profile
+        nR_Extend=nRLineSet(Lines[j+3])
+        ProfileStartLine=j+6
+        R_SDE=np.zeros(nR_Extend)
+        SDE=np.zeros(nR_Extend)
+        SDE_Err=np.zeros(nR_Extend)
+        SDE_FO=np.zeros(nR_Extend)
+        SDE_FO_Err=np.zeros(nR_Extend)
+        for i in range(nR_SD):
+            j=i+ProfileStartLine
+            R_SDE[i],SDE[i],SDE_Err[i],SDE_FO[i],SDE_FO_Err[i]=SDExtendProfileLineAssign(Lines[j])
             
+        SDExtendedProfile={'R_SD':R_SDE,'SURFDENS':SDE,'SURFDENS_ERR':SDE_Err,'SURFDENS_FACEON':SD_FO,'SURFDENS_FACEON_ERR':SDE_FO_Err}
+        
+        #   Now get the scaling relation parameters
+        ScalingDict={}
+        j=j+3
+        ScalingDict['SDMethod']=ScalingFlagLineAssign(Lines[j])
+        j=j+2
+        ScalingDict['RHI_AS']=ScalingMeasureLineAssign(Lines[j])
+        j=j+2
+        ScalingDict['RHI_kpc']=ScalingMeasureLineAssign(Lines[j])
+        j=j+3
+        ScalingDict['VHIFlag']=ScalingFlagLineAssign(Lines[j])
+        j=j+2
+        ScalingDict['VHI']=ScalingMeasureLineAssign(Lines[j])
+        
             
         #   Close the file
         Fit.close()
@@ -180,6 +207,8 @@ def LoadBootstrappedFit(FileName):
             ,'FITAchieved':FitAchieved,'CHI2':-1}
         AvgDict['SURFDENS_FACEON']=AvgDict['SURFDENS']
         AvgDict['SURFDENS_FACEON_ERR']=AvgDict['SURFDENS_ERR']
+        AvgDict['ExtendedSDProfile']=SDExtendedProfile
+        AvgDict['ScalingDict']=ScalingDict
         #       Add in the noise values to the dictionary
         NoiseKeys=["RMS","SN_Integrated","SN_Peak","SN_Avg","SN_Median"]
         for key in NoiseKeys:
@@ -210,3 +239,29 @@ def SDProfileLineAssign(Line):
     SD_FO=float(S[1].strip())
     SD_FO_Err=float(S[2].strip())
     return R,SD_FO,SD_FO_Err
+    
+def SDExtendProfileLineAssign(Line):
+    #S=re.split('\t\t\t|\t\t|\t',Line)
+    S=Line.split()
+    R=float(S[0].strip())
+    SD=float(S[1].strip())
+    SDErr=float(S[2].strip())
+    SD_FO=float(S[3].strip())
+    SD_FO_Err=float(S[4].strip())
+    return R,SD,SDErr,SD_FO,SD_FO_Err
+
+
+def ScalingMeasureLineAssign(Line):
+    #S=re.split('\t\t\t|\t\t|\t',Line)
+    S=Line.split()
+    Val=float(S[0].strip())
+    ValLow=float(S[1].strip())
+    ValHigh=float(S[2].strip())
+    Vals=np.array([Val,ValLow,ValHigh])
+    return Vals
+
+def ScalingFlagLineAssign(Line):
+    #S=re.split('\t\t\t|\t\t|\t',Line)
+    S=Line.split()
+    Val=int(S[0].strip())
+    return Val
