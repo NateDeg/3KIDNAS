@@ -15,6 +15,8 @@ from . import Bootstrap_Error_Analysis as BEA
 from . import Bootstrap_Outputs as BO
 from . import GeometryCorrection as GC
 from . import BootstrapModelPlot as BMP
+from . import ExtendedSDProfileCalc as ESDPC
+from . import ExtractScalingParams as ESP
 
 
 
@@ -90,6 +92,11 @@ def GalaxyFit():
     BEA.EstimateUncertaintiesFromBootstraps(GeneralDict,GalaxyDict,BootstrapModels)
     #   Adjust the PA to reach the global PA
     GalaxyDict['BestFitModel']=GC.GetGlobalPositionAngle(GalaxyDict)
+    #       With the uncertainties calculated we can calculate an extend Surface density profile
+    GalaxyDict=ESDPC.CalcExtendedSDProfile(GalaxyDict)
+    #   Extract RHI and VHI for the model
+    GalaxyDict=ESP.CalcScalingParams(GalaxyDict)
+    
     
     #   Output a text file with the errors and uncertainties
     BO.WriteBootstrappedFitOutputFile_Text(GalaxyDict)

@@ -45,6 +45,7 @@ def MakeBootstrapModelPlot(GalaxyDict,GeneralDict):
     matplotlib.rcParams.update(BasePlotParams)
     #   We will need to the best fitting model
     Model=GalaxyDict['BestFitModel']
+    SDExtend=GalaxyDict['ExtendedSDProfile']
     #   And we'll need both the real data cube and the best fitting model cube
     DataCube=CA.BasicCubeAnalysis(GalaxyDict['CubeName'])
     ModelCube=CA.BasicCubeAnalysis(Model['ModelCube'])
@@ -70,12 +71,12 @@ def MakeBootstrapModelPlot(GalaxyDict,GeneralDict):
     #       Add the rotation curve panel
     placement=[left,base+2*(h+buf),w,h]
     Key="VROT"
-    KeywordPlot(fig,placement,Key,Model)
+    KeywordPlot(fig,placement,Key,Model,SDExtend)
 
     #       Add the surface density panel
     placement=[left+1*(w+buf),base+2*(h+buf),w,h]
     Key="SURFDENS_FACEON"
-    KeywordPlot(fig,placement,Key,Model)
+    KeywordPlot(fig,placement,Key,Model,SDExtend)
     
     PltOpts['base']=base+2*(h+buf)
     #       Add the pair of PV diagram plots
@@ -148,6 +149,26 @@ def AddObjectLabels(fig,Model,GalaxyDict,PltOpts):
     LabelStr="VDisp_model \t=\t".expandtabs()+str(Model['VDISP'][0])+" $\pm$ " +str(Model['VDISP_ERR'][0])+" km/s"
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
+    
+    
+    ScalingDict=GalaxyDict['ScalingDict']
+    RHI=ScalingDict['RHI_kpc'][1]
+    RHI_Errs=np.array([ScalingDict['RHI_kpc'][1]-ScalingDict['RHI_kpc'][0],ScalingDict['RHI_kpc'][2]-ScalingDict['RHI_kpc'][1]])
+    RHI_ErrAvg=np.mean(RHI_Errs)
+    #   Add the scale radius to the plot
+    LabelStr="RHI_model \t=\t".expandtabs()+str(round(RHI,1))+" $\pm$ " +str(round(RHI_ErrAvg,1))+" kpc"
+    fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
+    yTextLoc-=YTextStep
+    
+    VHI=ScalingDict['VHIArr'][1]
+    VHI_Errs=np.array([ScalingDict['VHIArr'][1]-ScalingDict['VHIArr'][0],ScalingDict['VHIArr'][2]-ScalingDict['VHIArr'][1]])
+    VHI_ErrAvg=np.mean(VHI_Errs)
+    #   Add the scale radius to the plot
+    LabelStr="VHI_model \t=\t".expandtabs()+str(round(VHI,1))+" $\pm$ " +str(round(VHI_ErrAvg,1))+" km/s"
+    fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
+    yTextLoc-=YTextStep
+    
+    
     return yTextLoc
 
     
@@ -237,7 +258,7 @@ def RA_DEC_Str(ValU,Err,DType):
 
 
 
-def KeywordPlot(fig,placement,Key,Model):
+def KeywordPlot(fig,placement,Key,Model,SDExtend):
     """
         This function makes a plot showing a specific model's values for a given parameter indicated by the keyword
     """
@@ -269,6 +290,13 @@ def KeywordPlot(fig,placement,Key,Model):
         ylabel =r"V (km/s)"
     elif Key=="SURFDENS_FACEON":
         ylabel = r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)"
+        
+        XExtend=SDExtend['R_SD']
+        YExtend=SDExtend['SURFDENS_FACEON']
+        YExtend_Err=SDExtend['SURFDENS_FACEON_ERR']
+        linecol='red'
+        ax.errorbar(XExtend,YExtend,yerr=YExtend_Err,marker='.',ls='--',color=linecol,lw=LW,markersize=MW)
+        
     ax.set_xlabel(r"R ('')")
     ax.set_ylabel(ylabel)
 
