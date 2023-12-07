@@ -112,7 +112,7 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
     f.write(HeaderStr)
     #   Then go through the full surface density profile
     ProfileStr="\n"
-    for i in range(nR):
+    for i in range(nR_SD):
         ProfileStr+=str(round(ExtendSDProfile['R_SD'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS'][i],2))+"\t\t"+str(round(Model['SURFDENS_ERR'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS_FACEON'][i],2))+"\t\t"+str(round(Model['SURFDENS_FACEON_ERR'][i],2))+"\n"
     f.write(ProfileStr)
 

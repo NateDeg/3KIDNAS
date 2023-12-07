@@ -171,7 +171,7 @@ def LoadBootstrappedFit(FileName):
         SDE_Err=np.zeros(nR_Extend)
         SDE_FO=np.zeros(nR_Extend)
         SDE_FO_Err=np.zeros(nR_Extend)
-        for i in range(nR_SD):
+        for i in range(nR_Extend):
             j=i+ProfileStartLine
             R_SDE[i],SDE[i],SDE_Err[i],SDE_FO[i],SDE_FO_Err[i]=SDExtendProfileLineAssign(Lines[j])
             

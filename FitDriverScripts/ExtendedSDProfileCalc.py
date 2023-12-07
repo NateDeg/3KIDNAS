@@ -67,12 +67,11 @@ def CalcExtendedSDProfile(GalaxyDict):
     
     ExtendedSDProfile['SURFDENS']=ProfUnitConvert(ExtendedSDProfile['SURFDENS'])
     ExtendedSDProfile['SURFDENS_ERR']=ProfUnitConvert(ExtendedSDProfile['SURFDENS_ERR'])
-    
-    print("Extend SD Calc", ExtendedSDProfile['SURFDENS'])
-    print("Extend SD Err", ExtendedSDProfile['SURFDENS_ERR'])
+
 
     ExtendedSDProfile['SURFDENS_FACEON']=ExtendedSDProfile['SURFDENS']*np.cos(ExtendedSDProfile['Inc'])
     ExtendedSDProfile['SURFDENS_FACEON_ERR']=ExtendedSDProfile['SURFDENS_ERR']*np.cos(ExtendedSDProfile['Inc'])
+
     
     ExtendedSDProfile['BMAJ']=DataCube['CubeHeader']['BMAJ']*3600.
 
