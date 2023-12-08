@@ -31,7 +31,7 @@ include $(locObj)
 	$(CC) $(CFLAGS) -c *.c
 
 
-F77=mpifort
+F77=gfortran
 CC=gcc
 FLAGS=-O0 -funroll-loops -fbounds-check
 CFLAGS= -O -DRINGASCII -DASCII

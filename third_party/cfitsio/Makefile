@@ -23,7 +23,7 @@ CFITSIO_MAJOR	= 3
 CFITSIO_MINOR	= 37
 CFITSIO_SONAME	= 2
 
-prefix		= /Users/nate/Dropbox/GitProjects/21-cm-Emission/PSOFT2/WRKP/third_party/cfitsio
+prefix		= /Users/nate/Dropbox/GitHub/WRKP/third_party/cfitsio
 exec_prefix	= ${prefix}
 DESTDIR		= 
 CFITSIO_LIB	= ${DESTDIR}${exec_prefix}/lib
