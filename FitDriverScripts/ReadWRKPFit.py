@@ -176,6 +176,8 @@ def LoadBootstrappedFit(FileName):
             R_SDE[i],SDE[i],SDE_Err[i],SDE_FO[i],SDE_FO_Err[i]=SDExtendProfileLineAssign(Lines[j])
             
         SDExtendedProfile={'R_SD':R_SDE,'SURFDENS':SDE,'SURFDENS_ERR':SDE_Err,'SURFDENS_FACEON':SD_FO,'SURFDENS_FACEON_ERR':SDE_FO_Err}
+        if nR_Extend==0:
+            j=j+6
         
         #   Now get the scaling relation parameters
         ScalingDict={}
