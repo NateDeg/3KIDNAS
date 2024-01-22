@@ -182,7 +182,7 @@ def LoadBootstrappedFit(FileName):
         #   Now get the scaling relation parameters
         ScalingDict={}
         j=j+3
-        ScalingDict['RHI_flag']=ScalingFlagLineAssign(Lines[j])
+        ScalingDict['SDMethodFlag'],ScalingDict['RHI_flag']=ScalingFlagLineAssign_RHI(Lines[j])
         j=j+2
         ScalingDict['RHI_AS'],ScalingDict['RHI_low_AS'],ScalingDict['RHI_high_AS']=ScalingMeasureLineAssign(Lines[j])
         j=j+2
@@ -190,7 +190,7 @@ def LoadBootstrappedFit(FileName):
         j=j+3
         ScalingDict['VHI_flag']=ScalingFlagLineAssign(Lines[j])
         j=j+2
-        ScalingDict['VHI'],ScalingDict['VHI_low'],ScalingDict['VHI_high']=ScalingMeasureLineAssign(Lines[j])
+        ScalingDict['VHI'],ScalingDict['VHI_Err']=ScalingMeasureLineAssign_VHI(Lines[j])
         
             
         #   Close the file
@@ -267,3 +267,19 @@ def ScalingFlagLineAssign(Line):
     S=Line.split()
     Val=int(S[0].strip())
     return Val
+    
+def ScalingMeasureLineAssign_VHI(Line):
+    #S=re.split('\t\t\t|\t\t|\t',Line)
+    S=Line.split()
+    Val=float(S[0].strip())
+    ValErr=float(S[1].strip())
+    Vals=np.array([Val,ValErr])
+    return Vals
+
+def ScalingFlagLineAssign_RHI(Line):
+    #S=re.split('\t\t\t|\t\t|\t',Line)
+    S=Line.split()
+    Val1=int(S[0].strip())
+    Val2=int(S[1].strip())
+    Vals=np.array([Val1,Val2])
+    return Vals
