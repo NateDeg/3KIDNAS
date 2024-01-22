@@ -35,6 +35,9 @@ def CalcScalingParams(GalaxyDict):
 
 def CalcRHI(GalaxyDict):
     print("Calc RHI")
+    if GalaxyDict['ExtendedSDProfile']['ProfileAcceptFlag']==False:
+        RHDict=NoWorkableSD()
+        return RHDict
     
     SDLim=1.
     #   First check on the 3D modelled SD profile
@@ -45,6 +48,7 @@ def CalcRHI(GalaxyDict):
     SDMin=np.nanmin(SD3D)
     print("3d Min Max check", SDMin,SDMax)
     
+    
     if SDMax >= SDLim and SDMin <= SDLim:
         SDCalcMethod=0
         DictUse=Model
@@ -52,43 +56,71 @@ def CalcRHI(GalaxyDict):
     else:
         SDCalcMethod=1
         DictUse=GalaxyDict['ExtendedSDProfile']
+
+    
     R=DictUse['R_SD']
     SD=DictUse['SURFDENS_FACEON']
     SDUpper=DictUse['SURFDENS_FACEON']+DictUse['SURFDENS_FACEON_ERR']
     SDLower=DictUse['SURFDENS_FACEON']-DictUse['SURFDENS_FACEON_ERR']
 
-    print("R check", R)
-    print("SD CHeck", SD)
+    #print("R check", R)
+    #print("SD CHeck", SD)
+    #print("errs",DictUse['SURFDENS_FACEON_ERR'])
+    print("SD ConsistencyCheck", SD)
+    print(SDUpper)
+    print(SDLower)
+
+   
+    
 
     if len(R) <=1:
         RHI=R[0]
         RHI_Found=False
         R_indx=0
-        SDCalcMethod=5
         RHI_Upper=np.nan
         RHI_Lower=np.nan
+        RHIFlag=3
+
+
     else:
         RHI,RHI_Found,R_indx=GetSD_Intecept(R,SD,SDLim)
     
         if np.isnan(DictUse['SURFDENS_FACEON_ERR']).any():
             RHI_Lower=np.nan
             RHI_Upper=np.nan
-            SDCalcMethod=4
+            RHIFlag=3
         else:
             RHI_Upper,RUFound,R_UpperIndx=GetSD_Intecept(R,SDUpper,SDLim)
             RHI_Lower,RLFound,R_LowerIndx=GetSD_Intecept(R,SDLower,SDLim)
+            RHIFlag=0
+            if RUFound==False:
+                RHI_Upper=np.nan
+                RHIFlag=1
+            if RLFound==False:
+                RHI_Lower=np.nan
+                RHIFlag=2
+            if RUFound==False and RLFound==False:
+                RHIFlag=3
+                RHI_Lower=np.nan
+                RHI_Upper=np.nan
         
         if SDCalcMethod==1 and RHI_Found==False:
-            SDCalcMethod=2
-
+            RHIFlag=3
+            RHI_Lower=np.nan
+            RHI_Upper=np.nan
+            RHI=np.nan
      
     RHIArr=np.array([RHI_Lower,RHI,RHI_Upper])
     RCorrArr=np.array([RHI_Lower,RHI,RHI_Upper])
+    print("RHI ARRs", RHIArr)
+    print(RCorrArr)
+    print("RHI Flag",RHIFlag)
     
     
     
     if SDCalcMethod==1:
         Beam=GalaxyDict['ExtendedSDProfile']['BMAJ']
+        print(RCorrArr)
         for RCorr in RCorrArr:
             BU=Beam
             i=1
@@ -96,13 +128,15 @@ def CalcRHI(GalaxyDict):
                 BU=Beam/float(i)
                 i+=1
             RCorr=np.sqrt(RCorr**2.-BU**2.)
+        print(RCorrArr)
 
-    RHDict={'RHI_CorrArr':RCorrArr,'RHIArr':RHIArr,'SDMethod':SDCalcMethod}
+    RHDict={'RHI_CorrArr':RCorrArr,'RHIArr':RHIArr,'SDMethod':SDCalcMethod,'RHIFlag':RHIFlag}
     return RHDict
 
         
     
 def GetSD_Intecept(R,SD_FO,SDLim):
+    print("SD Intercept SD", SD_FO)
     #   Check the FO limits
     if np.nanmin(SD_FO) > SDLim:
         RHI=R[-1]
@@ -116,7 +150,11 @@ def GetSD_Intecept(R,SD_FO,SDLim):
     else:
     #       If the limits are good, get RHI
         RHI,indx=FindProfileIntersection(R,SD_FO,SDLim)
-        RHI_Found=True
+        if indx==-1:
+            RHI_Found=False
+            RHI=R[-1]
+        else:
+            RHI_Found=True
     return RHI,RHI_Found,indx
     
     
@@ -125,6 +163,7 @@ def FindProfileIntersection(X,Y,Lim):
     #   Loop through all radii and check for the point where we go below 1
     #       Go from out to in
     for i in range(len(X)-1,0,-1):
+        #print(i,X[i],Y[i],Lim)
         #   Once the profile goes above one, find the point where the SD goes below the limit
         if Y[i-1] > Lim:
             #   Select the points
@@ -139,11 +178,21 @@ def FindProfileIntersection(X,Y,Lim):
             dX=dY/m
             X_Int=x1+dX
             indx=i-1
-            break
+            return X_Int,indx
+    indx=-1
+    X_Int=X[0]
     return X_Int,indx
+    
 
     
 def GetProfilePoint(X,Y,XTarg):
+    print("len profile", X,XTarg)
+    #if np.isnan(XTarg):
+    #    ProfLimitsFlag=False
+    #    YTarg=np.nan
+    #    i=len(X)-1
+    #    return YTarg,i,ProfLimitsFlag
+
     ProfLimitsFlag=True
     if XTarg<=X[0]:
         i=0
@@ -171,6 +220,12 @@ def GetProfilePoint(X,Y,XTarg):
 def CalcVHI(GalaxyDict,ScalingDict):
     print("Calc VHI")
 
+    if ScalingDict['SDMethod']>=2:
+        ScalingDict=BadVHResults(ScalingDict)
+        return ScalingDict
+    if ScalingDict['RHIFlag']==3:
+        ScalingDict=BadVHResults(ScalingDict)
+        return ScalingDict
     Model=GalaxyDict['BestFitModel']
     
     R=Model['R']
@@ -182,34 +237,80 @@ def CalcVHI(GalaxyDict,ScalingDict):
     if len(VProf) <=1:
         VHI=VProf[0]
         RIndx=0
-        VHIFlag=2
+        VHIFlag=4
     else:
-        VHI,RIndx,VHIFlag=GetProfilePoint(R,VProf,RHI)
-        
-        
-    if ScalingDict['SDMethod']==4 or len(VProf)<=1:
-        VMin=np.nan
-        VMax=np.nan
-    else:
-        VUpperArr=np.zeros(3)
-        VLowerArr=np.zeros(3)
-        for i in range(3):
-            RU=ScalingDict['RHIArr'][i]
-            VUpperArr[i],RIndxSpec,VHIFlagSpec=GetProfilePoint(R,VProf+VProfErr,RU)
-            VLowerArr[i],RIndxSpec,VHIFlagSpec=GetProfilePoint(R,VProf-VProfErr,RU)
-        
-        VMax=np.nanmax(VUpperArr)
-        VMin=np.nanmin(VLowerArr)
+        VHI,RIndx,VHIFlag_Ini=GetProfilePoint(R,VProf,RHI)
     
+    RHILimsFlags=ScalingDict['RHIFlag']
+    if ScalingDict['RHIFlag']==0:
+        PtArray=np.array(ScalingDict['RHIArr'])
+    elif ScalingDict['RHIFlag']==1:
+        PtArray=np.array([ScalingDict['RHIArr'][0],ScalingDict['RHIArr'][1]])
+    elif ScalingDict['RHIFlag']==2:
+        PtArray=np.array([ScalingDict['RHIArr'][1],ScalingDict['RHIArr'][2]])
+        
+    nPts=len(PtArray)
+    Mid=np.zeros(nPts)
+
+    Diffs=np.zeros(nPts)
+    RHI=ScalingDict['RHIArr'][1]
+    Low,RIndx,VFlag=GetProfilePoint(R,VProf-VProfErr,RHI)
+    High,RIndx,VFlag=GetProfilePoint(R,VProf+VProfErr,RHI)
     
-    ScalingDict['VHIArr']=np.array([VMin,VHI,VMax])
-    if VHIFlag:
+    VErr_Local=np.abs((High-Low)/2.)
+
+    for i in range(nPts):
+
+        RUse=PtArray[i]
+        print("pt",i,RUse,PtArray,ScalingDict['RHIFlag'])
+        Mid[i],RIndx,VFlag=GetProfilePoint(R,VProf,RUse)
+        
+        Diffs[i]=np.abs(Mid[i]-VHI)
+       
+   
+    Avg=np.mean(Diffs)
+    
+    TotErr=np.sqrt(VErr_Local**2.+Avg**2.)
+    
+    if VHIFlag_Ini==True and RHILimsFlags==0:
         ScalingDict['VHIFlag']=0
-    else:
-        ScalingDict['VHIFlag']=1
+    elif VHIFlag_Ini==False and RHILimsFlags==0:
+        ScalingDict['VHIFlag']=2
+        dR=R[1]-R[0]
+        #print(RHI,R[-1],dR,(RHI-R[-1])/dR)
+        if (RHI-R[-1])/dR <= 0.5:
+            ScalingDict['VHIFlag']=1
+        
+    elif VHIFlag_Ini==True and RHILimsFlags==1:
+        ScalingDict['VHIFlag']=3
+    elif VHIFlag_Ini==True and RHILimsFlags==2:
+        ScalingDict['VHIFlag']=3
+    elif VHIFlag_Ini==False:
+        ScalingDict['VHIFlag']=4
+
+      
+    ScalingDict['VHIArr']=np.array([VHI,TotErr])
+
     
     return ScalingDict
 
 def DistEst(H0,Vel):
     Distance=Vel/H0
     return Distance
+
+
+def NoWorkableSD():
+    RCorrArr=np.array([np.nan,np.nan,np.nan])
+    RHIArr=np.array([np.nan,np.nan,np.nan])
+    
+    SDCalcMethod=2
+    RHIFlag=3
+    RHDict={'RHI_CorrArr':RCorrArr,'RHIArr':RHIArr,'SDMethod':SDCalcMethod,'RHIFlag':RHIFlag}
+    return RHDict
+
+def BadVHResults(ScalingDict):
+
+    ScalingDict['VHIArr']=np.array([np.nan,np.nan,np.nan])
+    ScalingDict['VHIFlag']=4
+    
+    return ScalingDict

@@ -114,20 +114,22 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
     ProfileStr="\n"
     for i in range(nR_SD):
         ProfileStr+=str(round(ExtendSDProfile['R_SD'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS_ERR'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS_FACEON'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS_FACEON_ERR'][i],2))+"\n"
+    if nR_SD ==0:
+        ProfileStr+="\n"
     f.write(ProfileStr)
 
     #       Finish off with the Scaling Relation results
     ScalingDict=GalaxyDict['ScalingDict']
-    ScalingStr="\nRHI Extraction Method (0=3D profile, 1=2D map, 2=2D map End point)\n"
-    ScalingStr+=str(ScalingDict['SDMethod'])+"\n"
+    ScalingStr="\nRHI Extraction Method (0=3D profile, 1=2D map) and flags (0==fine, 1== upper limit issue, 2== low limit issue, 3==full failure) \n"
+    ScalingStr+=str(ScalingDict['SDMethod'])+"\t\t"+ str(ScalingDict['RHIFlag'])+"\n"
     ScalingStr+="RHI and limits (arcsec) \n"
     ScalingStr+=str(round(ScalingDict['RHI_CorrArr'][1],2))+"\t\t"+str(round(ScalingDict['RHI_CorrArr'][0],2))+"\t\t"+str(round(ScalingDict['RHI_CorrArr'][2],2))+"\n"
     ScalingStr+="RHI and limits (kpc) \n"
     ScalingStr+=str(round(ScalingDict['RHI_kpc'][1],2))+"\t\t"+str(round(ScalingDict['RHI_kpc'][0],2))+"\t\t"+str(round(ScalingDict['RHI_kpc'][2],2))+"\n"
-    ScalingStr+="\nVHI Extraction flag (0=interpolation, 1=extrapolation\n"
+    ScalingStr+="\nVHI Extraction flag (0==no issues, 1==extrapolation within 0.5 beams, 2==extrapolation, 3==only one RHI limit, 4==failure)\n"
     ScalingStr+=str(ScalingDict['VHIFlag'])+"\n"
-    ScalingStr+="VHI and limits (km/s) \n"
-    ScalingStr+=str(round(ScalingDict['VHIArr'][1],2))+"\t\t"+str(round(ScalingDict['VHIArr'][0],2))+"\t\t"+str(round(ScalingDict['VHIArr'][2],2))+"\n"
+    ScalingStr+="VHI and error (km/s) \n"
+    ScalingStr+=str(round(ScalingDict['VHIArr'][0],2))+"\t\t"+str(round(ScalingDict['VHIArr'][1],2))+"\n"
     
     f.write(ScalingStr)
     
