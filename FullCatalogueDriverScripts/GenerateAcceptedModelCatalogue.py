@@ -43,13 +43,13 @@ def GetModelNames(FileDict,GalName):
     ModelNames['PVMap2']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMinor_Data.fits"
     ModelNames['PVMap3']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMajor_Model.fits"
     ModelNames['PVMap4']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMinor_Model.fits"
-    
+
     StoreKeys=['CubeFile','ModelFile','FlagFile','DiffCube','ModelPlot','ProcCube','PVMap1','PVMap2','PVMap3','PVMap4']
     TargKeys=['TargCubeFile','TargModelFile','TargFlagFile','TargDiffCube','TargModPlot','TargProcCube','TargPVMap1','TargPVMap2','TargPVMap3','TargPVMap4']
     TargNames=['ModCube.fits','AvgMod.txt','Flag.txt','DiffCube.fits','DiagnosticPlot.png','ProcData.fits','PVMajor_Data.fits','PVMinor_Data.fits','PVMajor_Model.fits','PVMinor_Model.fits']
     j=0
     for key in TargKeys:
-        ModelNames[key]=ModelNames['GalName_Underscore']+"_"+FileDict['KinTR']+"_"+TargNames[j]
+        ModelNames[key]=ModelNames['GalName_Underscore']+"_"+FileDict['KinTR_US']+"_"+TargNames[j]
         j+=1
     ModelNames['StoreKeys']=StoreKeys
     ModelNames['TargKeys']=TargKeys
@@ -90,14 +90,17 @@ def CopySuccessfulModel(ModelNames,FileDict):
     os.makedirs(FileDict['PlotFolder'], exist_ok=True)
     #   First copy the model plot to the overarching model folder
     CpCmd="cp "+ModelNames['ModelPlot'] + " "+FileDict['PlotFolder']+"."
+    print("First Copy Cmd", CpCmd)
     os.system(CpCmd)
     #   Now make a directory for the model results
     AcceptedModelFolder=FileDict['KinFolder']+ModelNames['GalName_Underscore']+"/"
+    print("AcceptedModel Folder", AcceptedModelFolder)
     os.makedirs(AcceptedModelFolder, exist_ok=True)
     #   Set the keys of files to copy
     j=0
     for key in ModelNames['StoreKeys']:
         CpCmd="cp "+ModelNames[key]+" "+AcceptedModelFolder+ModelNames[ModelNames['TargKeys'][j]]
+        print("Store key Cp Cmd", CpCmd)
         j+=1
         os.system(CpCmd)
         
@@ -132,7 +135,8 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
     CutLimits=MA.SetCutLimits()
     #   Set the kinematic models folder
     #RTDict['KinTR']=Cat['team_release'][0]+"_KinTR1"
-    KinName=RTDict['TargFolder'].strip("/")+"_"+RTDict['KinTR']
+    RTDict['KinTR_US']=RTDict['KinTR'].replace(' ','_')
+    KinName=RTDict['TargFolder'].strip("/")+"_"+RTDict['KinTR_US']
     RTDict['KinFolder']=RTDict['TargFolder']+KinName+"/"
     #   Make a folder to store a copy of all the diagnostic plots to make life simpler for checking everything
     RTDict['PlotFolder']=RTDict['KinFolder']+"DiagnosticPlots/"
@@ -161,8 +165,8 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
     ExtendedProfParams=['Rad_SD_map', 'SD_map_proj_model', 'e_SD_map_proj_model','SD_map_model', 'e_SD_map_model']
     ExtendedProfParamNames=['R_SD','SURFDENS', 'SURFDENS_ERR','SURFDENS_FACEON', 'SURFDENS_FACEON_ERR']
     
-    ScalingParams=['RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_low','VHI_high']
-    ScalingParamNames=['RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_low','VHI_high']
+    ScalingParams=['SDMethodFlag', 'RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_Err']
+    ScalingParamNames=['SDMethodFlag','RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_Err']
     
     ResultsDict=IniResultsDict(Cat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,ScalingParams)
     #print("Results Dictionary", ResultsDict)
