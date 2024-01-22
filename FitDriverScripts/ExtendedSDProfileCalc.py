@@ -37,6 +37,8 @@ def CalcExtendedSDProfile(GalaxyDict):
     
     ExtendedSDProfile={}
     ExtendedSDProfile['Mom0']=ExtendedSDProfile
+    
+    ExtendedSDProfile['ProfileAcceptFlag']=True
 
     #   Now let's grab the inclination and position angle
     Model=GalaxyDict['BestFitModel']
@@ -44,10 +46,37 @@ def CalcExtendedSDProfile(GalaxyDict):
     ExtendedSDProfile['PA']=(Model['POSITIONANGLE'][0]+90)*np.pi/180.
     ExtendedSDProfile['Ellipticity']=np.cos(ExtendedSDProfile['Inc'])
 
+    ExtendedSDProfile['PA_Min']=(Model['POSITIONANGLE'][0])*np.pi/180.
+    maxR_Min,dR_Min=DetermineRMax(Model,DataCube,ExtendedSDProfile['PA_Min'],Mom0)
+    MinSize=2*maxR_Min*dR_Min
+    MinorAxisRequiredBeams=2
+    BeamSize_AS=DataCube['CubeHeader']['BMAJ']*3600.
+    print("Number of minor rings",maxR_Min,BeamSize,dR_Min)
+    if MinSize <= MinorAxisRequiredBeams*BeamSize_AS:
+        print("Hmmm",MinSize,MinorAxisRequiredBeams*BeamSize_AS)
+        ExtendedSDProfile['ProfileAcceptFlag']=False
+        ExtendedSDProfile=BadSDProfile(ExtendedSDProfile)
+        GalaxyDict['ExtendedSDProfile']=ExtendedSDProfile
+        return GalaxyDict
+
     #   The next step is to figure out the outermost radius
     maxR,dR=DetermineRMax(Model,DataCube,ExtendedSDProfile['PA'],Mom0)
     ExtendedSDProfile['maxR']=maxR
     ExtendedSDProfile['dR']=dR
+    """
+    print("maxR in extended SD",maxR,dR,ExtendedSDProfile['Ellipticity'],BeamSize)
+
+    #   Try adding beam correction to the ellipticity
+    MajEstimate=maxR*dR
+    MinEstimate=MajEstimate*ExtendedSDProfile['Ellipticity']
+    Beam_AS=abs(DataCube['CubeHeader']['CDELT1'])*3600.
+    MajE2=np.sqrt(MajEstimate**2.+Beam_AS**2.)
+    MinE2=np.sqrt(MinEstimate**2.+Beam_AS**2.)
+    ExtendedSDProfile['Ellipticity']=MinE2/MajE2
+    print("Hmmm", MajE2, MinE2)
+    print("New Ellipticity",ExtendedSDProfile['Ellipticity'])
+    """
+    
     #   It's necessary to have the radial grid size in pixels rather than arcseconds for some calculations.
     dRPix=dR/(abs(DataCube['CubeHeader']['CDELT1'])*3600.)
     ExtendedSDProfile['dRPix']=dRPix
@@ -69,8 +98,12 @@ def CalcExtendedSDProfile(GalaxyDict):
     ExtendedSDProfile['SURFDENS_ERR']=ProfUnitConvert(ExtendedSDProfile['SURFDENS_ERR'])
 
 
-    ExtendedSDProfile['SURFDENS_FACEON']=ExtendedSDProfile['SURFDENS']*np.cos(ExtendedSDProfile['Inc'])
-    ExtendedSDProfile['SURFDENS_FACEON_ERR']=ExtendedSDProfile['SURFDENS_ERR']*np.cos(ExtendedSDProfile['Inc'])
+    #ExtendedSDProfile['SURFDENS_FACEON']=ExtendedSDProfile['SURFDENS']*np.cos(ExtendedSDProfile['Inc'])
+    #ExtendedSDProfile['SURFDENS_FACEON_ERR']=ExtendedSDProfile['SURFDENS_ERR']*np.cos(ExtendedSDProfile['Inc'])
+    
+    
+    ExtendedSDProfile['SURFDENS_FACEON']=ExtendedSDProfile['SURFDENS']*ExtendedSDProfile['Ellipticity']
+    ExtendedSDProfile['SURFDENS_FACEON_ERR']=ExtendedSDProfile['SURFDENS_ERR']*ExtendedSDProfile['Ellipticity']
 
     
     ExtendedSDProfile['BMAJ']=DataCube['CubeHeader']['BMAJ']*3600.
@@ -246,8 +279,15 @@ def GetPixelPoint(R,AvgModel,PARad):
     #   Rotate this to physical coordinates
     XRot=XEllip*np.cos(PARad)-YEllip*np.sin(PARad)
     YRot=XEllip*np.sin(PARad)+YEllip*np.cos(PARad)
+    #print("Getting Pixel Point", XRot,YRot,R,PARad)
     #   Go from coordinates relative to the center to absolut pixel coordinates.
     XPos=XRot+AvgModel['XCENTER'][0]
     YPos=YRot+AvgModel['YCENTER'][0]
     #   Return the position.
     return XPos,YPos
+
+
+def BadSDProfile(ExtendedSDProfile):
+    ExtendedSDProfile['maxR']=0
+    ExtendedSDProfile['R_SD']=[]
+    return ExtendedSDProfile
