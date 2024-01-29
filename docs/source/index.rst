@@ -23,4 +23,4 @@ Contents
    installation
    basicusage
    inputs/pipelineinputs
-   Inputs/singlegalaxyinputs
+   inputs/singlegalaxyinputs
