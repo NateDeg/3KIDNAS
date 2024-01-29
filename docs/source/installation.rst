@@ -53,6 +53,6 @@ Once all third part software is installed locally, the Fortran programs can be i
 2) make clean
 3) make
 
-Once these are run, the executables should be located in the Programs/ folder.
+Once these are run, the executables should be located in the Programs/ folder.  
 
 
