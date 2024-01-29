@@ -15,13 +15,3 @@ Inc_Estimate=61.2
 nBootstraps= 50
 #   And set the number of processors to use for the bootstraps
 nProcessors_Bootstraps=5
-
-
-#   First give the name of the cube that will be fit
-#CubeName="/Users/nate/Dropbox/GitProjects/21-cm-Emission/PSOFT2/BootstrapDriverTesting/WALLABY_J125941+054304_VelCube.fits"
-#   Next give the name of the base cube mask
-#MaskName="/Users/nate/Dropbox/WALLABY/NGC4808_TR1/NGC_4808_DR1_products/WALLABY_J125941+054304/WALLABY_J125941+054304_mask.fits.gz"
-#   Also give a name for the object for naming purposes
-#ObjName="WALLABY_J125941+054304"
-#   And give a name for the folder that will contain the fitting results
-#TargFolder="BadBootstrapIssue/"
