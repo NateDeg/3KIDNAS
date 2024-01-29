@@ -19,3 +19,4 @@ Contents
 
    overview
    installation
+   basicusage
