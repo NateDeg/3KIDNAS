@@ -9,6 +9,7 @@ Welcome to 3KIDNAS's documentation!
 .. toctree::
    :maxdepth: 2
    overview
+   Installation
 
 
 
