@@ -1,5 +1,3 @@
-Basic Use
-
 Using 3KIDNAS
 -------------
 
@@ -8,6 +6,4 @@ Using 3KIDNAS
 Pipeline Mode
 -------------
 
-Running 3KIDNAS in pipeline mode has been designed to be fairly straightforward.  It requires the user to edit a 
-
-a SoFiA-2 catalogue and set of cube lets and associated masks
+Running 3KIDNAS in pipeline mode has been designed to be fairly straightforward.  It requires a user provided runtime input file that will point to the data; a SoFiA-2 catalogue and a set of cubelets and associated masks.

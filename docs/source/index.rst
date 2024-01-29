@@ -6,7 +6,9 @@
 3KIDNAS documentation!
 ===================================
 
-The 3D-Kinematic Data aNalysis Algorithm for Surveys (3KIDNAS, pronounced the same as echidnas), is a pipeline for kinematically modelling resolved galaxies.  This page contains extensive documentation of how to install and use the code, as well as the underlying structure for those who wish to modify the code.  We also list a few of the known issues and future improvements.
+The 3D-Kinematic Data aNalysis Algorithm for Surveys (3KIDNAS, pronounced the same as echidnas), is a pipeline for kinematically modelling resolved galaxies.  This models are produced via tilted ring modelling.
+
+This page contains extensive documentation of how to install and use the code, as well as a description of tilted ring modelling, the underlying structure or the code for those who wish to modify it.  We also list a few of the known issues and future improvements.
 
 .. note::
 
@@ -16,7 +18,6 @@ Contents
 --------
 
 .. toctree::
-
-   overview
+   :maxdepth: 2
    installation
    basicusage
