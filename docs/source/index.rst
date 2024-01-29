@@ -8,14 +8,6 @@ Welcome to 3KIDNAS's documentation!
 
 .. toctree::
    :maxdepth: 2
-   overview
-   installation
-
-
-
-Indices and tables
+overview
+installation
 ==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
