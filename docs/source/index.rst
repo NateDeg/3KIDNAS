@@ -3,16 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Lumache's documentation!
+3KIDNAS documentation!
 ===================================
 
-**Lumache** (/lu'make/) is a Python library for cooks and food lovers
-that creates recipes mixing random ingredients.
-It pulls data from the `Open Food Facts database <https://world.openfoodfacts.org/>`_
-and offers a *simple* and *intuitive* API.
-
-Check out the :doc:`usage` section for further information, including
-how to :ref:`installation` the project.
+The 3D-Kinematic Data aNalysis Algorithm for Surveys (3KIDNAS, pronounced the same as echidnas), is a pipeline for kinematically modelling resolved galaxies.  This page contains extensive documentation of how to install and use the code, as well as the underlying structure for those who wish to modify the code.  We also list a few of the known issues and future improvements.
 
 .. note::
 
