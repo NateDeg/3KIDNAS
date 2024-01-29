@@ -8,9 +8,7 @@ Welcome to 3KIDNAS's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-
-    overview
+   overview
 
 
 
