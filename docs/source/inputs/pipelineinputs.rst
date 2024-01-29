@@ -1,11 +1,6 @@
-Inputs
+Pipeline Input File
+=================================
 
-Input files for 3KIDNAS
--------------
-
-
-Pipeline Input
--------------
 
 An example of the input file needed for the full pipeline is 
 /Inputs/Sample_KIDNASPipelineInput.py
