@@ -30,6 +30,7 @@ The python scripts require:
 7) spectral_cube 
 8) CosmosCanavas
 9) SoFiA-2 
+10) multiprocessing
 
 Installation
 --------------

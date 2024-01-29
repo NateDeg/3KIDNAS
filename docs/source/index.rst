@@ -21,3 +21,4 @@ Contents
 
    installation
    basicusage
+   inputs 
