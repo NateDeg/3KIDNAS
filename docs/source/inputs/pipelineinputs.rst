@@ -26,7 +26,13 @@ The input file is a python file and requires that 7 variables be set.  They are
 
 7) nProcessors_Bootstrap == The number of processors used to fit independent bootstrap resamples for a particular galaxy.
 
-The total number of processors used in a run of the full 3KIDNAS pipeline is nProcessors * nProcessors_Bootstrap
+To be clear, the total number of processors used in a run of the full 3KIDNAS pipeline is nProcessors * nProcessors_Bootstrap
+
+The above are the 7 key parameters that need to be set for any run of 3KIDNAS.  However, it is possible to use this pipeline input file to overwrite certain default behaviours in the code.  A more detailed description of this can be found at
+
+
+
+
 
 
 

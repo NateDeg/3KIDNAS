@@ -18,7 +18,7 @@ Contents
 --------
 
 .. toctree::
+   :numbered:
 
    installation
    basicusage
-   inputs 
