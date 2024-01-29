@@ -2,12 +2,12 @@
 
 # -- Project information
 
-project = '3DKIDNAS'
+project = '3KIDNAS'
 copyright = '2024, Deg'
-author = 'N. Deg'
+author = 'Deg'
 
-release = '0.9'
-version = '0.9.0'
+release = '0.1'
+version = '0.1.0'
 
 # -- General configuration
 
