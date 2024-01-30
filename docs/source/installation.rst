@@ -56,4 +56,22 @@ Once all third part software is installed locally, the Fortran programs can be i
 
 Once these are run, the executables should be located in the Programs/ folder.  
 
+Issues
+--------------
+
+There is a known issue in the Fortran programs related to the interface between the cfitsio library and whether the os is a Mac M1+ or a Linux environment.  We are working to solve this issue.  While the programs will install, they will not make cubes of the correct size.  If you are using Linux, please ensue that:
+
+1. In src/Inputs/DataCubeInput.f that line 161 is
+.. code-block:: bash
+	integer nInts(3)
+In a Mac, that line should be
+.. code-block:: bash
+	integer*8 nInts(3)
+2. Similarly, in src/Outputs/DataCubeOutputs, line 118 should be
+.. code-block:: bash
+	integer naxesT(3),naxisT
+for Linux and 
+.. code-block:: bash
+	integer*8 naxesT(3),naxisT
+for a Mac.  
 
