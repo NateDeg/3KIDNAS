@@ -24,3 +24,5 @@ Contents
    basicusage
    inputs/pipelineinputs
    inputs/singlegalaxyinputs
+   inputs/bootstrapinputs
+   inputs/singlefit
