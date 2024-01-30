@@ -21,3 +21,11 @@ An example of the main input file for the SingleGalaxyFitter code is /Inputs/Sin
 9. Line 17/18 gives the name of the galaxy itself.
 10. Line 19/20 is a legacy line that gives the noise.  This is overwritten in the code itself.
 
+
+
+Fitting Options Input
+--------------
+
+The fitting options input is significantly more complex than the other input files as there are a number of options that must be specified.  However, some of these options have not fully been implemented, so it is recommended that the user keep it similar to the sample input file found in Inputs/SingleGalaxyTestFittingOptions_Base.txt
+
+
