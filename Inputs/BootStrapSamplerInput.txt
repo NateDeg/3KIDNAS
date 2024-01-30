@@ -1,0 +1,11 @@
+#    Name of the input data cube
+/Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Hydra_DR2_VelocityCubes_Jan2022/WALLABY_PS_Hya_DR2_J102019-285220_cube_Vel.fits
+#    Name of the model data cube
+BootstrapDriver_Trial_v1//WALLABY_PS_Hya_DR2_J102019-285220/WALLABY_PS_Hya_DR2_J102019-285220_AverageModel_v1.fits
+#    The base name for the bootstrap cube
+WALLABY_PS_Hya_DR2_J102019-285220_Bootstrap_0
+#    Size of the resampling blocks in beams and channels
+1
+#    The geometry used for bootstrap resampling (centre pt. in pixels plus PA & INC in radians) 
+23.71	20.79	81.4945123803903	5.99548523328084	1.088387321543664
+
