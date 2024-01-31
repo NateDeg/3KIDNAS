@@ -8,8 +8,11 @@ After fitting all galaxies, 3KIDNAS checks whether the fits are acceptable.  All
 
 MainOutputFolder
 |----AcceptedGalaxyModels
+
 |     |---CatalogueFile
+
 |     |---DiagnosticPlotFolderForAcceptedFits
+
 |     |---AcceptedGalaxy1
 |     |---AcceptedGalaxy2
 |     |---...

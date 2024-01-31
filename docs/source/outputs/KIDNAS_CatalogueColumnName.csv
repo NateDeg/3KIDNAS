@@ -1,45 +1,45 @@
 Column Name,Description
-name,
-RMS,
-SN_Integrated,
-SN_Peak,
-SN_Avg,
-SN_Median,
-X_model,
-e_X_model,
-Y_model,
-e_Y_model,
-Inc_model,
-e_Inc_model,
-PA_model,
-e_PA_model,
-Vsys_model,
-e_Vsys_model,
-RA_model,
-e_RA_model,
-DEC_model,
-e_DEC_model,
-Vdisp_model,
-e_Vdisp_model,
-Rad,
-Vrot_model,
-e_Vrot_model,
-Rad_SD,
-SD_model,
-e_SD_model,
-Rad_SD_map,
-SD_map_proj_model,
-e_SD_map_proj_model,
-SD_map_model,
-e_SD_map_model,
-SDMethodFlag,
-RHI_flag,
-RHI_AS,
-RHI_low_AS,
-RHI_high_AS,
-RHI_kpc,
-RHI_low_kpc,
-RHI_high_kpc,
-VHI_flag,
-VHI,
-VHI_Err,
+name,The name of the galaxy
+RMS,The noise in the cubelet as calculated by  3KIDNAS (in units of mJy/beam)
+SN_Integrated,The integrated S/N as calculated by 3KIDNAS (based on Eq. 1 of Deg+2022)
+SN_Peak,The peak S/N (the ratio of the cell with the highest flux to the RMS)
+SN_Avg,The average S/N (the average flux divided by the RMS)
+SN_Median,The median S/N (the median flux divided by the RMS)
+X_model,The X-coordinate centre of the cube (in pixels)
+e_X_model,The uncertainty in X_model
+Y_model,The Y-coordinate centre of the cube (in pixels)
+e_Y_model,The uncertainty in Y_model
+Inc_model,The model inclination (in degrees)
+e_Inc_model,The uncertainty in Inc_model
+PA_model,The position angle of the model (in degrees)
+e_PA_model,The uncertainty in PA_model
+Vsys_model,The systemic velocity of the model (in km/s)
+e_Vsys_model,The uncertainty in VSys_model
+RA_model,The right ascension of the model centre (in degrees)
+e_RA_model,The uncertainty in RA_model
+DEC_model,The declination of the model centre (in degrees)
+e_DEC_model,The uncertainty in DEC_model
+Vdisp_model,The model velocity dispersion (in km/s)
+e_Vdisp_model,The uncertainty in Vdisp_model
+Rad,"The radial grid for the rotation curve (an array, units are in arcsecs)"
+Vrot_model,"The rotation curve of the model (an array, units are in km/s)"
+e_Vrot_model,The uncertainties in Vrot_model
+Rad_SD,"The radial grid for the surface density profile (an array, units are in arcsecs)"
+SD_model,"The surface density profile of the model (an array, units are in Msol pc^-2)"
+e_SD_model,The uncertainties in SD_model
+Rad_SD_map,"The radial grid for the surface density profile calculated from the moment 0 map (an array, units are in arcsecs)"
+SD_map_proj_model,"The projected surface density profile calculated from the moment 0 map (an array, units are in Msol pc^-2)"
+e_SD_map_proj_model,The uncertainties in SD_map_proj_model
+SD_map_model,"The deprojected surface density profile calculated from the moment 0 map (an array, units are in Msol pc^-2)"
+e_SD_map_model,The uncertainties in SD_map_model
+SDMethodFlag,"A flag indicated the method used to extract R_HI (0==SD_model, 1==SD_map_model)"
+RHI_flag,"A flag indicating the quality of the extracted R_HI (0==good, 1==no upper limit, 2== no lower limit, 3==no extraction) "
+RHI_AS,The size of the model in arcseconds — this is not beam corrected for SDMethodFlag=1
+RHI_low_AS,The lower limit on R_HI in arcseconds — this is not beam corrected for SDMethodFlag=1
+RHI_high_AS,The upper limit on R_HI in arcseconds — this is not beam corrected for SDMethodFlag=1
+RHI_kpc,The size of the model in kpc — this is corrected
+RHI_low_kpc,The lower limit on R_HI in kpc — this is corrected
+RHI_high_kpc,The upper limit on R_HI in kpc — this is corrected
+VHI_flag,"A flag indicating the quality of the extracted scale velocity (0==good, 1==good, but some extrapolation, 2==significant extrapolation, 3==only one limit for R_HI, 4==no robust measure of V_HI and uncertainties)"
+VHI,The scale velocity of the model in km/s.  This is the velocity at R_HI
+VHI_Err,The uncertainty in VHI
