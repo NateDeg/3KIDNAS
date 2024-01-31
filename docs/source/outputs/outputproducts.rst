@@ -23,12 +23,12 @@ Accepted Model Catalogue
 --------------
 The accepted model catalogue is perhaps the most important output from 3KIDNAS as it is the one that users will likely interact with the most.  It contains the model parameters for each individual galaxy fit.  While this information is available in the individual output folders, it is much more accessible in the output csv catalogue.  The various columns in the catalogue are
 
-.. table:: Truth table for "not"
+.. table:: Accepted Model Catalogue Columns
    :widths: auto
 
-   =====  =====
-     Column Name    not A
-   =====  =====
-   False  True
-   True   False
-   =====  =====
+   =====        	=====
+   Column Name    	Description
+   =====  		=====
+   False  		True
+   True   		False
+   =====  		=====
