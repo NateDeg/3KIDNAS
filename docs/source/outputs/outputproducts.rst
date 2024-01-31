@@ -7,16 +7,16 @@ There are a variety of data products produced by 3KIDNAS.  When run in pipeline 
 After fitting all galaxies, 3KIDNAS checks whether the fits are acceptable.  All accepted fits are stored in a subfolder.  Within this subfolder, individual folders are made for each galaxy.  Additionally a catalogue file is generated contains the model parameters for all successful fits. And, for ease in browsing, copies of all diagnostic plots are placed in a separate folder (both for all fits and for only the accepted fits).  Essentially the structure is:
 
 MainOutputFolder
-	AcceptedGalaxyModels
-		CatalogueFile
-		DiagnosticPlotFolderForAcceptedFits
-		AcceptedGalaxy1
-		AcceptedGalaxy2
-		...
-	DiagnosticPlotFolderForAllFits
-	AttemptedGalaxyFit1
-	AttemptedGalaxy2
-	...
+|----AcceptedGalaxyModels
+|     |---CatalogueFile
+|     |---DiagnosticPlotFolderForAcceptedFits
+|     |---AcceptedGalaxy1
+|     |---AcceptedGalaxy2
+|     |---...
+|----DiagnosticPlotFolderForAllFits
+|----AttemptedGalaxyFit1
+|----AttemptedGalaxy2
+|----...
 
 
 Accepted Model Catalogue
