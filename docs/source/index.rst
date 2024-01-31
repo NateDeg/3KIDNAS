@@ -26,4 +26,4 @@ Contents
    inputs/singlegalaxyinputs
    inputs/bootstrapinputs
    inputs/singlefit
-   Outputs/outputproducts
+   outputs/outputproducts
