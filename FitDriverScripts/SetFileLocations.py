@@ -17,7 +17,7 @@ def GetFileAndFolderLocationAndNames():
     #   Set the default WRKP Main file
     WRKP_GeneralMainIn=WRKPDir+"/Inputs/SingleFitInput_Base.in"
     #   Set the default WRKP Options file
-    WRKP_GeneralOptionsIn=WRKPDir+"/Inputs/SingleGalaxyTestFittingOptions_Base.in"
+    WRKP_GeneralOptionsIn=WRKPDir+"/Inputs/SingleGalaxyTestFittingOptions_Base.txt"
     #   Set the general file dictionary as the set of local variables thus far
     FileDict=locals()
     #   Set the list of runtime parameters that must be set in the RT Params  file
