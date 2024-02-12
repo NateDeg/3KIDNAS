@@ -162,7 +162,7 @@ def LoadBootstrappedFit(FileName):
         for i in range(nR_SD):
             j=i+ProfileStartLine
             R_SD[i],SD_FO[i],SD_FO_Err[i]=SDProfileLineAssign(Lines[j])
-        
+        """
         #   Load in the extend SD profile
         nR_Extend=nRLineSet(Lines[j+3])
         ProfileStartLine=j+6
@@ -178,7 +178,7 @@ def LoadBootstrappedFit(FileName):
         SDExtendedProfile={'R_SD':R_SDE,'SURFDENS':SDE,'SURFDENS_ERR':SDE_Err,'SURFDENS_FACEON':SD_FO,'SURFDENS_FACEON_ERR':SDE_FO_Err}
         if nR_Extend==0:
             j=j+6
-        
+        """
         #   Now get the scaling relation parameters
         ScalingDict={}
         j=j+3
@@ -209,7 +209,7 @@ def LoadBootstrappedFit(FileName):
             ,'FITAchieved':FitAchieved,'CHI2':-1}
         AvgDict['SURFDENS_FACEON']=AvgDict['SURFDENS']
         AvgDict['SURFDENS_FACEON_ERR']=AvgDict['SURFDENS_ERR']
-        AvgDict['ExtendedSDProfile']=SDExtendedProfile
+        #AvgDict['ExtendedSDProfile']=SDExtendedProfile
         AvgDict['ScalingDict']=ScalingDict
         #       Add in the noise values to the dictionary
         NoiseKeys=["RMS","SN_Integrated","SN_Peak","SN_Avg","SN_Median"]

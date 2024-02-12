@@ -299,13 +299,14 @@ def KeywordPlot(fig,placement,Key,Model,SDExtend):
         ylabel =r"V (km/s)"
     elif Key=="SURFDENS_FACEON":
         ylabel = r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)"
-        
+        """
         if SDExtend['ProfileAcceptFlag']:
             XExtend=SDExtend['R_SD']
             YExtend=SDExtend['SURFDENS_FACEON']
             YExtend_Err=SDExtend['SURFDENS_FACEON_ERR']
             linecol='red'
             ax.errorbar(XExtend,YExtend,yerr=YExtend_Err,marker='.',ls='--',color=linecol,lw=LW,markersize=MW)
+        """
         
     ax.set_xlabel(r"R ('')")
     ax.set_ylabel(ylabel)

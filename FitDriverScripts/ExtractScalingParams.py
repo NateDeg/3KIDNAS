@@ -54,9 +54,10 @@ def CalcRHI(GalaxyDict):
         DictUse=Model
     #       If the 3D method doesn't bracket the SD values, check the extended profile
     else:
-        SDCalcMethod=1
-        DictUse=GalaxyDict['ExtendedSDProfile']
-
+        SDCalcMethod=-1
+        #DictUse=GalaxyDict['ExtendedSDProfile']
+        RHDict=NoWorkableSD()
+        return RHDict
     
     R=DictUse['R_SD']
     SD=DictUse['SURFDENS_FACEON']
@@ -79,7 +80,7 @@ def CalcRHI(GalaxyDict):
         R_indx=0
         RHI_Upper=np.nan
         RHI_Lower=np.nan
-        RHIFlag=3
+        RHIFlag=-1
 
 
     else:
@@ -88,7 +89,7 @@ def CalcRHI(GalaxyDict):
         if np.isnan(DictUse['SURFDENS_FACEON_ERR']).any():
             RHI_Lower=np.nan
             RHI_Upper=np.nan
-            RHIFlag=3
+            RHIFlag=-1
         else:
             RHI_Upper,RUFound,R_UpperIndx=GetSD_Intecept(R,SDUpper,SDLim)
             RHI_Lower,RLFound,R_LowerIndx=GetSD_Intecept(R,SDLower,SDLim)
@@ -100,12 +101,12 @@ def CalcRHI(GalaxyDict):
                 RHI_Lower=np.nan
                 RHIFlag=2
             if RUFound==False and RLFound==False:
-                RHIFlag=3
+                RHIFlag=-1
                 RHI_Lower=np.nan
                 RHI_Upper=np.nan
         
         if SDCalcMethod==1 and RHI_Found==False:
-            RHIFlag=3
+            RHIFlag=-1
             RHI_Lower=np.nan
             RHI_Upper=np.nan
             RHI=np.nan
@@ -220,10 +221,10 @@ def GetProfilePoint(X,Y,XTarg):
 def CalcVHI(GalaxyDict,ScalingDict):
     print("Calc VHI")
 
-    if ScalingDict['SDMethod']>=2:
+    if ScalingDict['SDMethod']==-1:
         ScalingDict=BadVHResults(ScalingDict)
         return ScalingDict
-    if ScalingDict['RHIFlag']==3:
+    if ScalingDict['RHIFlag']==-1:
         ScalingDict=BadVHResults(ScalingDict)
         return ScalingDict
     Model=GalaxyDict['BestFitModel']
@@ -237,7 +238,7 @@ def CalcVHI(GalaxyDict,ScalingDict):
     if len(VProf) <=1:
         VHI=VProf[0]
         RIndx=0
-        VHIFlag=4
+        VHIFlag=-1
     else:
         VHI,RIndx,VHIFlag_Ini=GetProfilePoint(R,VProf,RHI)
     
@@ -275,18 +276,18 @@ def CalcVHI(GalaxyDict,ScalingDict):
     if VHIFlag_Ini==True and RHILimsFlags==0:
         ScalingDict['VHIFlag']=0
     elif VHIFlag_Ini==False and RHILimsFlags==0:
-        ScalingDict['VHIFlag']=2
+        ScalingDict['VHIFlag']=-1
         dR=R[1]-R[0]
         #print(RHI,R[-1],dR,(RHI-R[-1])/dR)
         if (RHI-R[-1])/dR <= 0.5:
-            ScalingDict['VHIFlag']=1
+            ScalingDict['VHIFlag']=-1
         
     elif VHIFlag_Ini==True and RHILimsFlags==1:
-        ScalingDict['VHIFlag']=3
+        ScalingDict['VHIFlag']=1
     elif VHIFlag_Ini==True and RHILimsFlags==2:
-        ScalingDict['VHIFlag']=3
+        ScalingDict['VHIFlag']=1
     elif VHIFlag_Ini==False:
-        ScalingDict['VHIFlag']=4
+        ScalingDict['VHIFlag']=-1
 
       
     ScalingDict['VHIArr']=np.array([VHI,TotErr])
@@ -303,14 +304,14 @@ def NoWorkableSD():
     RCorrArr=np.array([np.nan,np.nan,np.nan])
     RHIArr=np.array([np.nan,np.nan,np.nan])
     
-    SDCalcMethod=2
-    RHIFlag=3
+    SDCalcMethod=-1
+    RHIFlag=-1
     RHDict={'RHI_CorrArr':RCorrArr,'RHIArr':RHIArr,'SDMethod':SDCalcMethod,'RHIFlag':RHIFlag}
     return RHDict
 
 def BadVHResults(ScalingDict):
 
     ScalingDict['VHIArr']=np.array([np.nan,np.nan,np.nan])
-    ScalingDict['VHIFlag']=4
+    ScalingDict['VHIFlag']=-1
     
     return ScalingDict

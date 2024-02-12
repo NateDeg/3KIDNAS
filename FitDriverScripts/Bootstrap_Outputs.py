@@ -101,7 +101,7 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
     f.write(ProfileStr)
     
     
-    
+    """
     #       Add another set for the projected SD profile
     ExtendSDProfile=GalaxyDict['ExtendedSDProfile']
     nR_SD=len(ExtendSDProfile['R_SD'])
@@ -117,7 +117,7 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
     if nR_SD ==0:
         ProfileStr+="\n"
     f.write(ProfileStr)
-
+    """
     #       Finish off with the Scaling Relation results
     ScalingDict=GalaxyDict['ScalingDict']
     ScalingStr="\nRHI Extraction Method (0=3D profile, 1=2D map) and flags (0==fine, 1== upper limit issue, 2== low limit issue, 3==full failure) \n"

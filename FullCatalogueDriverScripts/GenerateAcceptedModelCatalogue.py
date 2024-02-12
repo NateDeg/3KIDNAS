@@ -112,8 +112,8 @@ def IniResultsDict(SrcCat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,S
         ResultsDict[x]=[None]*len(SrcCat)
     for x in ProfParams:
         ResultsDict[x]=[None]*len(SrcCat)
-    for x in ExtendedProfParams:
-        ResultsDict[x]=[None]*len(SrcCat)
+    #for x in ExtendedProfParams:
+    #    ResultsDict[x]=[None]*len(SrcCat)
     for x in ScalingParams:
         ResultsDict[x]=[None]*len(SrcCat)
     print(ResultsDict.keys())
@@ -229,13 +229,14 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
                 Arr=Results['Model'][y]
                 Str=', '.join([str(Val) for Val in Arr])
                 ResultsDict[x][k]=Str
-                
+            """
             j=0
             for x in ExtendedProfParams:
                 y=ExtendedProfParamNames[j]
                 Arr=Results['Model']['ExtendedSDProfile'][y]
                 Str=', '.join([str(Val) for Val in Arr])
                 ResultsDict[x][k]=Str
+            """
                 
             for j in range(len(ScalingParams)):
                 x=ScalingParams[j]

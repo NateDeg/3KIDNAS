@@ -38,6 +38,7 @@ from third_party.colourspace import maps
 def MakeAllMomentMapPlots(fig,Model,DataCube,ModelCube,PltOpts,GalaxyDict,GeneralDict):
     print("Making Moment Map Plots")
     #   Start by making moment maps for the model and data cube
+    
     for i in range(2):
         if i==0:
             CUse=DataCube
@@ -104,6 +105,17 @@ def MakeMomPanel(fig,Model,DataCube,ModelCube,PltOpts,Moment,XX,YY):
         Ell=Ellipse([LocX,LocY], ESize, ESize, 0.,edgecolor='cyan',facecolor='none',lw=2)
         #   Add the ellipse to the map.
         ax.add_patch(Ell)
+        #mTest=ModelCube['Mom0'][ModelCube['Mom0'] <= 0] = 1.
+        #mVal=np.nanmin(mTest)
+        #print(ModelCube['Mom0'])
+        #print("Mom0 ModelCube", np.nanmax(ModelCube['Mom0']))
+        #   Take the maximum SD and divide it by 100 to get the outer contour -- shouldn't be an issue with HI, but if used elsewhere, may need more robust approach.
+        CLevels=[np.nanmax(ModelCube['Mom0'])/100.]
+        LW=2
+        CCol='#DEB887'
+        lTypes="--"
+        ax.contour(XX,YY,ModelCube['Mom0'],colors=CCol,linewidths=LW,linestyles=lTypes,levels=CLevels)
+        
     elif Moment==1:
         AddArrowToMomMap(ax,Model,DataCube)
         AddVelContoursToMomentPlot(ax,ModelCube,Model,XX,YY)
