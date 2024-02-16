@@ -27,19 +27,14 @@ e_Vrot_model,The uncertainties in Vrot_model
 Rad_SD,"The radial grid for the surface density profile (an array, units are in arcsecs)"
 SD_model,"The surface density profile of the model (an array, units are in Msol pc^-2)"
 e_SD_model,The uncertainties in SD_model
-Rad_SD_map,"The radial grid for the surface density profile calculated from the moment 0 map (an array, units are in arcsecs)"
-SD_map_proj_model,"The projected surface density profile calculated from the moment 0 map (an array, units are in Msol pc^-2)"
-e_SD_map_proj_model,The uncertainties in SD_map_proj_model
-SD_map_model,"The deprojected surface density profile calculated from the moment 0 map (an array, units are in Msol pc^-2)"
-e_SD_map_model,The uncertainties in SD_map_model
-SDMethodFlag,"A flag indicated the method used to extract R_HI (0==SD_model, 1==SD_map_model)"
+SDMethodFlag,"A flag indicated the method used to extract R_HI (0==SD_model, -1==Failurel)"
 RHI_flag,"A flag indicating the quality of the extracted R_HI (0==good, 1==no upper limit, 2== no lower limit, 3==no extraction) "
-RHI_AS,The size of the model in arcseconds — this is not beam corrected for SDMethodFlag=1
-RHI_low_AS,The lower limit on R_HI in arcseconds — this is not beam corrected for SDMethodFlag=1
-RHI_high_AS,The upper limit on R_HI in arcseconds — this is not beam corrected for SDMethodFlag=1
-RHI_kpc,The size of the model in kpc — this is corrected
-RHI_low_kpc,The lower limit on R_HI in kpc — this is corrected
-RHI_high_kpc,The upper limit on R_HI in kpc — this is corrected
-VHI_flag,"A flag indicating the quality of the extracted scale velocity (0==good, 1==good, but some extrapolation, 2==significant extrapolation, 3==only one limit for R_HI, 4==no robust measure of V_HI and uncertainties)"
+RHI_AS,The size of the model in arcseconds
+RHI_low_AS,The lower limit on R_HI in arcseconds
+RHI_high_AS,The upper limit on R_HI in arcseconds
+RHI_kpc,The size of the model in kpc 
+RHI_low_kpc,The lower limit on R_HI in kpc
+RHI_high_kpc,The upper limit on R_HI in kpc
+VHI_flag,"A flag indicating the quality of the extracted scale velocity (-1==failure, 0==good, 1==only one limit for R_HI)"
 VHI,The scale velocity of the model in km/s.  This is the velocity at R_HI
 VHI_Err,The uncertainty in VHI
