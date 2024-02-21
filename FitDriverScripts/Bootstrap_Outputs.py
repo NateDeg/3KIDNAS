@@ -120,13 +120,13 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
     """
     #       Finish off with the Scaling Relation results
     ScalingDict=GalaxyDict['ScalingDict']
-    ScalingStr="\nRHI Extraction Method (0=3D profile, 1=2D map) and flags (0==fine, 1== upper limit issue, 2== low limit issue, 3==full failure) \n"
+    ScalingStr="\nRHI Extraction Method (0==3D profile, -1==Failure) and flags (0==fine, 1== upper limit issue, 2== low limit issue, -1==full failure) \n"
     ScalingStr+=str(ScalingDict['SDMethod'])+"\t\t"+ str(ScalingDict['RHIFlag'])+"\n"
     ScalingStr+="RHI and limits (arcsec) \n"
     ScalingStr+=str(round(ScalingDict['RHI_CorrArr'][1],2))+"\t\t"+str(round(ScalingDict['RHI_CorrArr'][0],2))+"\t\t"+str(round(ScalingDict['RHI_CorrArr'][2],2))+"\n"
     ScalingStr+="RHI and limits (kpc) \n"
     ScalingStr+=str(round(ScalingDict['RHI_kpc'][1],2))+"\t\t"+str(round(ScalingDict['RHI_kpc'][0],2))+"\t\t"+str(round(ScalingDict['RHI_kpc'][2],2))+"\n"
-    ScalingStr+="\nVHI Extraction flag (0==no issues, 1==extrapolation within 0.5 beams, 2==extrapolation, 3==only one RHI limit, 4==failure)\n"
+    ScalingStr+="\nVHI Extraction flag (0==no issues, 1==only one RHI limit, -1==failure)\n"
     ScalingStr+=str(ScalingDict['VHIFlag'])+"\n"
     ScalingStr+="VHI and error (km/s) \n"
     ScalingStr+=str(round(ScalingDict['VHIArr'][0],2))+"\t\t"+str(round(ScalingDict['VHIArr'][1],2))+"\n"
