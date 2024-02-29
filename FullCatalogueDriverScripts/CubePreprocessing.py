@@ -26,6 +26,9 @@ def CubeHeaderConvert(ObjDict):
     Cubehdu=Frequency_VelocityConversion(Cubehdu,CubeHeader)
     #   Check that the header has the units for the cube header
     Cubehdu=UnitsCheck(Cubehdu,CubeHeader)
+    #   Adjust the cube object name to match the dictionary object name
+    Cubehdu[0].header.set('OBJECT',ObjDict['name_underscore'])
+    
     #   Write out the cube with the new header to the given file name
     try:
         Cubehdu[0].writeto(OutName)
