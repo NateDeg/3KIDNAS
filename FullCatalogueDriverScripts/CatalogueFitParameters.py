@@ -115,5 +115,5 @@ def SupplementalIni(RTDict):
     #   Hardcode in the version of the code
     RTDict['KinVer']="3KIDNAS V1"
     #   Set the name of the accepted model catalogue file
-    RTDict['AcceptedModelCatalogueFile']=RTDict['KinTR']+"_KinematicModels.csv"
+    RTDict['AcceptedModelCatalogueFile']=RTDict['KinTR'].replace(" ","_")+"_KinematicModels.csv"
     return RTDict
