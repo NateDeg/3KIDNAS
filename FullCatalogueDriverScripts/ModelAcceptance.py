@@ -149,9 +149,18 @@ def CheckGeoErrorForNaNs(Model):
 def AddChecksToFlagFile(Model,ModelNames,ModelCheckDict,CutLimits):
     #   The flags file should contain all the information about which flags the model passed to be accepted or rejected
     #   Open the flags file
-    Flags = open(ModelNames['FlagFile'], "a")
+    #Flags = open(ModelNames['FlagFile'], "a")
+    with open(ModelNames['FlagFile'], "r") as file:
+        Flags=file.readlines()
+
+    Str=""
+    for i in range(12):
+        Str+=Flags[i]
+
+    
+    #Flags = open(ModelNames['FlagFile'], "a")
     #   State whether a model was produced at all during the initial fit
-    Str="Model Acceptence/Rejection Checks (0=fail, 1=Success)\n"
+    Str+="Model Acceptence/Rejection Checks (0=fail, 1=Success)\n"
     Str+="Initial Pipeline Fit Achieved \n"
     Str+=str(ModelCheckDict['FitAchieved'])+"\n"
     #   State whether there are enough rings
@@ -179,7 +188,9 @@ def AddChecksToFlagFile(Model,ModelNames,ModelCheckDict,CutLimits):
     Str+="The projected model rotation curve falls within the datacube\n"
     Str+=str(ModelCheckDict['VelLims'])
     
-    Flags.write(Str)
-    Flags.close()
+    #Flags[14]=Str
+
+    with open(ModelNames['FlagFile'], 'w') as file:
+        file.writelines( Str )
     
 

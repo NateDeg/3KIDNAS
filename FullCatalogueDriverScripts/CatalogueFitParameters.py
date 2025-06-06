@@ -12,8 +12,10 @@ def SetKeyParams():
     ,['TargFolder',str]
     ,['nProcessors',int]
     ,['nProcessors_Bootstrap',int]
-    ,['KinTR',str]
+    ,['KinTR',str],['SRCTR',str]
     ])
+    #   Have some supplemental parameters that may or may not be included
+    
     return KeyRTParamsList
     
     
@@ -79,6 +81,8 @@ def SetupRTDictionaries(RTParams,KeyRTParams):
         #   Only grab the actual variables
         if not x.startswith('__'):
             #   Check if the variable is a required catalogue variable
+            #NewGalaxyRTVals=CheckParamList(x,RTParams,KeyList,KeyRTParams,NewGalaxyRTVals)
+            
             if x in KeyList:
                 #   if it is, get the variable value
                 VarUse=vars(RTParams)[x]
@@ -98,8 +102,9 @@ def SetupRTDictionaries(RTParams,KeyRTParams):
             #   If the variable isn't required for that catalogue, it will be saved and used in the single galaxy fitting program
             else:
                 NewGalaxyRTVals[x]=vars(RTParams)[x]
+            
     #   Once done parsing everything, double check that all keywords are accounted for
-    
+
     for key in KeyRTParams:
         keyU=key[0]
         try:
@@ -109,7 +114,9 @@ def SetupRTDictionaries(RTParams,KeyRTParams):
             print("Stopping run here")
             exit()
 
+
     return CatDict,NewGalaxyRTVals
+ 
 
 def SupplementalIni(RTDict):
     #   Hardcode in the version of the code

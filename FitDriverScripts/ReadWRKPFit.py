@@ -110,6 +110,8 @@ def ProfileLineAssign(Line):
 
 
 def LoadBootstrappedFit(FileName):
+    H0=70.
+
     print("Loading Avg Model",FileName)
     if os.path.isfile(FileName) == False:
         FitAchieved=False
@@ -192,7 +194,15 @@ def LoadBootstrappedFit(FileName):
         j=j+2
         ScalingDict['VHI'],ScalingDict['VHI_Err']=ScalingMeasureLineAssign_VHI(Lines[j])
         
-            
+                #       Add the distance to the galaxy
+        ScalingDict['dist_model']=VSys[0]/H0
+        #   Add a flag based on the size
+        if len(R)>3:
+            KFlag=0
+        else:
+            KFlag=1
+        print("R Check", len(R), R,KFlag)
+        
         #   Close the file
         Fit.close()
         #   Assign values to a standard TR dictionary
@@ -206,7 +216,7 @@ def LoadBootstrappedFit(FileName):
             ,'RA':RA,'RA_ERR':RAErr
             ,'DEC':DEC,'DEC_ERR':DECErr
             ,'VDISP':VDisp,'VDISP_ERR':VDispErr
-            ,'FITAchieved':FitAchieved,'CHI2':-1}
+            ,'FITAchieved':FitAchieved,'CHI2':-1,'KFlag':KFlag,'POSITIONANGLE_G':PA_G,'POSITIONANGLE_ERR_G':PA_GErr}
         AvgDict['SURFDENS_FACEON']=AvgDict['SURFDENS']
         AvgDict['SURFDENS_FACEON_ERR']=AvgDict['SURFDENS_ERR']
         #AvgDict['ExtendedSDProfile']=SDExtendedProfile

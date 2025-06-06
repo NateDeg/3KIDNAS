@@ -2,6 +2,7 @@ import sys as sys
 import os as os
 import copy as copy
 import numpy as np
+import pandas as pd
 
 
 import astropy
@@ -120,13 +121,13 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
     """
     #       Finish off with the Scaling Relation results
     ScalingDict=GalaxyDict['ScalingDict']
-    ScalingStr="\nRHI Extraction Method (0==3D profile, -1==Failure) and flags (0==fine, 1== upper limit issue, 2== low limit issue, -1==full failure) \n"
+    ScalingStr="\nRHI Extraction Method (0==3D profile, -1==Failure) and flags (0==fine, -1==failure) \n"
     ScalingStr+=str(ScalingDict['SDMethod'])+"\t\t"+ str(ScalingDict['RHIFlag'])+"\n"
     ScalingStr+="RHI and limits (arcsec) \n"
     ScalingStr+=str(round(ScalingDict['RHI_CorrArr'][1],2))+"\t\t"+str(round(ScalingDict['RHI_CorrArr'][0],2))+"\t\t"+str(round(ScalingDict['RHI_CorrArr'][2],2))+"\n"
     ScalingStr+="RHI and limits (kpc) \n"
     ScalingStr+=str(round(ScalingDict['RHI_kpc'][1],2))+"\t\t"+str(round(ScalingDict['RHI_kpc'][0],2))+"\t\t"+str(round(ScalingDict['RHI_kpc'][2],2))+"\n"
-    ScalingStr+="\nVHI Extraction flag (0==no issues, 1==only one RHI limit, -1==failure)\n"
+    ScalingStr+="\nVHI Extraction flag (0==no issues, -1==failure)\n"
     ScalingStr+=str(ScalingDict['VHIFlag'])+"\n"
     ScalingStr+="VHI and error (km/s) \n"
     ScalingStr+=str(round(ScalingDict['VHIArr'][0],2))+"\t\t"+str(round(ScalingDict['VHIArr'][1],2))+"\n"
@@ -196,4 +197,68 @@ def SavePVDiagrams(GalaxyDict,GeneralDict):
         hdul = fits.HDUList([hdu])
         hdul.writeto(FName,overwrite=True)
 
+def StoreBootstrappedModels_CSV(GalaxyDict,BootstrapModels):
+    
+    BootstrapOutputFile=GalaxyDict['WRKP_ResultsFolder']+GalaxyDict['ObjName']+"_BootstrapFits.csv"
+
+    print(BootstrapModels[0].keys())
+    
+    KeyParams=['name']
+    ModelParamNames=['XCENTER', 'YCENTER', 'INCLINATION', 'POSITIONANGLE', 'VSYS', 'RA', 'DEC', 'VDISP','RHIFlag','RHI','VHI']
+    SuccesParams=['X_model', 'Y_model', 'Inc_model', 'PA_model', 'Vsys_model', 'RA_model', 'DEC_model', 'Vdisp_model','RHI_flag','RHI_AS','VHI']
+    ProfParams=['Rad', 'Vrot_model', 'Rad_SD', 'SD_model']
+    ProfParamNames=['R','VROT', 'R_SD','SURFDENS']
+    
+    ScalingParams=['SDMethodFlag', 'RHI_flag','RHI_AS','dist_model','VHI_flag','VHI']
+    ScalingParamNames=['SDMethodFlag','RHI_flag','RHI_high_AS','VHI_flag','VHI']
+    
+    nBootstraps=len(BootstrapModels)
+    BSDict=IniBSDict(nBootstraps,KeyParams,SuccesParams,ProfParams,ScalingParams)
+    print(BSDict.keys())
+ 
+    for i in range(nBootstraps):
+        Model=BootstrapModels[i]
+        Model['name']=GalaxyDict['ObjName']+"_BS_"+str(i)
         
+        #print(i, Model.keys())
+        
+        for x in KeyParams:
+            if Model['FITAchieved']==False:
+                Model[x]=np.nan
+            BSDict[x][i]=Model[x]
+
+        for j in range(len(SuccesParams)):
+            x=SuccesParams[j]
+            y=ModelParamNames[j]
+            if Model['FITAchieved']==False:
+                Model[y]=[np.nan]
+            
+            if y=='RHIFlag'or y=='RHI' or y =='VHI':
+                BSDict[x][i]=Model[y]
+            else:
+                BSDict[x][i]=Model[y][0]
+        j=0
+        for x in ProfParams:
+            y=ProfParamNames[j]
+            if Model['FITAchieved']==False:
+                Model[y]=[np.nan]
+            
+            j+=1
+            Arr=Model[y]
+            Str=', '.join([str(Val) for Val in Arr])
+            BSDict[x][i]=Str
+            
+    DF=pd.DataFrame.from_dict(BSDict)
+    DF.to_csv(BootstrapOutputFile,index=False)
+
+def IniBSDict(nBootstraps,KeyParams,SuccesParams,ProfParams,ScalingParams):
+    ResultsDict={}
+    for x in KeyParams:
+        ResultsDict[x]=[None]*nBootstraps
+    for x in SuccesParams:
+        ResultsDict[x]=[None]*nBootstraps
+    for x in ProfParams:
+        ResultsDict[x]=[None]*nBootstraps
+    
+    
+    return ResultsDict

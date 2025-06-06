@@ -748,8 +748,8 @@ c
      &              //"_Flags_v"//trim(ValStr)//".txt"
 
       open(10,file=FlagFileName,status='replace')
-      write(10,'(a)') "# Goodness Of Fit  type (1==chi, 3 == log10(chi)"
-      write(10,*) PFlags%LikelihoodSwitch
+c      write(10,'(a)') "# Goodness Of Fit  type (1==chi, 3 == log10(chi)"
+c      write(10,*) PFlags%LikelihoodSwitch
 
 
       write(10,'(a)') "# Goodness Of Fit "

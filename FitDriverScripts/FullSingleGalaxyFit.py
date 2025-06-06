@@ -57,7 +57,7 @@ def GalaxyFit():
     f.write(Str)
     f.close()
     
-    
+
     #   With WRKP now completed, the fit must be ingested
     #       It is possible that the initial fit will have failed.  In that case, we won't be able to read the output file, so we should end the program here
     try:
@@ -95,9 +95,9 @@ def GalaxyFit():
     #       With the uncertainties calculated we can calculate an extend Surface density profile
     GalaxyDict=ESDPC.CalcExtendedSDProfile(GalaxyDict)
     #   Extract RHI and VHI for the model
-    GalaxyDict=ESP.CalcScalingParams(GalaxyDict)
+    GalaxyDict=ESP.CalcScalingParams(GalaxyDict,BootstrapModels)
     
-    
+
     #   Output a text file with the errors and uncertainties
     BO.WriteBootstrappedFitOutputFile_Text(GalaxyDict)
     
@@ -106,6 +106,9 @@ def GalaxyFit():
     
     #   Save the PV diagrams to Fits files
     BO.SavePVDiagrams(GalaxyDict,GeneralDict)
+    
+    #   Save the bootstraps to a csv file
+    BO.StoreBootstrappedModels_CSV(GalaxyDict,BootstrapModels)
 
     #   Keep track of the total runtime
     end = time.time()
@@ -118,6 +121,7 @@ def GalaxyFit():
     #   Once the bootstrap run is done, remove the bootstrap and SoFiA folders
     ClnCmd="rm -r "+GalaxyDict['BootstrapFolder']+" "+GalaxyDict['SoFiAFolder']
     os.system(ClnCmd)
+   
 
 def BootstrapRunStep(step,GeneralDict,GalaxyDict):
     BootstrapModel=BEA.GetBootstrapModel(GeneralDict,GalaxyDict,step)

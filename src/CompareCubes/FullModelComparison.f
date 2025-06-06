@@ -106,23 +106,36 @@ c       Check that the model doesn't hit any hard, non-physical limits
       implicit none
 
       logical, INTENT(INOUT) :: BadModelFlag
-      integer i
+      integer i,j
       
       BadModelFlag=.False.
 
       do i=0, ModelTiltedRing%nRings-1
+c       Check that the inclination is between 0 and 90
         if(ModelTiltedRing%R(i)%Inclination .lt. 0.
      &     .or. ModelTiltedRing%R(i)%Inclination.gt. Pi/2.) then
             BadModelFlag=.True.
         endif
+c           Check that the rotation is greater than 0
         if(ModelTiltedRing%R(i)%VRot .lt. 0.) then
             BadModelFlag=.True.
         endif
+c           Check that the surface density is above 0
         if(ModelTiltedRing%R(i)%Sigma .lt. 0.) then
             BadModelFlag=.True.
         endif
+c           Check that the cube center is inside the cube
+        do j=0,1
+            if(ModelTiltedRing%R(i)%CentPos(j) .lt. 0.
+     &      .or. ModelTiltedRing%R(i)%CentPos(j)
+     &      .gt. ObservedDC%DH%nPixels(j)-1) then
+                BadModelFlag=.True.
 
+            endif
+        enddo
       enddo
+
+
 
       return
       end subroutine

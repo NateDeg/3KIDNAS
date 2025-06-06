@@ -102,7 +102,7 @@ def MakeMomPanel(fig,Model,DataCube,ModelCube,PltOpts,Moment,XX,YY):
         LocX=7
         LocY=7
         #   Get the ellipse
-        Ell=Ellipse([LocX,LocY], ESize, ESize, 0.,edgecolor='cyan',facecolor='none',lw=2)
+        Ell=Ellipse([LocX,LocY], ESize, ESize, angle=0.,edgecolor='cyan',facecolor='none',lw=2)
         #   Add the ellipse to the map.
         ax.add_patch(Ell)
         #mTest=ModelCube['Mom0'][ModelCube['Mom0'] <= 0] = 1.
@@ -401,8 +401,8 @@ def AddVelContoursToMomentPlot(ax,Cube,Model,XX,YY):
         This function adds velocity contours to a moment 1 map panel from some other cube
     """
     #   Figure out the velocity width of the cube
-    #       Get the outermost velocity
-    VOut=Model['VROT'][-1]
+    #       Instead use the maximum velocity
+    VOut=np.nanmax(Model['VROT'])
     #       Use the model to get the inclination corrected outermoste velocity
     VSinI=VOut*np.sin(Model['INCLINATION'][0]*np.pi/180.)
     #       Set the model profile width
@@ -415,6 +415,10 @@ def AddVelContoursToMomentPlot(ax,Cube,Model,XX,YY):
 
     #   Set the velocity steps for the contours
     delV=dV/5.
+    #       Check that delV isn't zero
+    if delV==0.:
+        #   If it is, set the contour width to 1 km/s
+        delV=1.
     #   Set the contour levels
     CLevels=np.zeros(11)
     j=0

@@ -43,10 +43,11 @@ def GetModelNames(FileDict,GalName):
     ModelNames['PVMap2']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMinor_Data.fits"
     ModelNames['PVMap3']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMajor_Model.fits"
     ModelNames['PVMap4']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMinor_Model.fits"
+    ModelNames['BSCat']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_BootstrapFits.csv"
 
-    StoreKeys=['CubeFile','ModelFile','FlagFile','DiffCube','ModelPlot','ProcCube','PVMap1','PVMap2','PVMap3','PVMap4']
-    TargKeys=['TargCubeFile','TargModelFile','TargFlagFile','TargDiffCube','TargModPlot','TargProcCube','TargPVMap1','TargPVMap2','TargPVMap3','TargPVMap4']
-    TargNames=['ModCube.fits','AvgMod.txt','Flag.txt','DiffCube.fits','DiagnosticPlot.png','ProcData.fits','PVMajor_Data.fits','PVMinor_Data.fits','PVMajor_Model.fits','PVMinor_Model.fits']
+    StoreKeys=['CubeFile','ModelFile','FlagFile','DiffCube','ModelPlot','ProcCube','PVMap1','PVMap2','PVMap3','PVMap4','BSCat']
+    TargKeys=['TargCubeFile','TargModelFile','TargFlagFile','TargDiffCube','TargModPlot','TargProcCube','TargPVMap1','TargPVMap2','TargPVMap3','TargPVMap4','TargBSCat']
+    TargNames=['ModCube.fits','AvgMod.txt','Flag.txt','DiffCube.fits','DiagnosticPlot.png','ProcData.fits','PVMajor_Data.fits','PVMinor_Data.fits','PVMajor_Model.fits','PVMinor_Model.fits','BootstrapFits.csv']
     j=0
     for key in TargKeys:
         ModelNames[key]=ModelNames['GalName_Underscore']+"_"+FileDict['KinTR_US']+"_"+TargNames[j]
@@ -90,7 +91,7 @@ def CopySuccessfulModel(ModelNames,FileDict):
     os.makedirs(FileDict['PlotFolder'], exist_ok=True)
     #   First copy the model plot to the overarching model folder
     CpCmd="cp "+ModelNames['ModelPlot'] + " "+FileDict['PlotFolder']+"."
-    print("First Copy Cmd", CpCmd)
+    #print("First Copy Cmd", CpCmd)
     os.system(CpCmd)
     #   Now make a directory for the model results
     AcceptedModelFolder=FileDict['KinFolder']+ModelNames['GalName_Underscore']+"/"
@@ -100,11 +101,11 @@ def CopySuccessfulModel(ModelNames,FileDict):
     j=0
     for key in ModelNames['StoreKeys']:
         CpCmd="cp "+ModelNames[key]+" "+AcceptedModelFolder+ModelNames[ModelNames['TargKeys'][j]]
-        print("Store key Cp Cmd", CpCmd)
+        #print("Store key Cp Cmd", CpCmd)
         j+=1
         os.system(CpCmd)
         
-def IniResultsDict(SrcCat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,ScalingParams):
+def IniResultsDict(SrcCat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,ScalingParams,FlagParams):
     ResultsDict={}
     for x in KeyParams:
         ResultsDict[x]=[None]*len(SrcCat)
@@ -115,6 +116,8 @@ def IniResultsDict(SrcCat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,S
     #for x in ExtendedProfParams:
     #    ResultsDict[x]=[None]*len(SrcCat)
     for x in ScalingParams:
+        ResultsDict[x]=[None]*len(SrcCat)
+    for x in FlagParams:
         ResultsDict[x]=[None]*len(SrcCat)
     print(ResultsDict.keys())
     
@@ -136,7 +139,10 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
     #   Set the kinematic models folder
     #RTDict['KinTR']=Cat['team_release'][0]+"_KinTR1"
     RTDict['KinTR_US']=RTDict['KinTR'].replace(' ','_')
-    KinName=RTDict['TargFolder'].strip("/")+"_"+RTDict['KinTR_US']
+    #KinName=RTDict['TargFolder'].strip("/")+"_"+RTDict['KinTR_US']
+    #KinName=RTDict['KinTR_US']+"_AcceptedModels/"
+    KinName=RTDict['TargFolder'].strip("/")+"_AcceptedModels"
+    
     RTDict['KinFolder']=RTDict['TargFolder']+KinName+"/"
     #   Make a folder to store a copy of all the diagnostic plots to make life simpler for checking everything
     RTDict['PlotFolder']=RTDict['KinFolder']+"DiagnosticPlots/"
@@ -155,9 +161,9 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
 
 
     KeyParams=['name']
-    ModelParamNames=['RMS', 'SN_Integrated', 'SN_Peak', 'SN_Avg', 'SN_Median','XCENTER', 'XCENTER_ERR', 'YCENTER', 'YCENTER_ERR', 'INCLINATION', 'INCLINATION_ERR', 'POSITIONANGLE', 'POSITIONANGLE_ERR', 'VSYS', 'VSYS_ERR', 'RA', 'RA_ERR', 'DEC', 'DEC_ERR', 'VDISP', 'VDISP_ERR']
+    ModelParamNames=['RMS', 'SN_Integrated', 'SN_Peak', 'SN_Avg', 'SN_Median','XCENTER', 'XCENTER_ERR', 'YCENTER', 'YCENTER_ERR', 'INCLINATION', 'INCLINATION_ERR', 'POSITIONANGLE', 'POSITIONANGLE_ERR', 'POSITIONANGLE_G', 'POSITIONANGLE_ERR_G','VSYS', 'VSYS_ERR', 'RA', 'RA_ERR', 'DEC', 'DEC_ERR', 'VDISP', 'VDISP_ERR']
     SuccesParams=['RMS', 'SN_Integrated', 'SN_Peak', 'SN_Avg', 'SN_Median','X_model', 'e_X_model', 'Y_model',
-       'e_Y_model', 'Inc_model', 'e_Inc_model', 'PA_model', 'e_PA_model', 'Vsys_model', 'e_Vsys_model', 'RA_model', 'e_RA_model', 'DEC_model', 'e_DEC_model', 'Vdisp_model', 'e_Vdisp_model']
+       'e_Y_model', 'Inc_model', 'e_Inc_model', 'PA_model', 'e_PA_model', 'PA_model_g', 'e_PA_model_g','Vsys_model', 'e_Vsys_model', 'RA_model', 'e_RA_model', 'DEC_model', 'e_DEC_model', 'Vdisp_model', 'e_Vdisp_model']
     ProfParams=['Rad', 'Vrot_model', 'e_Vrot_model', 'Rad_SD', 'SD_model', 'e_SD_model']
     ProfParamNames=['R','VROT', 'VROT_ERR', 'R_SD','SURFDENS', 'SURFDENS_ERR']
 
@@ -165,17 +171,19 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
     ExtendedProfParams=['Rad_SD_map', 'SD_map_proj_model', 'e_SD_map_proj_model','SD_map_model', 'e_SD_map_model']
     ExtendedProfParamNames=['R_SD','SURFDENS', 'SURFDENS_ERR','SURFDENS_FACEON', 'SURFDENS_FACEON_ERR']
     
-    ScalingParams=['SDMethodFlag', 'RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_Err']
-    ScalingParamNames=['SDMethodFlag','RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_Err']
+    ScalingParams=['SDMethodFlag', 'RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','dist_model','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_Err']
+    ScalingParamNames=['SDMethodFlag','RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','dist_model','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_Err']
+    FlagParams=['KFlag']
+    FlagParamNames=['KFlag']
     
-    ResultsDict=IniResultsDict(Cat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,ScalingParams)
+    ResultsDict=IniResultsDict(Cat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,ScalingParams,FlagParams)
     #print("Results Dictionary", ResultsDict)
     
 
 
     AutoAccepted=0
     for i in range(len(Cat)):
-    #for i in range(10):
+    #for i in range(30):
         #print(i,Cat['name'][i])
 
         #   Get the names for the model files
@@ -183,6 +191,8 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
 
         #   Load in the model results
         Results=LoadModelOutputs(ModelNames,RTDict)
+        #print(len(Results['Model']['R']),Results['Model']['R'])
+        
         #   If the model plot exists, copy it to the all plots folder
         if os.path.isfile(Results['ModelPlot']):
             CpCmd="cp "+Results['ModelPlot']+" "+RTDict['AllPlotsFolder']
@@ -202,6 +212,7 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
         Results['name']=Cat['name'][i]
         Results['ell_maj_SoFiA']=Cat['ell_maj'][i]
         Results['ell_min_SoFiA']=Cat['ell_min'][i]
+        
 
         #   See whether the model fits our success rules
         Results=MA.DetermineSuccess(Results,CutLimits,ModelNames,BeamSize_Pixels)
@@ -242,6 +253,11 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
                 x=ScalingParams[j]
                 y=ScalingParamNames[j]
                 ResultsDict[x][k]=Results['Model']['ScalingDict'][y]
+                
+            for j in range(len(FlagParams)):
+                x=FlagParams[j]
+                y=FlagParamNames[j]
+                ResultsDict[x][k]=Results['Model'][y]
 
             AutoAccepted+=1
             
@@ -269,6 +285,27 @@ def AddProvenanceKeywords(GalaxyDict,RTDict):
     HeaderID=0
     #   Use the header to set the SRCVERS keywords for other fits files
     SRCVers=ProcCube[HeaderID].header['ORIGIN']
+    #   Check for project, SRCTR, and SBID keywords
+    ExtraKeys=['SRCTR','SBID','PROJECT']
+    ExtraProvDict={}
+    for key in ExtraKeys:
+        #print("Checking for extra keys",key)
+        CurrDict={}
+        try:
+            HeaderVal=ProcCube[HeaderID].header[key]
+            Check=True
+        except:
+            Check=False
+            HeaderVal=""
+            if key=='SRCTR':
+                #print("key check", RTDict.keys())
+                HeaderVal=RTDict['SRCTR']
+                Check=True
+        CurrDict['HeaderEntry']=HeaderVal
+        CurrDict['KeywordPresent']=Check
+        ExtraProvDict[key]=CurrDict
+  
+
     #   Get rid of the SoFiA history here
     try:
         del ProcCube[HeaderID].header['HISTORY']
@@ -279,12 +316,18 @@ def AddProvenanceKeywords(GalaxyDict,RTDict):
     ProvDict={"SRCVER":SRCVers,"KINVER":RTDict['KinVer'],"KINTR":RTDict['KinTR']}
     for key in ProvDict:
         ProcCube[HeaderID].header.set(key,ProvDict[key])
+    #   Check if SRCTR is in the processed cube header...if not, add it
+    if 'SRCTR' not in ProcCube[HeaderID].header:
+        ProcCube[HeaderID].header.set('SRCTR',RTDict['SRCTR'])
+        
+    
     #   Add the date
     now = date.today()
     Date= str(now.year) + "-" + str(now.month) + "-" +  str(now.day)
     ProcCube[HeaderID].header.set('DATE',Date)
     #   Save the current cube
     ProcCube.flush()
+    #ProcCube.writeto(ProcCubeName,overwrite=True)
     #   Close the current cube
     ProcCube.close()
     
@@ -304,6 +347,12 @@ def AddProvenanceKeywords(GalaxyDict,RTDict):
         #   Add the provenance keywords
         for key in ProvDict:
             Cube[HeaderID].header.set(key,ProvDict[key])
+            
+        for key in ExtraProvDict:
+            #print(key,ExtraProvDict[key]['KeywordPresent'])
+            if ExtraProvDict[key]['KeywordPresent']:
+                #print(Name,"keyword present")
+                Cube[HeaderID].header.set(key,ExtraProvDict[key]['HeaderEntry'])
         #   Add the date
         Cube[HeaderID].header.set('DATE',Date)
             #   Save the current cube
