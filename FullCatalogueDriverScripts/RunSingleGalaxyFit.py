@@ -36,6 +36,8 @@ def GetGalaxyDictNames(step,Cat,RTDict):
     
 def GetGeometryEstimates(step,Cat,GalaxyDict):
     GalaxyDict['PA_Estimate']=Cat['kin_pa'][step]
+    if np.isnan(GalaxyDict['PA_Estimate']):
+        GalaxyDict['PA_Estimate']=Cat['ell_pa'][step]
     #   We want to use the beam corrected inclination estimate
     Min_BeamCorr2=Cat['ell_min'][step]**2.-GalaxyDict['Beam_Pix']**2.
     Max_BeamCorr2=Cat['ell_maj'][step]**2.-GalaxyDict['Beam_Pix']**2.
