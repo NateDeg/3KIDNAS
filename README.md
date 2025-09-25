@@ -42,10 +42,10 @@ There is a set of test data and sample inputs currently available at:
 https://www.dropbox.com/scl/fi/i3elzk37u2dd53mrn0tlc/3KIDNAS_SampleRuns.zip?rlkey=qub81w5wcfqbf968e8y8ubv7r&st=etunwr2i&dl=0
 
 To run on a single galaxy go to the folder with the GalaxyInputFile.py and run:  
-python $(PATH)/WRKP_GalaxyFitDriver.py $(GalaxyInputFile)
+python \$(PATH)/WRKP\_GalaxyFitDriver.py \$(GalaxyInputFile)
 
 To run on a catalogue:  
-python $(PATH)/WRKP_CatalogueDriver.py $(CatalogueInputFile)
+python \$(PATH)/WRKP\_CatalogueDriver.py \$(CatalogueInputFile)
 
 ---
 Known Bugs
