@@ -25,12 +25,14 @@ def LoadCatalogue(CatFileName):
         Cat=LoadFITSCatalogue(CatFileName)
         TargKeys=['name','team_release']
         Cat=ConvertFITSCatStrings(Cat,TargKeys)
+    elif FType==1:
+        Cat=LoadCSV(CatFileName,',')
     return Cat
 
 def CheckCatFileType(CatFileName):
     NameString=CatFileName.split(".")
     print(NameString)
-    PossibleTypes=['fits','xls','csv']
+    PossibleTypes=['fits','csv']
     CorrectType=False
     for FType in range(len(PossibleTypes)):
         if NameString[-1]==PossibleTypes[FType]:
@@ -55,21 +57,6 @@ def LoadCSV(File,sep):
     #   Set the file contents to a dictionary
     Contents = Contents.rename(columns=lambda x: x.strip())
     return Contents
-    
-def LoadXLS(File,DetailsDict):
-    """
-        This function loads in an excel file and puts it into a dictionary
-    """
-    #   Read in the excel file
-    xls = pd.read_excel(File,sheet_name=DetailsDict['SheetName'],header=DetailsDict['HeaderLen'])
-    #   If there are rows that need to be deleted due to nan's, give the
-    #       column name to use for that stripping
-    if DetailsDict['StripCol'][0]== 1:
-        xls=xls[xls[DetailsDict['StripCol'][1]].notna()]
-    #   Set the file contents to a dictionary
-    xls = xls.rename(columns=lambda x: x.strip())
-    return xls
-
 
 def LoadFITSCatalogue(File):
     #   Read in the data using the astropy table structure
