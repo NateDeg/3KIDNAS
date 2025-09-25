@@ -26,26 +26,18 @@ def CalcScalingParams(GalaxyDict,BootstrapModels):
     #   Convert RHI to kpc
     H0=70.
     Dist=DistEst(H0,GalaxyDict['BestFitModel']['VSYS'][0])
-    print("Estimated distance", GalaxyDict['BestFitModel']['VSYS'][0],Dist)
-    
-    #print("Type Check", type(ScalingDict['RHI_CorrArr']),type(ScalingDict['RHIArr']),ScalingDict['RHI_CorrArr'])
+    #print("Estimated distance", GalaxyDict['BestFitModel']['VSYS'][0],Dist)
     
     RHI_kpc=ScalingDict['RHI_CorrArr']/206265*Dist*1000.
     ScalingDict['RHI_kpc']=RHI_kpc
     
     GalaxyDict['ScalingDict']=ScalingDict
-    
-    
-    #print("CHECKING FLAGS")
-    #for i in range(len(BootstrapModels)):
-    #    print(i, BootstrapModels[i].keys())
 
     return GalaxyDict
     
 
 
 def CalcRHI(GalaxyDict,BootstrapModels):
-    #print("Calc RHI")
     if GalaxyDict['ExtendedSDProfile']['ProfileAcceptFlag']==False:
         RHDict=NoWorkableSD(BootstrapModels)
         return RHDict
@@ -71,10 +63,8 @@ def CalcRHI(GalaxyDict,BootstrapModels):
         #   Attempt to get RHI fro the model
         CurrModel['RHI'],CurrModel['RHIFlag'],CurrModel['R_indx']=ExtractRHI_NoErr(RU,SDU,SDLim)
         #   Count up all successful bootstrap models
-        #print(i,CurrModel['RHI'],CurrModel['RHIFlag'])
         if i>=0 and CurrModel['RHIFlag']==True:
             count+=1
-        #print("IN RHI Loop", i, CurrModel.keys())
     #   Check on the best fit model.  If it failed, then no need to get uncertainties, so end here
     if GalaxyDict['BestFitModel']['RHIFlag']==False:
         RHIArr=np.array([np.nan,np.nan,np.nan])
@@ -111,8 +101,6 @@ def CalcRHI(GalaxyDict,BootstrapModels):
     #   Get the uncertainty in RHI
     RHI_Err=np.sqrt(RHI_BS_Err**2.+RHI_Diff**2.)
     
-    #print(GalaxyDict['BestFitModel']['RHI'],RHI_BS_Mean,RHI_BS_Err,RHI_Diff,RHI_Err)
-    
     #   Store the appropriate values into an array
     RHIArr=np.array([CurrModel['RHI']-RHI_Err,CurrModel['RHI'],CurrModel['RHI']+RHI_Err])
     RCorrArr=RHIArr
@@ -123,7 +111,6 @@ def CalcRHI(GalaxyDict,BootstrapModels):
         
     
 def GetSD_Intecept(R,SD_FO,SDLim):
-    #print("SD Intercept SD", SD_FO)
     #   Check the FO limits
     if np.nanmin(SD_FO) > SDLim:
         RHI=R[-1]
@@ -147,10 +134,10 @@ def GetSD_Intecept(R,SD_FO,SDLim):
     
     
 def FindProfileIntersection(X,Y,Lim):
+    epsilon=1.e-7
     #   Loop through all radii and check for the point where we go below 1
     #       Go from out to in
-    for i in range(len(X)-1,0,-1):
-        #print(i,X[i],Y[i],Lim)
+    for i in range(len(X)-1,1,-1):
         #   Once the profile goes above one, find the point where the SD goes below the limit
         if Y[i-1] > Lim:
             #   Select the points
@@ -165,6 +152,9 @@ def FindProfileIntersection(X,Y,Lim):
             dX=dY/m
             X_Int=x1+dX
             indx=i-1
+            if m < epsilon:
+                X_Int=x1
+                indx=i-1
             return X_Int,indx
     indx=-1
     X_Int=X[0]
@@ -173,7 +163,6 @@ def FindProfileIntersection(X,Y,Lim):
 
     
 def GetProfilePoint(X,Y,XTarg):
-    #print("len profile", X,XTarg)
     #if np.isnan(XTarg):
     #    ProfLimitsFlag=False
     #    YTarg=np.nan
@@ -232,7 +221,6 @@ def CalcVHI(GalaxyDict,ScalingDict,BootstrapModels):
         else:
             Model['VHI']=np.nan
             Model['VHIFlag']=False
-        #print(i,Model['VHI'],Model['VHIFlag'])
  
     #   Collect all VHI measures into an array
     VHI_Arr_BS=np.zeros(count)
@@ -250,8 +238,6 @@ def CalcVHI(GalaxyDict,ScalingDict,BootstrapModels):
     VHI_Diff=GalaxyDict['BestFitModel']['VHI']-VHI_BS_Mean
     #   Get the uncertainty in RHI
     VHI_Err=np.sqrt(VHI_BS_Err**2.+VHI_Diff**2.)
-    #print(VHI_Arr_BS)
-    #print(VHI_BS_Mean,VHI_BS_Err,GalaxyDict['BestFitModel']['VHI'],VHI_Diff,VHI_Err)
     ScalingDict['VHIFlag']=0
     ScalingDict['VHIArr']=np.array([GalaxyDict['BestFitModel']['VHI'],VHI_Err])
     return ScalingDict
@@ -301,7 +287,7 @@ def ExtractRHI_NoErr(R,SD,SDLim):
 
 
 def CalcRHI_Old(GalaxyDict,BootstrapModels):
-    #print("Calc RHI")
+
     if GalaxyDict['ExtendedSDProfile']['ProfileAcceptFlag']==False:
         RHDict=NoWorkableSD()
         return RHDict
@@ -328,22 +314,10 @@ def CalcRHI_Old(GalaxyDict,BootstrapModels):
         RHDict=NoWorkableSD()
         return RHDict
         
-    #print(GalaxyDict.keys())
-    
     R=DictUse['R_SD']
     SD=DictUse['SURFDENS_FACEON']
     SDUpper=DictUse['SURFDENS_FACEON']+DictUse['SURFDENS_FACEON_ERR']
     SDLower=DictUse['SURFDENS_FACEON']-DictUse['SURFDENS_FACEON_ERR']
-
-    #print("R check", R)
-    #print("SD CHeck", SD)
-    #print("errs",DictUse['SURFDENS_FACEON_ERR'])
-    #print("SD ConsistencyCheck", SD)
-    #print(SDUpper)
-    #print(SDLower)
-
-   
-    
 
     if len(R) <=1:
         RHI=R[0]
@@ -352,8 +326,7 @@ def CalcRHI_Old(GalaxyDict,BootstrapModels):
         RHI_Upper=np.nan
         RHI_Lower=np.nan
         RHIFlag=-1
-
-
+        
     else:
         RHI,RHI_Found,R_indx=GetSD_Intecept(R,SD,SDLim)
     
@@ -384,15 +357,11 @@ def CalcRHI_Old(GalaxyDict,BootstrapModels):
      
     RHIArr=np.array([RHI_Lower,RHI,RHI_Upper])
     RCorrArr=np.array([RHI_Lower,RHI,RHI_Upper])
-    #print("RHI ARRs", RHIArr)
-    #print(RCorrArr)
-    #print("RHI Flag",RHIFlag)
     
     
     
     if SDCalcMethod==1:
         Beam=GalaxyDict['ExtendedSDProfile']['BMAJ']
-        print(RCorrArr)
         for RCorr in RCorrArr:
             BU=Beam
             i=1
@@ -400,7 +369,6 @@ def CalcRHI_Old(GalaxyDict,BootstrapModels):
                 BU=Beam/float(i)
                 i+=1
             RCorr=np.sqrt(RCorr**2.-BU**2.)
-        print(RCorrArr)
 
     RHDict={'RHI_CorrArr':RCorrArr,'RHIArr':RHIArr,'SDMethod':SDCalcMethod,'RHIFlag':RHIFlag}
     return RHDict
@@ -408,7 +376,6 @@ def CalcRHI_Old(GalaxyDict,BootstrapModels):
 
 
 def CalcVHI_Old(GalaxyDict,ScalingDict):
-    #print("Calc VHI")
 
     if ScalingDict['SDMethod']==-1:
         ScalingDict=BadVHResults(ScalingDict)
@@ -452,7 +419,6 @@ def CalcVHI_Old(GalaxyDict,ScalingDict):
     for i in range(nPts):
 
         RUse=PtArray[i]
-        #print("pt",i,RUse,PtArray,ScalingDict['RHIFlag'])
         Mid[i],RIndx,VFlag=GetProfilePoint(R,VProf,RUse)
         
         Diffs[i]=np.abs(Mid[i]-VHI)
@@ -467,7 +433,6 @@ def CalcVHI_Old(GalaxyDict,ScalingDict):
     elif VHIFlag_Ini==False and RHILimsFlags==0:
         ScalingDict['VHIFlag']=-1
         dR=R[1]-R[0]
-        #print(RHI,R[-1],dR,(RHI-R[-1])/dR)
         if (RHI-R[-1])/dR <= 0.5:
             ScalingDict['VHIFlag']=-1
         
