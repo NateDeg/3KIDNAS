@@ -30,8 +30,8 @@ def CatalogueDriverMain():
     i=0
    
 
-    nTot=1
-    #nTot=len(Cat)
+    #nTot=1
+    nTot=len(Cat)
     nProcessors=RTDict['nProcessors']
     pool=mp.Pool(processes=nProcessors,maxtasksperchild=1)
     pool.starmap(RunGalaxyFit, [(i,Cat,RTDict,SGDict) for i in range(nTot)],chunksize=1)
@@ -47,18 +47,10 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
     #print(step)
     print("Process",mp.current_process(),step)
 
-    for i in range(len(Cat)):
-        print(i,Cat['name'][i])
+    #for i in range(len(Cat)):
+    #    print(i,Cat['name'][i])
     Indx=Cat['SizeIndx'][step]
 
-    #Indx=Cat.index[Cat['name']=="WALLABY J101036-433659"][0]
-    #Indx=Cat.index[Cat['name']=="Noise_WALLABY_MFMV5galAA68"][0]
-    #print("Indx", Indx)
-    #Indx=Cat.index[Cat['name']=="WALLABY J004701-520321"][0]
-
-
-    #Indx=step
-    #Indx=5
     #   Set up all the names that will be needed to write the input file
     GalaxyDict=RSGF.GetGalaxyDictNames(Indx,Cat,RTDict)
     #   Now do the cube pre-processing to get a velocity cube
