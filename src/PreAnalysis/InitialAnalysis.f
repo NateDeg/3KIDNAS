@@ -75,7 +75,7 @@ c               catalogue values to get the initial parameter estimates
       Type(CatalogueItem),INTENT(INOUT) :: CatItem
 
       real Incl,PA, RMax,VSys, Noise,VDisp
-      real Center(0:1),VEdges(0:1)
+      real Center(0:1),VEdges(0:1),minV,maxV
       real,ALLOCATABLE :: EstimatedProfiles(:,:)
       real,ALLOCATABLE :: EstimatedRadialProfiles(:,:)
       integer ProfShape(2)
@@ -91,11 +91,19 @@ c           Get the inclination and position angle estimates
       call GetGalaxyShape(Incl,PA,Center,CatItem)
 
 c           Estimate Vsys from the observed velocity profile
+
       ProfShape=shape(ObservedVelocityProfile)
       call EstimateVSysAndEdges(ProfShape(2)
      &                  ,ObservedVelocityProfile
      &                  ,0.3,VSys,VEdges)   !/src/PreAnalysis/VelProfileAnalysis.f
-c      VSys=955.40
+c       Check that VSys lives between the limits
+      minV=minval(ObservedVelocityProfile(0,:))
+      maxV=maxval(ObservedVelocityProfile(0,:))
+      if ((VSys .lt. minV) .or. (VSys .gt. maxV)) then
+        VSys=(minV+maxV)/2.
+      endif
+
+
 c           Estimate the rotation curve and surface density profile
 c               use the model maps, center, and shape
 c               It is important that the observed maps have an appropriate
