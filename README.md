@@ -17,10 +17,10 @@ Quick Installation Guide
 
 The first step is to compile the key 3rd party software -- the easiest approach is to go to terminal then
 
-1) cd third_party/fftw-3.3.8/
-    make clean
-    ./configure
-    make
+1) cd third_party/fftw-3.3.8/ \\
+    make clean \\
+    ./configure \\
+    make \\
 2) cd third_party/cfitsio/
     make clean
     ./configure
