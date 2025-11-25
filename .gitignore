@@ -37,3 +37,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+Programs/BootStrapSampler
+Programs/SingleGalaxyFitter
+Programs/SingleGalaxyFitter
+/Programs
