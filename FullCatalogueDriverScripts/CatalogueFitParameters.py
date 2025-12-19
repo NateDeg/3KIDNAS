@@ -4,7 +4,12 @@ import copy as copy
 import numpy as np
 
 def SetKeyParams():
-    #   Set the list of runtime parameters that must be set in the RT Params  file
+    """
+    This routine sets the list of key runtime parameters that must be supplied in the RTParams file
+    
+    Returns: 
+        KeyRTParamsList (arr): A list of required variables that should be provided in the RTParams file.
+    """
     #       It is necessary to list each variable with it's type i.e. [Variable Name, Type] as the types will be checked in GalaxyFitParamters.CheckParamTypes
     KeyRTParamsList=np.array([['CatName',str]
     ,['SourceFolder',str]
@@ -20,6 +25,12 @@ def SetKeyParams():
     
     
 def CatalogueRTImport():
+    """
+    This function sets up and reads in both the runtime arguments and the single galaxy arguments dictionary
+    Returns:
+        RTDict (dict): The runtime arguments dictionary
+        SGDict (dict) The single galaxy fitter dictionary
+    """
     #   Get a list of required keywords in the catalogue RT parameter file
     KeyRTParams=SetKeyParams()
     #   Get the name of the runtime parameter file
@@ -34,6 +45,11 @@ def CatalogueRTImport():
     
 
 def GetRuntimeArguments():
+    """
+    This function gets name of the user suppied parameter file (specified as the first argument in the program call)
+    Returns:
+        ParamFile (str): The name of the file containing the runtime parameters.
+    """
     #   Grab the command line arguments
     Commands=sys.argv
     #   Make sure the user has supplied a python parameter file
@@ -51,6 +67,13 @@ def GetRuntimeArguments():
         
     
 def ReadParamFile(FileName):
+    """
+    This function reads the user supplied parameter file.
+    Inputs:
+        FileName (str): The name of the parameter file
+    Returns:
+        ModTest (module): The parameter file as an imported python package
+    """
     print("About to import parameter file ", FileName)
     print("Absolute path to parameter file:",os.path.abspath(FileName))
     #   Convert the path to an absolute path
@@ -71,6 +94,15 @@ def ReadParamFile(FileName):
     return ModTest
 
 def SetupRTDictionaries(RTParams,KeyRTParams):
+    """
+    This function initializes the runtime catalogue dictionary as well as the dictionary for individual fits.
+    Inputs:
+        RTParams (module): The user supplied parameters as a module
+        KeyRTParams (arr): An array containing all required keywords and variable types
+    Returns:
+        CatDict (dict): A dictionary containing all the required catalogue parameters.
+        NewRTParams (dict): A dictionary containing extra runtime parameters that are not necessarily required, but perhaps useful
+    """
     #   Initialize the catalogue dictionary and the galaxy dictionary
     CatDict={}
     NewGalaxyRTVals={}
@@ -119,6 +151,13 @@ def SetupRTDictionaries(RTParams,KeyRTParams):
  
 
 def SupplementalIni(RTDict):
+    """
+    This function adds the kinvers keyword and sets the name of the final output catalouge file to the runtime dictionary
+    Inputs: 
+        RTDict (dict): The runtime dictionary
+    Returns:
+        RTDict (dict): The slightly updated runtime dictionary
+    """
     #   Hardcode in the version of the code
     RTDict['KinVer']="3KIDNAS V1"
     #   Set the name of the accepted model catalogue file
