@@ -15,6 +15,9 @@ from . import GenerateAcceptedModelCatalogue as GAMC
 
 
 def CatalogueDriverMain():
+    """
+    Runs the 3KIDNAS pipeline on a full SoFiA catalogue
+    """
     print("Doing full field analysis")
     
     #   Start by getting a dictionary of required catalogue variables and extra entries from a user-supplied python input file (set in the terminal)
@@ -44,6 +47,16 @@ def CatalogueDriverMain():
 
 
 def RunGalaxyFit(step,Cat,RTDict,SGDict):
+    """
+    Runs the GalaxyFitDriver on a single galaxy in the SoFiA catalogue
+    
+    Parameters:
+        step (int): An index counting the current step through the catalogue
+        Cat (dict): The underlying SoFiA catalogue
+        RTDict (dict): The catalogue containing runtime variables
+        SGDict (dict): The catalogue for the single galaxy fitter
+    
+    """
     #print(step)
     print("Process",mp.current_process(),step)
 
@@ -74,12 +87,7 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
     MvCmd="mv "+GalaxyDict['FitParameterFile'] + " "+RTDict['TargFolder']+GalaxyDict['name_underscore']+"/."
     os.system(MvCmd)
    
-    #print(ResultsFile,os.path.isfile(ResultsFile))
         #   If the fit was successful add the provenance values to the keywords
     ResultsFile=RTDict['TargFolder']+GalaxyDict['name_underscore']+"/"+GalaxyDict['name_underscore']+"_BSModel.txt"
     if os.path.isfile(ResultsFile):
         GAMC.AddProvenanceKeywords(GalaxyDict,RTDict)
-    #else:
-    #    RmCmd="rm "+GalaxyDict['VelCubeName']+" "+GalaxyDict['FitParameterFile']
-
-
