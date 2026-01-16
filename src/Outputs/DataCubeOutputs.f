@@ -125,6 +125,27 @@ c           This routine writes out all the necessary header information
       naxes(1:2)=DC%DH%nPixels(0:1)
       naxes(3)=DC%DH%nChannels
 C  Write the required header keywords to the file
+
+#ifdef _arm64__
+      print *, "Running on Windows"
+#elif _linux
+      print *, "Running on Linux"
+#elif _APPLE__
+      print *, "Running on Mac"
+#elif _APPLE_ARM_ARCH__
+      print*, "running on apple silicon"
+#elif _WIN32
+      print*, "running on arm"
+#elif _aarch64__
+      print*, "running on aarch"
+#elif _MAC__
+      print*, "running on apple mach"
+#else
+      print*, "Unknown OS or mac"
+#endif
+      call system('uname -a')
+      !print*, getenv('OS')
+
       naxisT=naxis
       naxesT=naxes
       call ftphpr(unit,simple,bitpix,naxisT,naxesT,0,1,extend,status)

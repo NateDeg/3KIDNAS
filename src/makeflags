@@ -33,7 +33,7 @@ include $(locObj)
 
 F77=gfortran
 CC=gcc
-FLAGS=-O0 -funroll-loops -fbounds-check
+FLAGS=-O0 -funroll-loops -cpp -fbounds-check
 CFLAGS= -O -DRINGASCII -DASCII
 
 
