@@ -4,4 +4,3 @@ astropy
 matplotlib
 multiprocess
 pandas
-spectal_cube
