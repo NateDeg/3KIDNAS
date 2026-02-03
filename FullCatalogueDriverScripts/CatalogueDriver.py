@@ -78,7 +78,7 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
     #   Use this path to get the fit driver
     FitDriver=DriverPath+"/WRKP_GalaxyFitDriver.py"
     #   Now run the fitter
-    FitCmd="python3.9 "+FitDriver+" "+GalaxyDict['FitParameterFile']
+    FitCmd="python3 "+FitDriver+" "+GalaxyDict['FitParameterFile']
     os.system(FitCmd)
 
         #   Finally clean things up
