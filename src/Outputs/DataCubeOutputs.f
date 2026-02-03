@@ -115,7 +115,7 @@ c           This routine writes out all the necessary header information
       character(20) tString
       integer date_I(8)
 
-      integer*8 naxesT(3),naxisT
+      integer naxesT(3),naxisT
 
       simple=.true.
       naxis=3
@@ -248,7 +248,7 @@ c           This routine writes out all the necessary header information
       logical simple, extend
       integer naxis,bitpix
 
-      integer*8 naxisT,naxesT(2)
+      integer naxisT,naxesT(2)
 
       simple=.true.
       naxis=2
