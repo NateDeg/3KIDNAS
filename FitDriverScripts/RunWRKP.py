@@ -111,7 +111,5 @@ def RunWRKP(GeneralDict,GalaxyDict,BSSwitch):
     #   And clean up the input files
     ClnCmd="rm "+GalaxyDict['MainInputFile']+" " + GalaxyDict['FittingOptionsFile'] + " " +GalaxyDict['SoFiAShapeFile']
     os.system(ClnCmd)
-    #StrCmd="rm " +GalaxyDict['LogFile']#+" "+GalaxyDict['TargFolderU']+"."
-    #os.system(StrCmd)
     #   Finally return the galaxy dictionary
     return GalaxyDict
