@@ -8,7 +8,7 @@ LocBinLoc=$(ROOT_DIR)/bin
 
 
 
-FitsLibLoc=$(PARENT_DIR)/third_party/cfitsio/libcfitsio.a
+FitsLibLoc=$(PARENT_DIR)/third_party/cfitsio-4.6.3/.libs/libcfitsio.a
 
 
 #FFTW_INCL=  -I/opt/local/include

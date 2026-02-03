@@ -9,10 +9,10 @@ all: $(ProgramList)
 
 
 BootStrapSampler : BootStrapGenerator.o
-	$(F77) $(FLAGS) -o BootStrapSampler  BootStrapGenerator.o $(AllObj)  $(FitsLibLoc) $(FFTW_LIB)
+	$(F77) $(FLAGS) -o BootStrapSampler  BootStrapGenerator.o $(AllObj)  $(FitsLibLoc) $(FFTW_LIB) -lz -lcurl
 
 SingleGalaxyFitter : SingleGalaxyFitTests.o
-	$(F77) $(FLAGS) -o SingleGalaxyFitter SingleGalaxyFitTests.o $(AllObj) $(FitsLibLoc) $(FFTW_LIB) 
+	$(F77) $(FLAGS) -o SingleGalaxyFitter SingleGalaxyFitTests.o $(AllObj) $(FitsLibLoc) $(FFTW_LIB) -lz -lcurl
 
 
 install:
