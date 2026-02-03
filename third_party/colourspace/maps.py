@@ -293,8 +293,8 @@ def register_to_mpl(names, reversed=True):
     """ Adds a cmap to Matplotlib's internal list """
     for name in names:
         print("registering cmap '%s' to Matplotlib"%(name))
-        matplotlib.cm.register_cmap(cmap=CMAP[name], name=name)
-        if reversed: matplotlib.cm.register_cmap(cmap=CMAP[name+'_r'], name=name+'_r')
+        matplotlib.colormaps.register(cmap=CMAP[name], name=name)
+        if reversed: matplotlib.colormaps.register(cmap=CMAP[name+'_r'], name=name+'_r')
 
 #---------------
 # cmap plotting
