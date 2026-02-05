@@ -148,6 +148,9 @@ def SavePVDiagrams(GalaxyDict,GeneralDict):
     #   Load in the data cube and the model cube
     DataCube=CA.BasicCubeAnalysis(GalaxyDict['CubeName'])
     ModelCube=CA.BasicCubeAnalysis(Model['ModelCube'])
+    print("DC",DataCube['CubeHeader']['OBJECT'])
+    
+    print("MC",ModelCube['CubeHeader']['OBJECT'])
 
     #   From the model get the center point and base PA
     CenterX=Model['XCENTER'][0]
