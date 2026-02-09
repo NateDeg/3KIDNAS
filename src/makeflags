@@ -8,7 +8,7 @@ LocBinLoc=$(ROOT_DIR)/bin
 
 
 
-FitsLibLoc=$(PARENT_DIR)/third_party/cfitsio/libcfitsio.a
+FitsLibLoc=$(PARENT_DIR)/third_party/cfitsio-4.6.3/.libs/libcfitsio.a
 
 
 #FFTW_INCL=  -I/opt/local/include
@@ -33,7 +33,7 @@ include $(locObj)
 
 F77=gfortran
 CC=gcc
-FLAGS=-O0 -funroll-loops -fbounds-check
+FLAGS=-O0 -funroll-loops -cpp -fbounds-check
 CFLAGS= -O -DRINGASCII -DASCII
 
 

@@ -105,7 +105,7 @@ ccccc
      &          //"/src/PythonScripts/GeometryFix.py "
 
 
-      PlotCmd="python3.9 "//trim(PythonPath)//" "
+      PlotCmd="python3 "//trim(PythonPath)//" "
      &          //trim(GalaxyDict%OutputFolder)//" "
      &          //trim(GalaxyDict%GalaxyName)//" "
      &          //trim(ValStr)//" "
@@ -114,7 +114,7 @@ ccccc
      &          //trim(GalaxyDict%DataCubeFile)//" "
 
 
-      print*, trim(PlotCmd)
+c      print*, trim(PlotCmd)
       call system(trim(PlotCmd))
 
       return

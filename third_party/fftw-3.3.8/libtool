@@ -75,13 +75,13 @@ PATH_SEPARATOR=":"
 
 # The host system.
 host_alias=
-host=arm-apple-darwin23.1.0
-host_os=darwin23.1.0
+host=arm-apple-darwin24.6.0
+host_os=darwin24.6.0
 
 # The build system.
 build_alias=
-build=arm-apple-darwin23.1.0
-build_os=darwin23.1.0
+build=arm-apple-darwin24.6.0
+build_os=darwin24.6.0
 
 # A sed program that does not truncate output.
 SED="/usr/bin/sed"
@@ -164,10 +164,10 @@ old_postuninstall_cmds=""
 lock_old_archive_extraction=yes
 
 # A C compiler.
-LTCC="gcc"
+LTCC="/usr/bin/gcc"
 
 # LTCC compiler flags.
-LTCFLAGS="-O3 -fomit-frame-pointer -mtune=native -fstrict-aliasing -fno-schedule-insns -Wa,-q -Wl,-no_compact_unwind"
+LTCFLAGS="-O3 -fomit-frame-pointer -mtune=native -fstrict-aliasing"
 
 # Take the output of nm and produce a listing of raw symbols and C names.
 global_symbol_pipe="sed -n -e 's/^.*[	 ]\\([ABCDGIRSTW][ABCDGIRSTW]*\\)[	 ][	 ]*_\\([_A-Za-z][_A-Za-z0-9]*\\)\$/\\1 _\\2 \\2/p' | sed '/ __gnu_lto/d'"
@@ -284,7 +284,7 @@ finish_eval=""
 hardcode_into_libs=no
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/opt/homebrew/lib /usr/local/lib/gcc/aarch64-apple-darwin20/11.0.0 /usr/local/lib  /usr/local/lib"
+sys_lib_search_path_spec="/Library/Developer/CommandLineTools/usr/lib/clang/17  /usr/local/lib"
 
 # Detected run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/usr/local/lib /lib /usr/lib"
@@ -307,7 +307,7 @@ striplib="strip -x"
 
 
 # The linker used to build libraries.
-LD="/opt/local/bin/ld"
+LD="/Library/Developer/CommandLineTools/usr/bin/ld"
 
 # How to create reloadable object files.
 reload_flag=" -r"
@@ -317,13 +317,13 @@ reload_cmds="\$LTCC \$LTCFLAGS -nostdlib \$wl-r -o \$output\$reload_objs"
 old_archive_cmds="\$AR \$AR_FLAGS \$oldlib\$oldobjs~\$RANLIB \$tool_oldlib"
 
 # A language specific compiler.
-CC="gcc"
+CC="/usr/bin/gcc"
 
 # Is the compiler the GNU compiler?
 with_gcc=yes
 
 # Compiler flag to turn off builtin functions.
-no_builtin_flag=" -fno-builtin"
+no_builtin_flag=" -fno-builtin -fno-rtti -fno-exceptions"
 
 # Additional compiler flags for building library objects.
 pic_flag=" -fno-common -DPIC"
@@ -11655,7 +11655,7 @@ build_old_libs=`case $build_libtool_libs in yes) echo no;; *) echo yes;; esac`
 # ### BEGIN LIBTOOL TAG CONFIG: F77
 
 # The linker used to build libraries.
-LD="/opt/local/bin/ld"
+LD="/Library/Developer/CommandLineTools/usr/bin/ld"
 
 # How to create reloadable object files.
 reload_flag=" -r"

@@ -129,24 +129,24 @@ def AddObjectLabels(fig,Model,GalaxyDict,PltOpts):
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
     #   Add the model inclination and error to the plot
-    LabelStr="Inc_model \t=\t".expandtabs()+str(Model['INCLINATION'][0])+" $\pm$ " +str(Model['INCLINATION_ERR'][0])+" $^\circ$"
+    LabelStr="Inc_model \t=\t".expandtabs()+str(Model['INCLINATION'][0])+r" $\pm$ " +str(Model['INCLINATION_ERR'][0])+r" $^\circ$"
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
     #   Add the pixel position angle to the plot along with it's uncertainty
-    LabelStr="PA_model \t=\t".expandtabs()+str(Model['POSITIONANGLE'][0])+" $\pm$ " +str(Model['POSITIONANGLE_ERR'][0])+" $^\circ$"
+    LabelStr="PA_model \t=\t".expandtabs()+str(Model['POSITIONANGLE'][0])+r" $\pm$ " +str(Model['POSITIONANGLE_ERR'][0])+r" $^\circ$"
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
     #   Add the global position-angle to the plot along with it's uncertainty.
-    LabelStr="PA_model_g \t=\t".expandtabs()+str(Model['PA_GLOBAL'])+" $\pm$ " +str(Model['PA_GLOBAL_ERR'])+" $^\circ$"
+    LabelStr="PA_model_g \t=\t".expandtabs()+str(Model['PA_GLOBAL'])+r" $\pm$ " +str(Model['PA_GLOBAL_ERR'])+r" $^\circ$"
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
     #   Add the systemic velocity to the plot
-    LabelStr="VSys_model \t=\t".expandtabs()+str(Model['VSYS'][0])+" $\pm$ " +str(Model['VSYS_ERR'][0])+" km/s"
+    LabelStr="VSys_model \t=\t".expandtabs()+str(Model['VSYS'][0])+r" $\pm$ " +str(Model['VSYS_ERR'][0])+" km/s"
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
     
     #   Add the velocity dispersion to the plot
-    LabelStr="VDisp_model \t=\t".expandtabs()+str(Model['VDISP'][0])+" $\pm$ " +str(Model['VDISP_ERR'][0])+" km/s"
+    LabelStr="VDisp_model \t=\t".expandtabs()+str(Model['VDISP'][0])+r" $\pm$ " +str(Model['VDISP_ERR'][0])+" km/s"
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
     
@@ -165,7 +165,7 @@ def AddObjectLabels(fig,Model,GalaxyDict,PltOpts):
     #print("RHIFlag in plotting check",ScalingDict['RHIFlag'])
     
     #   Add the scale radius to the plot
-    LabelStr="RHI_model \t=\t".expandtabs()+str(round(RHI,1))+" $\pm$ " +str(round(RHI_ErrAvg,1))+" kpc"
+    LabelStr="RHI_model \t=\t".expandtabs()+str(round(RHI,1))+r" $\pm$ " +str(round(RHI_ErrAvg,1))+" kpc"
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
     
@@ -173,7 +173,7 @@ def AddObjectLabels(fig,Model,GalaxyDict,PltOpts):
     VHI_Errs=np.array([ScalingDict['VHIArr'][0]-ScalingDict['VHIArr'][1],ScalingDict['VHIArr'][0]-ScalingDict['VHIArr'][1]])
     VHI_ErrAvg=ScalingDict['VHIArr'][1]
     #   Add the scale radius to the plot
-    LabelStr="VHI_model \t=\t".expandtabs()+str(round(VHI,1))+" $\pm$ " +str(round(VHI_ErrAvg,1))+" km/s"
+    LabelStr="VHI_model \t=\t".expandtabs()+str(round(VHI,1))+r" $\pm$ " +str(round(VHI_ErrAvg,1))+" km/s"
     fig.text(XTextLoc,yTextLoc, LabelStr , ha='left',rotation=0,va='center',size=TextSize,color='k')
     yTextLoc-=YTextStep
     
