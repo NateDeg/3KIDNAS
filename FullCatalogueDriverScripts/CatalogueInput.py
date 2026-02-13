@@ -70,5 +70,5 @@ def LoadFITSCatalogue(File):
 def ConvertFITSCatStrings(Cat,TargKeys):
     for x in TargKeys:
         for i in range(len(Cat[x])):
-            Cat[x][i]=Cat[x][i].decode('utf-8')
+            Cat.loc[i,x]=Cat[x][i].decode('utf-8')
     return Cat
