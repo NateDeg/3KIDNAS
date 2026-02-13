@@ -10,6 +10,7 @@ from . import CatalogueInput as CI
 from . import RunSingleGalaxyFit as RSGF
 from . import CubePreprocessing as CP
 from . import GenerateAcceptedModelCatalogue as GAMC
+from . import InitialGeometryEstimates as IGE
 
 
 
@@ -50,11 +51,16 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
     """
     Runs the GalaxyFitDriver on a single galaxy in the SoFiA catalogue
     
-    Parameters:
-        step (int): An index counting the current step through the catalogue
-        Cat (dict): The underlying SoFiA catalogue
-        RTDict (dict): The catalogue containing runtime variables
-        SGDict (dict): The catalogue for the single galaxy fitter
+    Parameters
+    -------
+        step : integer
+            An index counting the current step through the catalogue
+        Cat : Dictionary
+            The underlying SoFiA catalogue
+        RTDict : Dictionary
+            The dictionary containing runtime variables
+        SGDict : Dictionary
+            The catalogue for the single galaxy fitter
     
     """
     #print(step)
@@ -69,7 +75,7 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
     #   Now do the cube pre-processing to get a velocity cube
     CP.CubePreprocessing(GalaxyDict)
     #   With the cube preprocessing completed, move on to getting the inclination and postion angle estimates for the cube
-    GalaxyDict=RSGF.GetGeometryEstimates(Indx,Cat,GalaxyDict)
+    GalaxyDict=IGE.GetGeometryEstimates(Indx,Cat,GalaxyDict,RTDict)
     #   With these in tow, the parameter file needed for the galaxy fit can be writtent
     RSGF.WriteSingleGalaxyIni(GalaxyDict,RTDict,SGDict)
     #   The single galaxy fitting code should be one directory up from this file so, figure out that path first
