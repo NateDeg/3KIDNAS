@@ -23,7 +23,8 @@ def CubeHeaderConvert(ObjDict):
     #   Get the wcs coordinate information for the frequency cube
     w = wcs.WCS(Cubehdu[0].header)
     #   Now to the frequency-velocity conversion
-    Cubehdu=Frequency_VelocityConversion(Cubehdu,CubeHeader)
+    if CubeHeader['CTYPE3']=='FREQ':
+        Cubehdu=Frequency_VelocityConversion(Cubehdu,CubeHeader)
     #   Check that the header has the units for the cube header
     Cubehdu=UnitsCheck(Cubehdu,CubeHeader)
     #   Adjust the cube object name to match the dictionary object name
