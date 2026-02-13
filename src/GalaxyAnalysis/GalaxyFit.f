@@ -82,13 +82,6 @@ c           Make the set of initial guesses
       call MakeParamGuessArray(PVModel,ParamGuesses
      &          ,PVIni%nParams,idum,IniGuessWidth,StrictEstimate)
 
-c      FullEnsambleOutput="AllInitialParamVectors.txt"
-c      open(10,file=FullEnsambleOutput,status='replace')
-c      do i=1, PVModel%nParams+1
-c        write(10,*) ParamGuesses(i,1:PVModel%nParams)
-c      enddo
-c      close(10)
-
       call DownhillSimplexRun(PVModel%nParams
      &                  ,paramGuesses,chiArray)
 
@@ -119,20 +112,6 @@ c           TEMPORARY WORK
 c           convert the best model to a TR model
       call ParamToTiltedRing(PVModel,ModelTiltedRing
      &          ,TR_FittingOptions)
-c      do i=0, ModelTiltedRing%nRings-1
-c        print*, i, ModelTiltedRing%R(i)%VRot
-c     &              , ModelTiltedRing%R(i)%VDisp
-c     &              , ModelTiltedRing%R(i)%Inclination*180./Pi
-c     &              , ModelTiltedRing%R(i)%PositionAngle*180./Pi
-c      enddo
-
-c      FullEnsambleOutput="AllFinalParamVectors.txt"
-c      open(10,file=FullEnsambleOutput,status='replace')
-c      do i=1, PVModel%nParams+1
-c        write(10,*) ParamGuesses(i,1:PVModel%nParams)
-c      enddo
-c      close(10)
-
 
 c       Deallocate the model vector at the end
 c      call DeAllocateParamVector(PVModel)

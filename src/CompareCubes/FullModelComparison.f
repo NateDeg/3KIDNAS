@@ -107,6 +107,7 @@ c       Check that the model doesn't hit any hard, non-physical limits
 
       logical, INTENT(INOUT) :: BadModelFlag
       integer i,j
+      real VLow,VHigh,VSinI
       
       BadModelFlag=.False.
 
@@ -118,6 +119,17 @@ c       Check that the inclination is between 0 and 90
         endif
 c           Check that the rotation is greater than 0
         if(ModelTiltedRing%R(i)%VRot .lt. 0.) then
+            BadModelFlag=.True.
+        endif
+c           Check that velocity lims are inside the cube
+        VSinI=ModelTiltedRing%R(i)%VRot
+     &      *sin(ModelTiltedRing%R(i)%Inclination)
+        VLow=ModelTiltedRing%R(i)%VSys-VSinI
+        VHigh=ModelTiltedRing%R(i)%VSys+VSinI
+        if (VLow .lt. minval(ObservedDC%Channels)) then
+            BadModelFlag=.True.
+        endif
+        if (VHigh .gt. maxval(ObservedDC%Channels)) then
             BadModelFlag=.True.
         endif
 c           Check that the surface density is above 0
