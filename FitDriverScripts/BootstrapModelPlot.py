@@ -262,7 +262,7 @@ def RA_DEC_Str(ValU,Err,DType):
     Val_Err_Str=str(round(Val_Err_Str[2],1))
     Val_Err_Str=Val_Err_Str+"''"
     #       Do the same for the uncertainty in RA and turn it into arcseconds
-    FullStr=ValStr+" $\pm$ " +Val_Err_Str
+    FullStr=ValStr+r" $\pm$ " +Val_Err_Str
     return FullStr
 
 
