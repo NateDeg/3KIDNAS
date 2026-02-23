@@ -22,7 +22,8 @@ ccccc
      &              ,incl,PA,Size
      &              ,EstimatedProfile,RadialProfile
      &              ,VSys,FittingOptions,nRings
-     &              ,SDLims,VLims,NoiseFrac)
+     &              ,SDLims,VLims,NoiseFrac
+     &              ,DC)
       implicit none
       Type(DataCube),INTENT(IN) :: Maps
       Type(Beam2D),INTENT(IN) :: BEAM
@@ -33,6 +34,7 @@ ccccc
       integer,intent(INOUT) :: nRings
       real,INTENT(IN) :: SDLims(2),VLims(2)
       real,INTENT(IN) :: NoiseFrac
+      Type(DataCube),INTENT(IN) :: DC
 
 
 
@@ -112,7 +114,8 @@ c       Now go through everything on a point by point basis
      &              ,VLims,Noise_SDLim
      &              ,TempRadialProfile(0:2,i-1)
      &              ,ProjectedProfile(0:2,i-1)
-     &              ,ModelerableRingSwitch(i-1))
+     &              ,ModelerableRingSwitch(i-1)
+     &              ,Incl,VSys,DC)
       enddo
 c       Now it's necessary to figure out the number of rings to model
 
@@ -403,12 +406,15 @@ cccccc
       subroutine CheckProfilePointModelability(SDLims
      &              ,VLims,Noise_SDLim
      &              ,ProfilePt,ProjectedProfilePt
-     &              ,ModelSwitch)
+     &              ,ModelSwitch,Incl,VSys,DC)
 
       implicit none
       real,INTENT(IN):: SDLims(2), VLims(2),Noise_SDLim
       real,INTENT(INOUT):: ProfilePt(0:2),ProjectedProfilePt(0:2)
       integer,INTENT(INOUT):: ModelSwitch
+      real,INTENT(IN) :: Incl,VSys
+      Type(DataCube),INTENT(IN) :: DC
+      real VProjHigh,VProjLow,minV,maxV
 
 
 c               A SET OF PRINT OUTS FOR CHECKING THINGS
@@ -454,6 +460,21 @@ c           Do the same check for the rotation velocity
         print*, "High VRot initial estimate"
         ProfilePt(2)=VLims(2)
       endif
+c           One further check is to make sure that the projected velocity will be within the cube
+      VProjLow=VSys-ProfilePt(2)*sin(Incl)
+      VProjHigh=VSys+ProfilePt(2)*sin(Incl)
+      minV=minval(DC%Channels)
+      maxV=maxval(DC%Channels)
+      print*, "Proj Vel Check", VProjLow,VProjHigh
+     &      , minV, maxV
+      if (VProjLow .lt. minV) then
+        ProfilePt(2)=(VSys-minV)/sin(Incl)
+      endif
+      if (VProjHigh .gt. maxV) then
+        ProfilePt(2)=(maxV-VSys)/sin(Incl)
+      endif
+
+
       return
       end subroutine
 ccccc
@@ -536,6 +557,7 @@ c
 c       Now try to correct the radial profile for the beam
       dR=RadialProfile(0,1)-RadialProfile(0,0)
 c       It is necessary to start RIndx at 0 and then add from there
+      RIndx=0
       do i=0,nRings-1
         print*, i, RadialProfile(0,i), RadialProfile(1,i)
      &              , RadialProfile(2,i)
@@ -585,7 +607,7 @@ c        RIndx=(RCorr-RadialProfile(0,0))/dR
         endif
 
 c        print*, i, RadialProfile(0,i),RCorr,RadialProfile(1,i),SDCorr(i)
-c     &          ,RadialProfile(2,i),RCCorr(i)
+     &          ,RadialProfile(2,i),RCCorr(i)
 
       enddo
       RadialProfile(1,0:nRings-1)=SDCorr(0:nRings-1)

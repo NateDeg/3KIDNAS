@@ -119,7 +119,7 @@ c               maps.  When using secondary cubes/masks, this is done in the pre
      &                  ,EstimatedProfiles,EstimatedRadialProfiles
      &                  ,VSys,TR_FittingOptions,nRings
      &                  ,LinSDLims,VRotLims,NoiseSigmaLim
-     &                  )!/src/PreAnalysis/EstimateRadialProfiles.f
+     &                  ,OBservedDC)!/src/PreAnalysis/EstimateRadialProfiles.f
 c       Get an estimate of the initial velocity dispersion
       call EstimateFlatVDisp(VDisp)
 c       Store the initial parameters into a tilted ring structure
