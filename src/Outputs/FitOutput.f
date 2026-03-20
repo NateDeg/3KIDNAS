@@ -131,7 +131,7 @@ c
 c           Make the output folder for the file
       OutputFolder=trim(MainOutputFolder)//trim(CatItem%ObjName)
       print*, "Moving outputs to ", trim(MainOutputFolder)
-      print*, "Making an output folder", trim(OutputFolder)
+      print*, "Making an output folder ", trim(OutputFolder)
      &          ,trim(CatItem%ObjName)
       Script="mkdir "//trim(OutputFolder)
       call system(Script)
