@@ -1,7 +1,7 @@
 #	Name of the fits file to be modelled
 /Users/nate/Dropbox/WALLABY/HydraDR2Analysis/Wallaby_Hydra_DR2_KinematicModels_TempTest_v2/TempModel_Noise10/TempModel_Noise10.fits
 #	The name of the fitting options file
-Inputs/SingleGalaxyTestFittingOptions.in
+Inputs/SingleGalaxyTestFittingOptions_Base.txt
 #	Using a mask switch (1=yes, 2=no,3=Use full cube)
 2
 #	If using a mask, the name of the mask (note always keep this line)
