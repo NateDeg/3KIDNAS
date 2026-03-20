@@ -607,7 +607,7 @@ c        RIndx=(RCorr-RadialProfile(0,0))/dR
         endif
 
 c        print*, i, RadialProfile(0,i),RCorr,RadialProfile(1,i),SDCorr(i)
-     &          ,RadialProfile(2,i),RCCorr(i)
+c     &          ,RadialProfile(2,i),RCCorr(i)
 
       enddo
       RadialProfile(1,0:nRings-1)=SDCorr(0:nRings-1)
