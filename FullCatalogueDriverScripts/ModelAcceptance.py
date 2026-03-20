@@ -19,10 +19,12 @@ def SetCutLimits():
     lim_PAErr=20.
     lim_deltaSinI=0.15
     
+    lim_FluxDiff=0.1
+    
     limDict=locals()
     return limDict
     
-def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
+def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix,TFlux,CubeHeader):
 
     #   Build a model check key that can be used to add to the flags file
     ModelCheckDict={}
@@ -88,6 +90,29 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
         if SuccessCheck==0:
             AutoSuccess=0
             ModelCheckDict['VelLims']=0
+            
+    try:
+        DCube=fits.open(Model['DiffCube'])
+        DData=DCube[0].data
+        DCube.close()
+        Cube=fits.open(Model['ProcCube'])
+        CData=Cube[0].data
+        Cube.close()
+        Mask=fits.open(Model['OriMask'])
+        MData=Mask[0].data
+        Mask.close()
+        DData=DData*MData
+        CData=CData*MData
+        CTot=np.nansum(CData)
+        DiffTot=np.nansum(DData)
+        print("Flux Comp", CTot,DiffTot,DiffTot/CTot)
+    except:
+        DiffTot=0.
+        CTot=1.
+        AutoSuccess=0
+    if np.abs(DiffTot/CTot) >=  CutLimits['lim_FluxDiff']:
+        AutoSuccess=0
+        
         
     #   Add the tag to the model
     Model['ModelSuccess']=AutoSuccess
