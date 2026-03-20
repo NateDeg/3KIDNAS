@@ -1,21 +1,28 @@
-FROM ubuntu:26.04
+FROM images.canfar.net/skaha/base:latest
+
+# Container metadata
+LABEL maintainer="nathan.deg@queensu.ca"
+LABEL description="HI modelling pipeline using 3KIDNAS"
+LABEL version="1.0.0"
+
+# Install system dependencies as root
+USER root
+
+COPY requirements.txt .
+
+# Install specialized X-ray analysis tools
+RUN pip install --no-cache-dir -r requirements.txt
+
+
 WORKDIR /KIDNAS
 COPY . .
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	gfortran build-essential \
 	wcslib-dev wcslib-tools \
-	python3 python3-venv python3-pip \
 	nano \
-	libcurl4-openssl-dev zlib1g zlib1g-dev
+	libcurl4-openssl-dev zlib1g zlib1g-dev \
+	nodejs npm
 
-# Create a virtual environment and install dependencies
-RUN python3 -m venv /opt/venv
-# Activate the venv for subsequent commands by adding its bin directory to the PATH
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Copy requirements file and install packages into the venv
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
 RUN ./buildScript.sh
 
