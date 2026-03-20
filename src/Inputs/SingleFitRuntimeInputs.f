@@ -74,7 +74,7 @@ c       Read in the cube noise (this is temporary until I implement a noise calc
 
       call FittingOptionsIn()
 
-      GalaxyDict%DataCubeFile=DataCubeFile
+      GalaxyDict%DataCubeFile=trim(DataCubeFile)
 
       return
       end subroutine
