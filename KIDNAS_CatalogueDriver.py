@@ -1,3 +1,13 @@
+"""
+KIDNAS_CatalogueDriver.py
+=======
+
+**Author:** Nathan Deg
+
+**Description:**
+This module is the main driver for the 3KIDNAS.  
+"""
+
 #!/usr/bin/env python3
 from FitDriverScripts import *
 from FullCatalogueDriverScripts import *
