@@ -4,3 +4,5 @@ astropy
 matplotlib
 multiprocess
 pandas
+jupyterlab
+psycopg2-binary
