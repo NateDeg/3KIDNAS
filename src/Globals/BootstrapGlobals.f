@@ -35,12 +35,12 @@ c               in units of pixels and radians
 
       real RMS
 
-      character(500) ObservedCubeFile,ModelCubeFile
-      character(500) MaskCubeFile
-      character(500) OutputFolder
-      character(500) BaseOutName
-      character(500) DifferenceCubeName
-      character(500) SampleFile
+      character(600) ObservedCubeFile,ModelCubeFile
+      character(600) MaskCubeFile
+      character(600) OutputFolder
+      character(600) BaseOutName
+      character(600) DifferenceCubeName
+      character(600) SampleFile
 
       real SpatialBlackSize,VelBlockSize
 
