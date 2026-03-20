@@ -21,7 +21,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
       end Type
 
       Type GalaxyDictionary
-        character(100) GalaxyName
+        character(200) GalaxyName
         character(500) BestFitModelFile
         character(450) OutputFolder
         character(500) BestFitCubeFile
