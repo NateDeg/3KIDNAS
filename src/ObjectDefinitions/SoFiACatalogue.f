@@ -18,7 +18,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
         real kinPA
         real RMS,w20,w50,centralFreq
         integer nChannels,n_LOS
-        character(100) ObjName
+        character(200) ObjName
         real EllipseInc
 
       end Type
@@ -27,7 +27,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
         integer nObjects,SofiaSwitch
         character(500) PrepScript
         Type(CatalogueItem), ALLOCATABLE :: Objects(:)
-        character(100) SourceName
+        character(200) SourceName
       end Type
 
 
