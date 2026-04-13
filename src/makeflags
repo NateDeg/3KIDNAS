@@ -8,7 +8,7 @@ LocBinLoc=$(ROOT_DIR)/bin
 
 
 
-FitsLibLoc=$(PARENT_DIR)/third_party/cfitsio-4.6.3/.libs/libcfitsio.a
+#FitsLibLoc=$(PARENT_DIR)/third_party/cfitsio-4.6.3/.libs/libcfitsio.a
 
 
 #FFTW_INCL=  -I/opt/local/include
@@ -16,9 +16,14 @@ FitsLibLoc=$(PARENT_DIR)/third_party/cfitsio-4.6.3/.libs/libcfitsio.a
 #FFTW_LIB = $(FFTW_LIBS)/libfftw3.a
 
 
-FFTW_INCL=  -I$(PARENT_DIR)/third_party/fftw-3.3.8/api
-FFTW_LIBS=  $(PARENT_DIR)/third_party/fftw-3.3.8/.libs
+#FFTW_INCL=  -I$(PARENT_DIR)/third_party/fftw-3.3.8/api
+#FFTW_LIBS=  $(PARENT_DIR)/third_party/fftw-3.3.8/.libs
+#FFTW_LIB = $(FFTW_LIBS)/libfftw3.a
+
+FFTW_INCL=  -I/usr/include/
+FFTW_LIBS=  /usr/lib/x86_64-linux-gnu/
 FFTW_LIB = $(FFTW_LIBS)/libfftw3.a
+FitsLibLoc=$(FFTW_LIBS)/libcfitsio.a
 
 locObj=$(ROOT_DIR)/ObjectLists
 

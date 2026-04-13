@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	wcslib-dev wcslib-tools \
 	nano \
 	libcurl4-openssl-dev zlib1g zlib1g-dev \
-	nodejs npm
+	nodejs npm \
+	libcfitsio-dev libfftw3-dev libbz2-dev
 
 
 RUN ./buildScript.sh
