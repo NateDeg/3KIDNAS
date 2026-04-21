@@ -124,16 +124,17 @@ def BootsrapErrors_ForParam(key,ErrKey,Model,BootstrapModels):
         nFits=len(BootstrapArr)
         
         if key == 'POSITIONANGLE':
-            for j in range(1,nFits):
+            for j in range(0,nFits):
                 #print(i,j,BootstrapArr[j],BootstrapArr[0])
-                if BootstrapArr[j]-BootstrapArr[0] > 180.:
+                if BootstrapArr[j]-Model[key][0] > 180.:
                     BootstrapArr[j]=BootstrapArr[j]-360.
-                elif BootstrapArr[j]-BootstrapArr[0] < -180.:
+                elif BootstrapArr[j]-Model[key][0] < -180.:
                     BootstrapArr[j]=BootstrapArr[j]+360.
                 #print("After corr",i,j,BootstrapArr[j],BootstrapArr[0])
         MeanArr[CurrIndx]=np.mean(BootstrapArr)
         ErrArr[CurrIndx]=np.std(BootstrapArr)
         print(key,i,nFits,len(BootstrapModels),nSuccessNeeded)
+        print("First Mean and Err", MeanArr[CurrIndx],ErrArr[CurrIndx])
         if nFits < nSuccessNeeded:
             MeanArr=np.delete(MeanArr,CurrIndx)
             ErrArr=np.delete(ErrArr,CurrIndx)
