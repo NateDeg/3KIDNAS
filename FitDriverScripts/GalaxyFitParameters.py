@@ -1,8 +1,26 @@
+"""
+GalaxyFitParameters.py
+=======
+
+**Author:** Nathan Deg
+
+**Description:**
+This module contains functions that both define and collect key parameters for running 3KIDNAS.
+"""
+
 import sys as sys
 import os as os
 import copy as copy
 
 def GetRuntimeArguments():
+    """
+    This function gets the name of the python file containing the runtime arguments.
+    Returns
+        -------
+        ParamFile : string
+            The name of the python formatted file containing the required runtime arguments
+    """
+
     #   Grab the command line arguments
     Commands=sys.argv
     #   Make sure the user has supplied a python parameter file
@@ -15,13 +33,27 @@ def GetRuntimeArguments():
         print("The supplied parameter file does not exist")
         print(Commands[1])
         exit()
+    #   Finally store the name of the parameter file and return it.
     ParamFile=Commands[1]
     return ParamFile
         
     
 def ReadParamFile(FileName):
-    print("About to import parameter file ", FileName)
-    print("Absolute path to parameter file:",os.path.abspath(FileName))
+    """
+    This function reads the required python runtime input file.  Because this is a python file (which gives some increased flexibility, it will be read in as a module.
+    
+    Parameters
+        ----------
+        FileName : string
+            The name of the file to be read.
+        
+    Returns
+        -------  
+        ModTest : python module
+            A module containing all the runtime arguments
+    """
+    #print("About to import parameter file ", FileName)
+    #print("Absolute path to parameter file:",os.path.abspath(FileName))
     #   Convert the path to an absolute path
     AbsPath=os.path.abspath(FileName)
     #   Figure out the path and the module names by splitting the absolute path
@@ -34,14 +66,16 @@ def ReadParamFile(FileName):
     #   And add the path to the parameter file to sys.path
     sys.path.append(Package)
     #   Finally use the importlib module to import the module
-    #import importlib as il
     import importlib.util
-    print("Package", Package)
-    print("ModName", ModName)
+    #print("Package", Package)
+    #print("ModName", ModName)
+    #   Start by setting the instance for loading in a module
     spec = importlib.util.spec_from_file_location(name="RTParams",location=AbsPath)
-    #ModTest=il.import_module(ModName,package=Package)
+    #   And now set it so that the module can be loaded.
     ModTest=importlib.util.module_from_spec(spec)
+    #   Finally load the module
     spec.loader.exec_module(ModTest)
+    #   Return the module contents
     return ModTest
 
 def OverwriteDefaults(GeneralDict,RTParams,KeyRTParams):
