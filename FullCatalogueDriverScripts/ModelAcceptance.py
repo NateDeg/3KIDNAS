@@ -1,3 +1,14 @@
+"""
+ModelAcceptance.py
+=======
+
+**Author:** Nathan Deg
+
+**Description:**
+This module contains the functions that determine whether a fit is reliable enough to be placed into the accepted catalogue
+"""
+
+
 import numpy as np
 import pandas as pd
 import os.path
@@ -10,11 +21,12 @@ from astropy import units as u
 from astropy import wcs
     
 def SetCutLimits():
-    #   Set the limits for the automated acceptance
+    """
+    This function sets the hard limits for the automated acceptance
+    """
     lim_nR=2
-    lim_Inc=25.
-    lim_Size=1.5
-    #lim_Size*=5.    #Convert the size limit into pixels
+    lim_Inc=0.1
+    lim_Size=0.1
     lim_VSysErr=40.
     lim_PAErr=20.
     lim_deltaSinI=0.15
@@ -24,7 +36,25 @@ def SetCutLimits():
     limDict=locals()
     return limDict
     
-def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix,TFlux,CubeHeader):
+def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
+    """
+    This function determines whether a particular model will be accepted 
+    Parameters:
+    -------
+    Model : Dictionary
+        The dictionary containing all the information about the model
+    CutLimits : Dictionary
+        The dictionary containing the limits for the accept/reject catalogue
+    ModelNames : Dictionary
+        The dictionary containing various cube names
+    BeamSize_Pix : Float
+        The size of the beam in pixels
+        
+    Returns:
+    -------
+    Model : Dictionary
+        The dictionary containing all the information about the model
+    """
 
     #   Build a model check key that can be used to add to the flags file
     ModelCheckDict={}
