@@ -29,7 +29,7 @@ def GetGeometryEstimates(step,Cat,GalaxyDict,RTDict):
         RTDict: Dictionary
             The dictionary containing runtime variables
 
-        Returns
+    Returns
         -------
         GalaxyDict : Dictionary
             The updated dictionary now containing the initial geometry estimates.
