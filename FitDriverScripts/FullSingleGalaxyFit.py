@@ -17,6 +17,7 @@ from . import GeometryCorrection as GC
 from . import BootstrapModelPlot as BMP
 from . import ExtendedSDProfileCalc as ESDPC
 from . import ExtractScalingParams as ESP
+from . import BootstrapBoxPlot as BBP
 
 
 
@@ -103,6 +104,8 @@ def GalaxyFit():
     
     #   Make diagnostic plot from the bootstrapped model
     BMP.MakeBootstrapModelPlot(GalaxyDict,GeneralDict)
+    #   Make a box plot
+    BBP.BootstrapBoxPlot(GalaxyDict,GeneralDict,BootstrapModels)
     
     #   Save the PV diagrams to Fits files
     BO.SavePVDiagrams(GalaxyDict,GeneralDict)
