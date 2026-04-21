@@ -87,7 +87,7 @@ c               Use the various object definition routines
 
       integer Version
 
-      real,parameter,dimension(2) :: VRotLims=[0.,300.]
+      real,parameter,dimension(2) :: VRotLims=[0.,400.]
       real,dimension(2) :: LogSDLims
       real,dimension(2) :: LinSDLims
       real,parameter,dimension(2) :: LinSDLims_MSol=[0.1,50.]
