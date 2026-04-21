@@ -14,6 +14,9 @@ import astropy
 from astropy.io import fits
 
 
+from scipy.interpolate import interp1d
+from scipy.optimize import brentq
+
 def CalcScalingParams(GalaxyDict,BootstrapModels):
 
     #   Get RHI and limits
@@ -102,7 +105,7 @@ def CalcRHI(GalaxyDict,BootstrapModels):
     RHI_Err=np.sqrt(RHI_BS_Err**2.+RHI_Diff**2.)
     
     #   Store the appropriate values into an array
-    RHIArr=np.array([CurrModel['RHI']-RHI_Err,CurrModel['RHI'],CurrModel['RHI']+RHI_Err])
+    RHIArr=np.array([GalaxyDict['BestFitModel']['RHI']-RHI_Err,GalaxyDict['BestFitModel']['RHI'],GalaxyDict['BestFitModel']['RHI']+RHI_Err])
     RCorrArr=RHIArr
     RHIFlag=0
     RHDict={'RHI_CorrArr':RCorrArr,'RHIArr':RHIArr,'SDMethod':SDCalcMethod,'RHIFlag':RHIFlag}
@@ -134,40 +137,44 @@ def GetSD_Intecept(R,SD_FO,SDLim):
     
     
 def FindProfileIntersection(X,Y,Lim):
-    epsilon=1.e-7
-    #   Loop through all radii and check for the point where we go below 1
-    #       Go from out to in
-    for i in range(len(X)-1,1,-1):
-        #   Once the profile goes above one, find the point where the SD goes below the limit
-        if Y[i-1] > Lim:
-            #   Select the points
-            x1=X[i-1]
-            x2=X[i]
-            y1=Y[i-1]
-            y2=Y[i]
-            #   Get the slope
-            m=(y2-y1)/(x2-x1)
-            #   Find RHI
-            dY=Lim-y1
-            dX=dY/m
-            X_Int=x1+dX
-            indx=i-1
-            if m < epsilon:
-                X_Int=x1
-                indx=i-1
-            return X_Int,indx
-    indx=-1
-    X_Int=X[0]
+    """
+    This function finds the outermost X-value where the Y-values of a profile crosses some target limit value.  Note that this function is/should only called when the min and max Y values cross the Lim value.
+    
+    Parameters
+        ----------
+        X : real array
+            The X points for the array
+        Y : real array
+            The Y points making up the array
+        Lim : real
+            The target value for the intersection
+    Returns
+        ------- 
+        X_Int : Real
+            The X-value of the profile where Y=Lim
+        indx : integer
+            The lower index of the two points bracketing Lim.
+    """
+    #   Start by subtracting the limit from Y
+    YNorm=Y-Lim
+    #   Find the indices of all spots where YNorm crosses 0
+    crossings = np.where(np.diff(np.sign(YNorm)))[0]
+    #   Set the index to the outermost crossing point
+    if len(crossings)==0:
+        indx=-1
+        X_Int=np.nan
+        return X_Int,indx
+    indx=crossings[-1]
+    #   Now make a 1D linearly interpolated function for the normalized profile
+    f2=interp1d( X, YNorm )
+    #   Find the spot where YNorm=0 in the region between the two indices
+    X_Int=brentq(f2,X[indx],X[indx+1])
+    #   Return the X point and index
     return X_Int,indx
     
 
     
 def GetProfilePoint(X,Y,XTarg):
-    #if np.isnan(XTarg):
-    #    ProfLimitsFlag=False
-    #    YTarg=np.nan
-    #    i=len(X)-1
-    #    return YTarg,i,ProfLimitsFlag
 
     ProfLimitsFlag=True
     if XTarg<=X[0]:
@@ -285,169 +292,6 @@ def ExtractRHI_NoErr(R,SD,SDLim):
         
     return RHI,RHI_Found,R_indx
 
-
-def CalcRHI_Old(GalaxyDict,BootstrapModels):
-
-    if GalaxyDict['ExtendedSDProfile']['ProfileAcceptFlag']==False:
-        RHDict=NoWorkableSD()
-        return RHDict
-    
-    SDLim=1.
-    #   First check on the 3D modelled SD profile
-    Model=GalaxyDict['BestFitModel']
-    SD3D=Model['SURFDENS_FACEON']
-    SD2D=GalaxyDict['ExtendedSDProfile']['SURFDENS_FACEON']
-    SDMax=np.nanmax(SD3D)
-    SDMin=np.nanmin(SD3D)
-
- 
-    
-   
-    
-    if SDMax >= SDLim and SDMin <= SDLim:
-        SDCalcMethod=0
-        DictUse=Model
-    #       If the 3D method doesn't bracket the SD values, check the extended profile
-    else:
-        SDCalcMethod=-1
-        #DictUse=GalaxyDict['ExtendedSDProfile']
-        RHDict=NoWorkableSD()
-        return RHDict
-        
-    R=DictUse['R_SD']
-    SD=DictUse['SURFDENS_FACEON']
-    SDUpper=DictUse['SURFDENS_FACEON']+DictUse['SURFDENS_FACEON_ERR']
-    SDLower=DictUse['SURFDENS_FACEON']-DictUse['SURFDENS_FACEON_ERR']
-
-    if len(R) <=1:
-        RHI=R[0]
-        RHI_Found=False
-        R_indx=0
-        RHI_Upper=np.nan
-        RHI_Lower=np.nan
-        RHIFlag=-1
-        
-    else:
-        RHI,RHI_Found,R_indx=GetSD_Intecept(R,SD,SDLim)
-    
-        if np.isnan(DictUse['SURFDENS_FACEON_ERR']).any():
-            RHI_Lower=np.nan
-            RHI_Upper=np.nan
-            RHIFlag=-1
-        else:
-            RHI_Upper,RUFound,R_UpperIndx=GetSD_Intecept(R,SDUpper,SDLim)
-            RHI_Lower,RLFound,R_LowerIndx=GetSD_Intecept(R,SDLower,SDLim)
-            RHIFlag=0
-            if RUFound==False:
-                RHI_Upper=np.nan
-                RHIFlag=1
-            if RLFound==False:
-                RHI_Lower=np.nan
-                RHIFlag=2
-            if RUFound==False and RLFound==False:
-                RHIFlag=-1
-                RHI_Lower=np.nan
-                RHI_Upper=np.nan
-        
-        if SDCalcMethod==1 and RHI_Found==False:
-            RHIFlag=-1
-            RHI_Lower=np.nan
-            RHI_Upper=np.nan
-            RHI=np.nan
-     
-    RHIArr=np.array([RHI_Lower,RHI,RHI_Upper])
-    RCorrArr=np.array([RHI_Lower,RHI,RHI_Upper])
-    
-    
-    
-    if SDCalcMethod==1:
-        Beam=GalaxyDict['ExtendedSDProfile']['BMAJ']
-        for RCorr in RCorrArr:
-            BU=Beam
-            i=1
-            while BU > RCorr:
-                BU=Beam/float(i)
-                i+=1
-            RCorr=np.sqrt(RCorr**2.-BU**2.)
-
-    RHDict={'RHI_CorrArr':RCorrArr,'RHIArr':RHIArr,'SDMethod':SDCalcMethod,'RHIFlag':RHIFlag}
-    return RHDict
-
-
-
-def CalcVHI_Old(GalaxyDict,ScalingDict):
-
-    if ScalingDict['SDMethod']==-1:
-        ScalingDict=BadVHResults(ScalingDict)
-        return ScalingDict
-    if ScalingDict['RHIFlag']==-1:
-        ScalingDict=BadVHResults(ScalingDict)
-        return ScalingDict
-    Model=GalaxyDict['BestFitModel']
-    
-    R=Model['R']
-    VProf=Model['VROT']
-    VProfErr=Model['VROT_ERR']
-
-    RHI=ScalingDict['RHIArr'][1]
-    
-    if len(VProf) <=1:
-        VHI=VProf[0]
-        RIndx=0
-        VHIFlag=-1
-    else:
-        VHI,RIndx,VHIFlag_Ini=GetProfilePoint(R,VProf,RHI)
-    
-    RHILimsFlags=ScalingDict['RHIFlag']
-    if ScalingDict['RHIFlag']==0:
-        PtArray=np.array(ScalingDict['RHIArr'])
-    elif ScalingDict['RHIFlag']==1:
-        PtArray=np.array([ScalingDict['RHIArr'][0],ScalingDict['RHIArr'][1]])
-    elif ScalingDict['RHIFlag']==2:
-        PtArray=np.array([ScalingDict['RHIArr'][1],ScalingDict['RHIArr'][2]])
-        
-    nPts=len(PtArray)
-    Mid=np.zeros(nPts)
-
-    Diffs=np.zeros(nPts)
-    RHI=ScalingDict['RHIArr'][1]
-    Low,RIndx,VFlag=GetProfilePoint(R,VProf-VProfErr,RHI)
-    High,RIndx,VFlag=GetProfilePoint(R,VProf+VProfErr,RHI)
-    
-    VErr_Local=np.abs((High-Low)/2.)
-
-    for i in range(nPts):
-
-        RUse=PtArray[i]
-        Mid[i],RIndx,VFlag=GetProfilePoint(R,VProf,RUse)
-        
-        Diffs[i]=np.abs(Mid[i]-VHI)
-       
-   
-    Avg=np.mean(Diffs)
-    
-    TotErr=np.sqrt(VErr_Local**2.+Avg**2.)
-    
-    if VHIFlag_Ini==True and RHILimsFlags==0:
-        ScalingDict['VHIFlag']=0
-    elif VHIFlag_Ini==False and RHILimsFlags==0:
-        ScalingDict['VHIFlag']=-1
-        dR=R[1]-R[0]
-        if (RHI-R[-1])/dR <= 0.5:
-            ScalingDict['VHIFlag']=-1
-        
-    elif VHIFlag_Ini==True and RHILimsFlags==1:
-        ScalingDict['VHIFlag']=1
-    elif VHIFlag_Ini==True and RHILimsFlags==2:
-        ScalingDict['VHIFlag']=1
-    elif VHIFlag_Ini==False:
-        ScalingDict['VHIFlag']=-1
-
-      
-    ScalingDict['VHIArr']=np.array([VHI,TotErr])
-
-    
-    return ScalingDict
 
 def GetVHIFromProf(R,VProf,RHI):
 
