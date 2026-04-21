@@ -148,9 +148,9 @@ def SavePVDiagrams(GalaxyDict,GeneralDict):
     #   Load in the data cube and the model cube
     DataCube=CA.BasicCubeAnalysis(GalaxyDict['CubeName'])
     ModelCube=CA.BasicCubeAnalysis(Model['ModelCube'])
-    print("DC",DataCube['CubeHeader']['OBJECT'])
+    #print("DC",DataCube['CubeHeader']['OBJECT'])
     
-    print("MC",ModelCube['CubeHeader']['OBJECT'])
+    #print("MC",ModelCube['CubeHeader']['OBJECT'])
 
     #   From the model get the center point and base PA
     CenterX=Model['XCENTER'][0]
@@ -194,7 +194,10 @@ def SavePVDiagrams(GalaxyDict,GeneralDict):
         ObjKeys2=['CUNIT1','CRPIX2','CRVAL2','CDELT2','CTYPE2','CUNIT2','BUNIT','BMAJ','BMIN','BPA','OBJECT']
         MatchKeys=['CUNIT1','CRPIX3','CRVAL3','CDELT3','CTYPE3','CUNIT3','BUNIT','BMAJ','BMIN','BPA','OBJECT']
         for ii in range(len(ObjKeys2)):
-            hdu.header.set(ObjKeys2[ii],DataCube['CubeHeader'][MatchKeys[ii]])
+            try:
+                hdu.header.set(ObjKeys2[ii],DataCube['CubeHeader'][MatchKeys[ii]])
+            except:
+                continue
 
         hdu.header.set('CTYPE1','3KIDNAS')
         hdul = fits.HDUList([hdu])
