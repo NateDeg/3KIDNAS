@@ -1,5 +1,6 @@
 import sys as sys
 import os as os
+import pandas as pd
 import multiprocessing as mp
 from multiprocessing import freeze_support
 
@@ -52,11 +53,11 @@ def GalaxyFit():
     end = time.time()
     InitialFitTime=(end-start)
     #   Write out the total time of the fit
-    TimeFile=GalaxyDict['TargFolderU']+GalaxyDict['ObjNameU']+"/"+GalaxyDict['ObjNameU']+"_FitTimeCheck.txt"
-    f=open(TimeFile,'w')
-    Str="Initial Fit Runtime (in seconds) = "+str(InitialFitTime)+"\n"
-    f.write(Str)
-    f.close()
+    TimeFile=GalaxyDict['TargFolderU']+GalaxyDict['ObjNameU']+"/"+GalaxyDict['ObjNameU']+"_FitTimeCheck.csv"
+    #f=open(TimeFile,'w')
+    #Str="Initial Fit Runtime (in seconds) = "+str(InitialFitTime)+"\n"
+    #f.write(Str)
+    #f.close()
     
 
     #   With WRKP now completed, the fit must be ingested
@@ -117,9 +118,12 @@ def GalaxyFit():
     end = time.time()
     TotalFitTime=(end-start)
     f=open(TimeFile,'a')
-    Str="Total Fit Runtime (in seconds) = "+str(TotalFitTime)+"\n"
-    f.write(Str)
-    f.close()
+    #Str="Total Fit Runtime (in seconds) = "+str(TotalFitTime)+"\n"
+    #f.write(Str)
+    #f.close()
+    TimeDict={'CheckPoint':["Initial Fit","Total"],'RunTime':[InitialFitTime,TotalFitTime]}
+    DF=pd.DataFrame.from_dict(TimeDict)
+    DF.to_csv(TimeFile,index=False)
     
     #   Once the bootstrap run is done, remove the bootstrap and SoFiA folders
     ClnCmd="rm -r "+GalaxyDict['BootstrapFolder']+" "+GalaxyDict['SoFiAFolder']
