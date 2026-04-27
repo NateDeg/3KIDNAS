@@ -24,14 +24,16 @@ def SetCutLimits():
     """
     This function sets the hard limits for the automated acceptance
     """
-    lim_nR=2
+    lim_nR=4
     lim_Inc=0.1
     lim_Size=0.1
     lim_VSysErr=40.
-    lim_PAErr=20.
+    lim_PAErr=15.
+    lim_IncErr=15.
     lim_deltaSinI=0.15
     
-    lim_FluxDiff=0.1
+    lim_FluxDiff=1.4
+    limVRot=100.
     
     limDict=locals()
     return limDict
@@ -58,15 +60,19 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
 
     #   Build a model check key that can be used to add to the flags file
     ModelCheckDict={}
-    CheckKeys=['FitAchieved','nRings','size','Inc','VSys_Err','PA_Err','deltaSinI','NaNErrs','VelLims']
+    #CheckKeys=['FitAchieved','nRings','size','Inc','VSys_Err','PA_Err','deltaSinI','NaNErrs','VelLims']
+    CheckKeys=['FitAchieved','nRings','Inc','Inc_Err','PA_Err','deltaSinI','NaNErrs','VelLims','VRotErrs','FluxCheck']
     for key in CheckKeys:
         ModelCheckDict[key]=1
 
     #   Start by assuming success
     AutoSuccess=1
     #   Set the profile keys to check
-    ProfKeys=['VSYS_ERR','POSITIONANGLE_ERR']
-    LimProfKeys=['lim_VSysErr','lim_PAErr']
+    #ProfKeys=['VSYS_ERR','POSITIONANGLE_ERR']
+    #LimProfKeys=['lim_VSysErr','lim_PAErr']
+    
+    ProfKeys=['POSITIONANGLE_ERR','INCLINATION_ERR']
+    LimProfKeys=['lim_PAErr','lim_IncErr']
    
     #  Check whether the model actually was fit
     if Model['ModelFitAchieved']==False:
@@ -77,13 +83,13 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
     else:
         #   Check the length of the model
         nR=len(Model['Model']['R'])
-        if nR <=CutLimits['lim_nR']:
+        if nR <CutLimits['lim_nR']:
             AutoSuccess=0
             ModelCheckDict['nRings']=0
         #   Check on the size
-        if Model['ell_maj_SoFiA'] <= CutLimits['lim_Size']*BeamSize_Pix:
-            AutoSuccess=0
-            ModelCheckDict['size']=0
+        #if Model['ell_maj_SoFiA'] <= CutLimits['lim_Size']*BeamSize_Pix:
+        #    AutoSuccess=0
+        #    ModelCheckDict['size']=0
         #   Check on the VSys Error, and PA Error
         i=0
         for key in ProfKeys:
@@ -93,23 +99,25 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
                     ModelCheckDict['VSys_Err']=0
                 elif key =='POSITIONANGLE_ERR':
                     ModelCheckDict['PA_Err']=0
+                elif key == 'INCLINATION_ERR':
+                    ModelCheckDict['Inc_Err']=0
             #print(key,Model['Model'][key][0],AutoSuccess)
             i+=1
         #   Check on the inclination
-        if Model['Model']['INCLINATION'][0] <= CutLimits['lim_Inc']:
-            AutoSuccess=0
-            ModelCheckDict['Inc']=0
+        #if Model['Model']['INCLINATION'][0] <= CutLimits['lim_Inc']:
+        #    AutoSuccess=0
+        #    ModelCheckDict['Inc']=0
         #   Check on the delta Sin I
-        ILow=(Model['Model']['INCLINATION'][0]-Model['Model']['INCLINATION_ERR'][0])*np.pi/180.
-        if ILow < 0.:
-            ILow=0.
-        IHigh=(Model['Model']['INCLINATION'][0]+Model['Model']['INCLINATION_ERR'][0])*np.pi/180.
-        if IHigh > np.pi*0.5:
-            IHigh=np.pi*0.5
-        deltaSinI=np.sin(IHigh)-np.sin(ILow)
-        if deltaSinI >=CutLimits['lim_deltaSinI']:
-            AutoSuccess=0
-            ModelCheckDict['deltaSinI']=0
+        #ILow=(Model['Model']['INCLINATION'][0]-Model['Model']['INCLINATION_ERR'][0])*np.pi/180.
+        #if ILow < 0.:
+        #    ILow=0.
+        #IHigh=(Model['Model']['INCLINATION'][0]+Model['Model']['INCLINATION_ERR'][0])*np.pi/180.
+        #if IHigh > np.pi*0.5:
+        #    IHigh=np.pi*0.5
+        #deltaSinI=np.sin(IHigh)-np.sin(ILow)
+        #if deltaSinI >=CutLimits['lim_deltaSinI']:
+        #    AutoSuccess=0
+        #    ModelCheckDict['deltaSinI']=0
     #   It is possible for all the bootstraps to fail and have NaN's in the errors.  Reject any model where the geometric errors are NaNs
         SuccessCheck=CheckGeoErrorForNaNs(Model)
         if SuccessCheck==0:
@@ -120,6 +128,11 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
         if SuccessCheck==0:
             AutoSuccess=0
             ModelCheckDict['VelLims']=0
+        MaxVRotErr=np.nanmax(Model['Model']['VROT_ERR'])
+        MedRotErr=np.median(Model['Model']['VROT_ERR'])
+        if MaxVErr > CutLimits['lim_VRot']:
+           AutoSuccess=0
+           ModelCheckDict['VRotErrs']=0
             
     try:
         DCube=fits.open(Model['DiffCube'])
@@ -133,15 +146,24 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
         Mask.close()
         DData=DData*MData
         CData=CData*MData
+        #   Mask the difference cube for values below 2 sigma
+        #DData[np.abs(DData) < 2.*Model['Model']['RMS']/1000.]=0.
+        NormDiff=1000.*DData/Model['Model']['RMS']
+        
         CTot=np.nansum(CData)
-        DiffTot=np.nansum(DData)
+        #DiffTot=np.nansum(DData)
+        #DiffTot=np.nansum(np.abs(DData))
+        nCells=np.nansum(MData)
+        DiffTot=np.sqrt(np.nansum(NormDiff**2.)/(nCells))
         print("Flux Comp", CTot,DiffTot,DiffTot/CTot)
     except:
         DiffTot=0.
         CTot=1.
         AutoSuccess=0
+        ModelCheckDict['FluxCheck']=0
     if np.abs(DiffTot/CTot) >=  CutLimits['lim_FluxDiff']:
         AutoSuccess=0
+        ModelCheckDict['FluxCheck']=0
         
         
     #   Add the tag to the model
