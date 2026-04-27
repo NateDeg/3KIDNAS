@@ -93,17 +93,8 @@ c       Call the pre-galaxy analysis for the object
 c      print*, "initial vector", PVIni%Param(0:PVIni%nParams-1)
 c      Call Galaxy fit for the test cube
       call GalaxyFit(SCatLocal%Objects(0))
-c      print*, "Still initial vector", PVIni%Param(0:PVIni%nParams-1)
-
-c      print*, "Second sanity flux check",sum(ObservedDC%Flux)
-c      print*, "Sanity Check part 2", sum(ModelDC%Flux)
-
+c   Finally do any extra analysis to clean up the results
       call PostGalaxyAnalysis()
-
-
-    
-
-
 c       Output the single galaxy test fit
       call system("mkdir "//trim(MainOutputFolder))
       call OutputFit(SCatLocal%Objects(0))
