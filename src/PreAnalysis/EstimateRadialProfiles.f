@@ -122,7 +122,8 @@ c       Now it's necessary to figure out the number of rings to model
       print*, "Total potentially modelable rings", nRings
 c       When not using an input profile, use the modelable switch
       if(FittingOptions%nTargRings .eq. -1) then
-        nRings=sum(ModelerableRingSwitch)
+c        nRings=sum(ModelerableRingSwitch)
+        nRings=sum(ModelerableRingSwitch)+1 !Add an extra ring trial
 c       Otherwise use the number of input rings
       else
         nRings=FittingOptions%nTargRings
@@ -142,12 +143,28 @@ c           If the code is automatically assigning the rings, just go through th
      &              ,RadialProfile,TempRadialProfile
      &              ,ModelerableRingSwitch
      &              ,RadialProfileModelSwitch,Maps)
-c       When using a pre-defined grid, it's possible that a ring might be empty that needs an initial estimate as it may have been selected as not modelable
+
+c       When using a pre-defined grid, it's possible that a ring might be empty that needs an initial estimate as it may have been selected as not modelable.  Moreover, the outermost ring will certainly not be modelable and must be filled in
 
 c       Now fill in all the ring values
       call FillInMisingRings(nRings
      &          ,RadialProfile
      &          ,RadialProfileModelSwitch)
+c
+c       Because the radius in the fill-in using the temporary array, the outermost ring won't have a radius.  We'll replace that here with 1 ring beyond the outermost point.
+
+      RadialProfile(0,nRings-1)=
+     &          RadialProfile(0,nRings-2)
+     &          +Beam%BeamMajorAxis
+     &          /FittingOptions%nRingsPerBeam
+
+        RadialProfile(1:2,nRings-1)=
+     &          RadialProfile(1:2,nRings-2)
+      RadialProfileModelSwitch(nRings-1)=1
+
+      do i=0, nRings-1
+        print*, "Post Fill-in", RadialProfile(0:2,i)
+      enddo
 
 c       The next step is to do beam corrections
       call BeamCorrectProfile(nRings
@@ -157,7 +174,8 @@ c       The next step is to do beam corrections
 
 
 c       Finally do a check on the profile to make sure that we have the PA in the right direction
-      LeadingVelProfile=sum(EstimatedProfile(2,1:nRings)-VSys)
+c           Note that this only goes to nRings-1 as the last ring is the extra one added beyond the SD limit and can potentially be a NaN
+      LeadingVelProfile=sum(EstimatedProfile(2,1:nRings-1)-VSys)
 
       print*, "PA Ini",PA
       if(LeadingVelProfile .le. 0.) then
@@ -327,13 +345,13 @@ c           With a grid, check that the radius matches
             endif
         endif
 
-        if(j .gt. 0) then
-            print*, "Profile assigned", i,j-1
-     &                  ,RadialProfile(0:2,j-1)
-     &                  ,TempRadialProfile(0:2,i)
-     &                  ,ModelerableRingSwitch(i)
-     &                  ,RadialProfileModelSwitch(j-1)
-        endif
+c        if(j .gt. 0) then
+c            print*, "Profile assigned", i,j-1
+c     &                  ,RadialProfile(0:2,j-1)
+c     &                  ,TempRadialProfile(0:2,i)
+c     &                  ,ModelerableRingSwitch(i)
+c     &                  ,RadialProfileModelSwitch(j-1)
+c        endif
 c        When at the end of assigning the profile, end the loop
         if(j .eq. nRings) return
       enddo
@@ -392,7 +410,7 @@ c           Next average the surface density terms together
 c           Place the averages into the radial profile structure
         RadialProfile(0,i-1)=abs(EstimatedProfile(0,j))
 c       For the surface density, normalize by the cosine
-        RadialProfile(1,i-1)=ProjectedProfile(1,i-1)*cos(InclU)
+        RadialProfile(1,i-1)=ProjectedProfile(1,i-1)*cos(Incl)
 c           For the velocity, normalize by the inclination to get a better guess
         RadialProfile(2,i-1)=ProjectedProfile(2,i-1)/sin(Incl)
       enddo
@@ -420,6 +438,7 @@ cccccc
 c               A SET OF PRINT OUTS FOR CHECKING THINGS
       print*,"Estimated Radial Profile", ProfilePt(0:2)
      *          ,ProjectedProfilePt(1),Noise_SDLim
+     &          ,ModelSwitch
 
 c       Do a check to see if the are problems with the ring
 c           First check on negative SDs
@@ -465,8 +484,8 @@ c           One further check is to make sure that the projected velocity will b
       VProjHigh=VSys+ProfilePt(2)*sin(Incl)
       minV=minval(DC%Channels)
       maxV=maxval(DC%Channels)
-      print*, "Proj Vel Check", VProjLow,VProjHigh
-     &      , minV, maxV
+c      print*, "Proj Vel Check", VProjLow,VProjHigh
+c     &      , minV, maxV
       if (VProjLow .lt. minV) then
         ProfilePt(2)=(VSys-minV)/sin(Incl)
       endif
