@@ -55,8 +55,17 @@ def BootstrapBoxPlot(GalaxyDict,GeneralDict,BootstrapParams):
             #   Add the axis
             ax=fig.add_axes(placement)
             #   Get the best fit values
-            xBFVal=BestFit[xKey]
-            yBFVal=BestFit[yKey]
+            try:
+                xBFVal=BestFit[xKey]
+                yBFVal=BestFit[yKey]
+            except:
+                xBFVal=[np.nan]
+                yBFVal=[np.nan]
+                
+            try:
+                yBFVal=BestFit[yKey]
+            except:
+                yBFVal=[np.nan]
             #   RHI and VHI are stored as one number, while the others are in arrays, so select the first element
             if xKey not in ['RHI','VHI']:
                 xBFVal=xBFVal[0]
@@ -70,6 +79,8 @@ def BootstrapBoxPlot(GalaxyDict,GeneralDict,BootstrapParams):
                 # Loop through all bootstrap fits and plot them
                 for k in range(len(BootstrapParams)):
                     #   Again, the fact taht VHI and RHI aren't in arrays, means the selection is a little different
+                    if BootstrapParams[k]['FITAchieved']==False:
+                        continue
                     if xKey=='VHI' or xKey=='RHI':
                         XUse=BootstrapParams[k][xKey]
                     else:
@@ -111,7 +122,8 @@ def BootstrapBoxPlot(GalaxyDict,GeneralDict,BootstrapParams):
             ax.xaxis.set_major_formatter(NullFormatter())
         #   Plot all bootstrap profiles
         for j in range(len(BootstrapParams)):
-            ax.plot(BootstrapParams[j][XKey],BootstrapParams[j][Key],color='#f44336',lw=3,alpha=0.1)
+            if BootstrapParams[j]['FITAchieved']:
+                ax.plot(BootstrapParams[j][XKey],BootstrapParams[j][Key],color='#f44336',lw=3,alpha=0.1)
         #   Add the best fitting model
         ax.errorbar(BestFit[XKey],BestFit[Key],yerr=np.abs(BestFit[EKey]),color='#008da9',lw=5,ls='-',alpha=0.9)
         
@@ -143,13 +155,19 @@ def HistPlt(ax,BootstrapParams,BestFit,xKey,yBFVal):
     BUse=np.empty(len(BootstrapParams),dtype='object')
     #   Loop through all bootstraps
     for k in range(len(BootstrapParams)):
+        if BootstrapParams[k]['FITAchieved']==False:
+            BUse[k]=np.nan
+            continue
         #   Once again, there is the issue about VHI and RHI shapes
         if xKey=='RHI' or xKey=='VHI':
             BUse[k]=BootstrapParams[k][xKey]
         else:
             BUse[k]=BootstrapParams[k][xKey][0]
     #   With the array constructed, make the histogram.  Generally these are horizontal rather than vertical.
-    ax.hist(BUse,bins=20, orientation='horizontal',color='#f44336',histtype='step',lw=5)
+    try:
+        ax.hist(BUse,bins=20, orientation='horizontal',color='#f44336',histtype='step',lw=5)
+    except:
+        pass
     #   Add a horizontal line at the best fit value
     ax.axhline(y=yBFVal,color='#008da9',lw=10)
     
