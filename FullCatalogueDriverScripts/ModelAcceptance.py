@@ -129,8 +129,8 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
             AutoSuccess=0
             ModelCheckDict['VelLims']=0
         MaxVRotErr=np.nanmax(Model['Model']['VROT_ERR'])
-        MedRotErr=np.median(Model['Model']['VROT_ERR'])
-        if MaxVErr > CutLimits['lim_VRot']:
+        MedVRotErr=np.median(Model['Model']['VROT_ERR'])
+        if MedVRotErr > CutLimits['limVRot']:
            AutoSuccess=0
            ModelCheckDict['VRotErrs']=0
             
@@ -244,17 +244,17 @@ def AddChecksToFlagFile(Model,ModelNames,ModelCheckDict,CutLimits):
     Str+="The number of rings in the fits is >="+str(CutLimits['lim_nR'])+"\n"
     Str+=str(ModelCheckDict['nRings'])+"\n"
     #   State whether the estimate size is above the limit
-    Str+="The SoFiA estimated size (ell_maj) in beams is >="+str(CutLimits['lim_Size'])+"\n"
-    Str+=str(ModelCheckDict['size'])+"\n"
+    #Str+="The SoFiA estimated size (ell_maj) in beams is >="+str(CutLimits['lim_Size'])+"\n"
+    #Str+=str(ModelCheckDict['size'])+"\n"
     #   State whether the inclination is acceptable
     Str+="The model inclination is >="+str(CutLimits['lim_Inc'])+"\n"
     Str+=str(ModelCheckDict['Inc'])+"\n"
     #   State whether the uncertainty in the inclination is acceptable
-    Str+="sin(i_max)-sin(i_min) <="+str(CutLimits['lim_deltaSinI'])+"\n"
-    Str+=str(ModelCheckDict['deltaSinI'])+"\n"
+    #Str+="sin(i_max)-sin(i_min) <="+str(CutLimits['lim_deltaSinI'])+"\n"
+    #Str+=str(ModelCheckDict['deltaSinI'])+"\n"
     #   State whether the error on the systemic velocity is acceptable
-    Str+="The error on the systemic velocity is <="+str(CutLimits['lim_VSysErr'])+"\n"
-    Str+=str(ModelCheckDict['VSys_Err'])+"\n"
+    #Str+="The error on the systemic velocity is <="+str(CutLimits['lim_VSysErr'])+"\n"
+    #Str+=str(ModelCheckDict['VSys_Err'])+"\n"
     #   State whether the error on the position angle is acceptable
     Str+="The error on the position angle is <="+str(CutLimits['lim_PAErr'])+"\n"
     Str+=str(ModelCheckDict['PA_Err'])+"\n"
