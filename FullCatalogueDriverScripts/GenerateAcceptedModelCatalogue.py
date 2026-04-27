@@ -28,6 +28,8 @@ def GetModelNames(FileDict,GalName):
     ModelNames['ModelFile']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_BSModel.txt"
         #   Set the name of the model plot
     ModelNames['ModelPlot']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_BSModel.png"
+        #   Set the name of the box plot
+    ModelNames['BoxPlot']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_GeoBoxPlot.png"
         #   Set the name of the time check file
     ModelNames['TimeFile']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_FitTimeCheck.txt"
     #   Set the name of the cube file
@@ -45,9 +47,9 @@ def GetModelNames(FileDict,GalName):
     ModelNames['PVMap4']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_PVMinor_Model.fits"
     ModelNames['BSCat']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_BootstrapFits.csv"
 
-    StoreKeys=['CubeFile','ModelFile','FlagFile','DiffCube','ModelPlot','ProcCube','PVMap1','PVMap2','PVMap3','PVMap4','BSCat']
-    TargKeys=['TargCubeFile','TargModelFile','TargFlagFile','TargDiffCube','TargModPlot','TargProcCube','TargPVMap1','TargPVMap2','TargPVMap3','TargPVMap4','TargBSCat']
-    TargNames=['ModCube.fits','AvgMod.txt','Flag.txt','DiffCube.fits','DiagnosticPlot.png','ProcData.fits','PVMajor_Data.fits','PVMinor_Data.fits','PVMajor_Model.fits','PVMinor_Model.fits','BootstrapFits.csv']
+    StoreKeys=['CubeFile','ModelFile','FlagFile','DiffCube','ModelPlot','ProcCube','PVMap1','PVMap2','PVMap3','PVMap4','BSCat','BoxPlot']
+    TargKeys=['TargCubeFile','TargModelFile','TargFlagFile','TargDiffCube','TargModPlot','TargProcCube','TargPVMap1','TargPVMap2','TargPVMap3','TargPVMap4','TargBSCat','TargBoxPlot']
+    TargNames=['ModCube.fits','AvgMod.txt','Flag.txt','DiffCube.fits','DiagnosticPlot.png','ProcData.fits','PVMajor_Data.fits','PVMinor_Data.fits','PVMajor_Model.fits','PVMinor_Model.fits','BootstrapFits.csv','BoxPlot.png']
     j=0
     for key in TargKeys:
         ModelNames[key]=ModelNames['GalName_Underscore']+"_"+FileDict['KinTR_US']+"_"+TargNames[j]
@@ -201,9 +203,16 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
         #   Get the cube header so that we can get the SoFiA size estimate in beams
         Cube=fits.open(ModelNames['OriCube'])
         CHeader=Cube[0].header
+        CData=Cube[0].data
         Cube.close()
+        Mask=fits.open(ModelNames['OriMask'])
+        MData=Mask[0].data
+        Mask.close()
         BeamSize_Pixels=np.abs(CHeader['BMAJ']/CHeader['CDELT1'])
-        
+        TFlux=np.nansum(MData*CData)*np.abs(CHeader['CDELT3'])
+        BeamArea=2.*np.pi*(BeamSize_Pixels/2.355)**2.
+        TFlux=TFlux/BeamArea
+        print(TFlux)
 
         #   Add some of the SoFiA estimates to the model dictionary for checking
         Results['Size']=Cat['ell_maj'][i]/BeamSize_Pixels
