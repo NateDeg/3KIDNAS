@@ -15,6 +15,8 @@ import os.path
 from os import path
 import multiprocessing as mp
 
+import subprocess
+
 import astropy
 from astropy.io import fits
 from astropy import units as u
@@ -24,16 +26,19 @@ def SetCutLimits():
     """
     This function sets the hard limits for the automated acceptance
     """
+    #
     lim_nR=4
-    lim_Inc=0.1
-    lim_Size=0.1
-    lim_VSysErr=40.
+    #   The inclination limits are for flagging purposes
+    lim_Inc=25.
+    lim_IncU=75.
+    
+    lim_VSysErr=15.
     lim_PAErr=15.
     lim_IncErr=15.
     lim_deltaSinI=0.15
     
-    lim_FluxDiff=1.4
-    limVRot=100.
+    lim_FluxDiff=1.25
+    limVRot=75.
     
     limDict=locals()
     return limDict
@@ -61,110 +66,70 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
     #   Build a model check key that can be used to add to the flags file
     ModelCheckDict={}
     #CheckKeys=['FitAchieved','nRings','size','Inc','VSys_Err','PA_Err','deltaSinI','NaNErrs','VelLims']
-    CheckKeys=['FitAchieved','nRings','Inc','Inc_Err','PA_Err','deltaSinI','NaNErrs','VelLims','VRotErrs','FluxCheck']
+    CheckKeys=['FitAchieved','nRings','Inc','Inc_Err','PA_Err','deltaSinI','NaNErrs','VelLims','VRotErrs','FluxCheck','VSys_Err']
     for key in CheckKeys:
-        ModelCheckDict[key]=1
+        ModelCheckDict[key]=0
 
     #   Start by assuming success
     AutoSuccess=1
     #   Set the profile keys to check
-    #ProfKeys=['VSYS_ERR','POSITIONANGLE_ERR']
-    #LimProfKeys=['lim_VSysErr','lim_PAErr']
-    
-    ProfKeys=['POSITIONANGLE_ERR','INCLINATION_ERR']
-    LimProfKeys=['lim_PAErr','lim_IncErr']
+    ProfKeys=['POSITIONANGLE_ERR','VSYS_ERR','INCLINATION_ERR']
+    LimProfKeys=['lim_PAErr','lim_VSysErr','lim_IncErr']
    
     #  Check whether the model actually was fit
     if Model['ModelFitAchieved']==False:
         AutoSuccess=0
         for key in CheckKeys:
-            ModelCheckDict[key]=-1
-        ModelCheckDict['FitAchieved']=0
+            ModelCheckDict[key]=0
+        ModelCheckDict['FitAchieved']=1
     else:
         #   Check the length of the model
         nR=len(Model['Model']['R'])
         if nR <CutLimits['lim_nR']:
             AutoSuccess=0
-            ModelCheckDict['nRings']=0
-        #   Check on the size
-        #if Model['ell_maj_SoFiA'] <= CutLimits['lim_Size']*BeamSize_Pix:
-        #    AutoSuccess=0
-        #    ModelCheckDict['size']=0
-        #   Check on the VSys Error, and PA Error
+            ModelCheckDict['nRings']=1
+        #   If the limits are equal to the number of rings, we do want to flag it, but not remove it
+        if nR == CutLimits['lim_nR']:
+            ModelCheckDict['nRings']=2
+        #   Check on the PA, Inc, and VSys errors
         i=0
         for key in ProfKeys:
             if Model['Model'][key][0] >= CutLimits[LimProfKeys[i]]:
                 AutoSuccess=0
                 if key =='VSYS_ERR':
-                    ModelCheckDict['VSys_Err']=0
+                    ModelCheckDict['VSys_Err']=1
                 elif key =='POSITIONANGLE_ERR':
-                    ModelCheckDict['PA_Err']=0
+                    ModelCheckDict['PA_Err']=1
                 elif key == 'INCLINATION_ERR':
-                    ModelCheckDict['Inc_Err']=0
-            #print(key,Model['Model'][key][0],AutoSuccess)
+                    ModelCheckDict['Inc_Err']=1
             i+=1
-        #   Check on the inclination
-        #if Model['Model']['INCLINATION'][0] <= CutLimits['lim_Inc']:
-        #    AutoSuccess=0
-        #    ModelCheckDict['Inc']=0
-        #   Check on the delta Sin I
-        #ILow=(Model['Model']['INCLINATION'][0]-Model['Model']['INCLINATION_ERR'][0])*np.pi/180.
-        #if ILow < 0.:
-        #    ILow=0.
-        #IHigh=(Model['Model']['INCLINATION'][0]+Model['Model']['INCLINATION_ERR'][0])*np.pi/180.
-        #if IHigh > np.pi*0.5:
-        #    IHigh=np.pi*0.5
-        #deltaSinI=np.sin(IHigh)-np.sin(ILow)
-        #if deltaSinI >=CutLimits['lim_deltaSinI']:
-        #    AutoSuccess=0
-        #    ModelCheckDict['deltaSinI']=0
+        #   Check on the inclination -- note this is not acceptablity cut, but just a check
+        if Model['Model']['INCLINATION'][0] <= CutLimits['lim_Inc']:
+            ModelCheckDict['Inc']=1
+        elif Model['Model']['INCLINATION'][0] >= CutLimits['lim_IncU']:
+            ModelCheckDict['Inc']=2
+        
     #   It is possible for all the bootstraps to fail and have NaN's in the errors.  Reject any model where the geometric errors are NaNs
         SuccessCheck=CheckGeoErrorForNaNs(Model)
         if SuccessCheck==0:
             AutoSuccess=0
-            ModelCheckDict['NaNErrs']=0
+            ModelCheckDict['NaNErrs']=1
     #   Make sure projected velocities are inside the cube
         SuccessCheck=CheckProjectedVel(Model,ModelNames)
         if SuccessCheck==0:
             AutoSuccess=0
-            ModelCheckDict['VelLims']=0
-        MaxVRotErr=np.nanmax(Model['Model']['VROT_ERR'])
+            ModelCheckDict['VelLims']=1
+        #   Check the median velocity errors
         MedVRotErr=np.median(Model['Model']['VROT_ERR'])
         if MedVRotErr > CutLimits['limVRot']:
            AutoSuccess=0
-           ModelCheckDict['VRotErrs']=0
+           ModelCheckDict['VRotErrs']=1
             
-    try:
-        DCube=fits.open(Model['DiffCube'])
-        DData=DCube[0].data
-        DCube.close()
-        Cube=fits.open(Model['ProcCube'])
-        CData=Cube[0].data
-        Cube.close()
-        Mask=fits.open(Model['OriMask'])
-        MData=Mask[0].data
-        Mask.close()
-        DData=DData*MData
-        CData=CData*MData
-        #   Mask the difference cube for values below 2 sigma
-        #DData[np.abs(DData) < 2.*Model['Model']['RMS']/1000.]=0.
-        NormDiff=1000.*DData/Model['Model']['RMS']
-        
-        CTot=np.nansum(CData)
-        #DiffTot=np.nansum(DData)
-        #DiffTot=np.nansum(np.abs(DData))
-        nCells=np.nansum(MData)
-        DiffTot=np.sqrt(np.nansum(NormDiff**2.)/(nCells))
-        print("Flux Comp", CTot,DiffTot,DiffTot/CTot)
-    except:
-        DiffTot=0.
-        CTot=1.
-        AutoSuccess=0
-        ModelCheckDict['FluxCheck']=0
-    if np.abs(DiffTot/CTot) >=  CutLimits['lim_FluxDiff']:
-        AutoSuccess=0
-        ModelCheckDict['FluxCheck']=0
-        
+        #   Check on the flux
+        FluxSuccess=CheckCubeFluxDiff(Model,CutLimits)
+        if FluxSuccess==0:
+            AutoSuccess=0
+            ModelCheckDict['FluxCheck']=1
         
     #   Add the tag to the model
     Model['ModelSuccess']=AutoSuccess
@@ -223,51 +188,66 @@ def CheckGeoErrorForNaNs(Model):
             Success=0
             return Success
 
+def CheckCubeFluxDiff(Model,CutLimits):
+
+    AutoSuccess=1
+    try:
+        #   Open the difference cube and get the data
+        DCube=fits.open(Model['DiffCube'])
+        DData=DCube[0].data
+        DCube.close()
+        #   Do the same with the model cube
+        Cube=fits.open(Model['ProcCube'])
+        CData=Cube[0].data
+        Cube.close()
+        #   And the mask cube
+        Mask=fits.open(Model['OriMask'])
+        MData=Mask[0].data
+        Mask.close()
+        #   Now mask the difference and cube data
+        DData=DData*MData
+        CData=CData*MData
+        #   Normalize the masked difference cube
+        NormDiff=1000.*DData/Model['Model']['RMS']
+        #   Get the total flux
+        CTot=np.nansum(CData)
+        #   Get the total number of cells
+        nCells=np.nansum(MData)
+        #   Get the rms of the normalized difference cube
+        DiffTot=np.sqrt(np.nansum(NormDiff**2.)/(nCells))
+    except:
+        DiffTot=0.
+        CTot=1.
+        AutoSuccess=0
+    #   If the the normalized difference is above the flux limit, cut it
+    if np.abs(DiffTot) >=  CutLimits['lim_FluxDiff']:
+        AutoSuccess=0
+    return AutoSuccess
+
 def AddChecksToFlagFile(Model,ModelNames,ModelCheckDict,CutLimits):
     #   The flags file should contain all the information about which flags the model passed to be accepted or rejected
-    #   Open the flags file
-    #Flags = open(ModelNames['FlagFile'], "a")
-    with open(ModelNames['FlagFile'], "r") as file:
-        Flags=file.readlines()
+    #   The Fotran code writes a text file, but we will want to convert this to a csv
+    #   Get the name of the original flag file
+    OriFlagFile=ModelNames['FlagFile'].rsplit('.',1)[0]+".txt"
+    #   Now read in that file
+    with open(OriFlagFile, 'r') as file:
+        content = file.readlines()
+    #   Store the key lines into a dictionary
+    FlagDict={}
+    FlagDict['BestFitGoodness']=float(content[1])
+    FlagDict['RMS']=float(content[3])
+    FlagDict['nCells']=int(content[5])
+    FlagDict['NormGoodness']=float(content[7])
+    #   Now set the additional flags based on the fits
+    TargFlags=['FitFlag','nRingsFlag','PAErrFlag','MedianVErrFlag','VSysErrFlag','NormFluxDiffFlag','IncErrFlag','IncFlag','NaNErrFlag']
+    MatchedFlags={'FitFlag':'FitAchieved','nRingsFlag':'nRings','PAErrFlag':'PA_Err','MedianVErrFlag':'VRotErrs','VSysErrFlag':'VSys_Err','NormFluxDiffFlag':'FluxCheck','IncErrFlag':'Inc_Err','IncFlag':'Inc','NaNErrFlag':'NaNErrs'}
 
-    Str=""
-    for i in range(12):
-        Str+=Flags[i]
-
+ 
+    for key in TargFlags:
+        mKey=MatchedFlags[key]
+        FlagDict[key]=[ModelCheckDict[mKey]]
+        
+    DF=pd.DataFrame.from_dict(FlagDict)
+    DF.to_csv(ModelNames['FlagFile'],index=False)
     
-    #Flags = open(ModelNames['FlagFile'], "a")
-    #   State whether a model was produced at all during the initial fit
-    Str+="Model Acceptence/Rejection Checks (0=fail, 1=Success)\n"
-    Str+="Initial Pipeline Fit Achieved \n"
-    Str+=str(ModelCheckDict['FitAchieved'])+"\n"
-    #   State whether there are enough rings
-    Str+="The number of rings in the fits is >="+str(CutLimits['lim_nR'])+"\n"
-    Str+=str(ModelCheckDict['nRings'])+"\n"
-    #   State whether the estimate size is above the limit
-    #Str+="The SoFiA estimated size (ell_maj) in beams is >="+str(CutLimits['lim_Size'])+"\n"
-    #Str+=str(ModelCheckDict['size'])+"\n"
-    #   State whether the inclination is acceptable
-    Str+="The model inclination is >="+str(CutLimits['lim_Inc'])+"\n"
-    Str+=str(ModelCheckDict['Inc'])+"\n"
-    #   State whether the uncertainty in the inclination is acceptable
-    #Str+="sin(i_max)-sin(i_min) <="+str(CutLimits['lim_deltaSinI'])+"\n"
-    #Str+=str(ModelCheckDict['deltaSinI'])+"\n"
-    #   State whether the error on the systemic velocity is acceptable
-    #Str+="The error on the systemic velocity is <="+str(CutLimits['lim_VSysErr'])+"\n"
-    #Str+=str(ModelCheckDict['VSys_Err'])+"\n"
-    #   State whether the error on the position angle is acceptable
-    Str+="The error on the position angle is <="+str(CutLimits['lim_PAErr'])+"\n"
-    Str+=str(ModelCheckDict['PA_Err'])+"\n"
-    #   Make sure all the errors are real
-    Str+="No geometric error terms are NaN's\n"
-    Str+=str(ModelCheckDict['NaNErrs'])+"\n"
-    #   And that the projected RC falls within the curve
-    Str+="The projected model rotation curve falls within the datacube\n"
-    Str+=str(ModelCheckDict['VelLims'])
-    
-    #Flags[14]=Str
-
-    with open(ModelNames['FlagFile'], 'w') as file:
-        file.writelines( Str )
-    
-
+    #subprocess.run(["rm", OriFlagFile], capture_output=True, text=True)
