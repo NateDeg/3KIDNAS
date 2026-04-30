@@ -89,6 +89,11 @@ def BootstrapBoxPlot(GalaxyDict,GeneralDict,BootstrapParams):
                         YUse=BootstrapParams[k][yKey]
                     else:
                         YUse=BootstrapParams[k][yKey][0]
+                        
+                    if xKey=='POSITIONANGLE':
+                        XUse=AdjustPA(XUse,xBFVal)
+                    if yKey=='POSITIONANGLE':
+                        YUse=AdjustPA(YUse,xBFVal)
                     #   Scatter the points
                     ax.scatter(XUse,YUse,marker='o',color='#f44336',s=100,alpha=0.5)
                 #   Add the best fit value
@@ -163,6 +168,9 @@ def HistPlt(ax,BootstrapParams,BestFit,xKey,yBFVal):
             BUse[k]=BootstrapParams[k][xKey]
         else:
             BUse[k]=BootstrapParams[k][xKey][0]
+            
+        if xKey=='POSITIONANGLE':
+            BUse[k]=AdjustPA(BUse[k],yBFVal)
     #   With the array constructed, make the histogram.  Generally these are horizontal rather than vertical.
     try:
         ax.hist(BUse,bins=20, orientation='horizontal',color='#f44336',histtype='step',lw=5)
@@ -278,3 +286,13 @@ def PlotIni():
     #   Store them in a dictionary and return both the figure and the plotting options.
     PltOpts={'base':base,'left':left,'w':w,'h':h,'buf':buf,'cW':cW,'hbuf':hbuf}
     return fig, PltOpts
+
+def AdjustPA(PA,PABest):
+    PADiff=PABest-PA
+    if PADiff <= -180.:
+        PAUse=PA-360.
+    elif PADiff >= 180.:
+        PAUse=PA+360.
+    else:
+        PAUse=PA
+    return PAUse
