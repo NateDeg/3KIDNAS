@@ -35,7 +35,7 @@ def GetModelNames(FileDict,GalName):
     #   Set the name of the cube file
     ModelNames['CubeFile']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_AverageModel_v1.fits"
     #   Set the name of flags file
-    ModelNames['FlagFile']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_Flags_v1.txt"
+    ModelNames['FlagFile']=ModelNames['ResultsFolder']+ModelNames['GalName_Underscore']+"_Flags_v1.csv"
     #   Set the name of the difference cube
     ModelNames['DiffCube']=ModelNames['ResultsFolder']+"DifferenceCube.fits"
     #   Set the name of the processed cube
@@ -49,7 +49,7 @@ def GetModelNames(FileDict,GalName):
 
     StoreKeys=['CubeFile','ModelFile','FlagFile','DiffCube','ModelPlot','ProcCube','PVMap1','PVMap2','PVMap3','PVMap4','BSCat','BoxPlot']
     TargKeys=['TargCubeFile','TargModelFile','TargFlagFile','TargDiffCube','TargModPlot','TargProcCube','TargPVMap1','TargPVMap2','TargPVMap3','TargPVMap4','TargBSCat','TargBoxPlot']
-    TargNames=['ModCube.fits','AvgMod.txt','Flag.txt','DiffCube.fits','DiagnosticPlot.png','ProcData.fits','PVMajor_Data.fits','PVMinor_Data.fits','PVMajor_Model.fits','PVMinor_Model.fits','BootstrapFits.csv','BoxPlot.png']
+    TargNames=['ModCube.fits','AvgMod.txt','Flag.csv','DiffCube.fits','DiagnosticPlot.png','ProcData.fits','PVMajor_Data.fits','PVMinor_Data.fits','PVMajor_Model.fits','PVMinor_Model.fits','BootstrapFits.csv','BoxPlot.png']
     j=0
     for key in TargKeys:
         ModelNames[key]=ModelNames['GalName_Underscore']+"_"+FileDict['KinTR_US']+"_"+TargNames[j]
