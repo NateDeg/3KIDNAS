@@ -36,15 +36,8 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
     f=open(BootstrapOutputFile,"w")
     HeaderStr="Object:\t "+GalaxyDict['ObjName']+"\n"
     HeaderStr+="Date: \t" + Date+"\n"
-    HeaderStr+="KINVER: \t 3KIDNASv1\n"
-    #HeaderStr+="Version: \t" + str(FittingOptions['ModelVersion'])+"\n"
-    #HeaderStr+="SBID: \t" + str(AvgModel['SBID'])+"\n"
-    #HeaderStr+="SRCTR: \t" + str(AvgModel['SRCTR'])+"\n"
-    #HeaderStr+="SRCVER: \t" + str(AvgModel['SRCVER'])+"\n"
-    #HeaderStr+="KINTR: \t" + str(AvgModel['KINTR'])+"\n"
-    #HeaderStr+="KINVER: \t" + str(AvgModel['KINVER'])+"\n"
-    #HeaderStr+="Flag: \t"+str(AvgModel['FitFlags'])+"\n\n"
-    #   Next write out the Bootstrap info
+    HeaderStr+="KINVER: \t 3KIDNASv1.1\n"
+ 
     HeaderStr+="\nnBootstraps\t"+str(GalaxyDict['nBootstraps'])+"\n"
     HeaderStr+="nBootstrap_Fits\t"+str(Model['nFits'])+"\n"
     
@@ -101,24 +94,7 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
         ProfileStr+=str(Model['R_SD'][i])+"\t\t"+str(Model['SURFDENS_FACEON'][i])+"\t\t"+str(Model['SURFDENS_FACEON_ERR'][i])+"\n"
     f.write(ProfileStr)
     
-    
-    """
-    #       Add another set for the projected SD profile
-    ExtendSDProfile=GalaxyDict['ExtendedSDProfile']
-    nR_SD=len(ExtendSDProfile['R_SD'])
-    HeaderStr="\nProjected Surface Density Profile from Mom0 map\n"
-    HeaderStr+="nR=\t"+str(nR_SD)+"\n"
-    HeaderStr+="Rad  \t\t SD_projected_model \t e_SD_projected_model \t SD_FO_projected_model \t e_SD_FO_inc_projected_model \n"
-    HeaderStr+="('')\t\t (Msol/pc^2) \t (Msol/pc^2)  \t (Msol/pc^2) \t (Msol/pc^2) "
-    f.write(HeaderStr)
-    #   Then go through the full surface density profile
-    ProfileStr="\n"
-    for i in range(nR_SD):
-        ProfileStr+=str(round(ExtendSDProfile['R_SD'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS_ERR'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS_FACEON'][i],2))+"\t\t"+str(round(ExtendSDProfile['SURFDENS_FACEON_ERR'][i],2))+"\n"
-    if nR_SD ==0:
-        ProfileStr+="\n"
-    f.write(ProfileStr)
-    """
+
     #       Finish off with the Scaling Relation results
     ScalingDict=GalaxyDict['ScalingDict']
     ScalingStr="\nRHI Extraction Method (0==3D profile, -1==Failure) and flags (0==fine, -1==failure) \n"
