@@ -1,5 +1,7 @@
 import sys as sys
 import os as os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 import pandas as pd
 import multiprocessing as mp
 from multiprocessing import freeze_support
