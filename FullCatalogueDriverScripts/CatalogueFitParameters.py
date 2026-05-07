@@ -159,7 +159,7 @@ def SupplementalIni(RTDict):
         RTDict (dict): The slightly updated runtime dictionary
     """
     #   Hardcode in the version of the code
-    RTDict['KinVer']="3KIDNAS V1"
+    RTDict['KinVer']="3KIDNAS V1.1"
     #   Set the name of the accepted model catalogue file
     RTDict['AcceptedModelCatalogueFile']=RTDict['KinTR'].replace(" ","_")+"_KinematicModels.csv"
     #   Add in a flag to choose the inclination initialization method
