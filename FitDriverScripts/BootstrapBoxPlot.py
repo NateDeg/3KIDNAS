@@ -35,9 +35,9 @@ def BootstrapBoxPlot(GalaxyDict,GeneralDict,BootstrapParams):
     #   Grab the best fit model
     BestFit=GalaxyDict['BestFitModel']
     #   Set the keys for plotting scalar parameters
-    PltKeys=['INCLINATION','POSITIONANGLE','VSYS','XCENTER','YCENTER','RHI','VHI']
+    PltKeys=['INCLINATION','POSITIONANGLE','VSYS','VDISP','XCENTER','YCENTER','RHI','VHI']
     #   Set the corresponding labels
-    Labels={'INCLINATION':r"Inc ($^{\circ}$)",'POSITIONANGLE':r"PA ($^{\circ}$)",'VSYS':r"V$_{\rm{sys}}$ (km s$^{-1}$)",'RHI':r"R$_{\rm{HI}}$ ('')",'VHI':r"V$_{\rm{HI}}$ (km s$^{-1}$)",'XCENTER':r"X (pix)",'YCENTER':r"Y (pix)"}
+    Labels={'INCLINATION':r"Inc ($^{\circ}$)",'POSITIONANGLE':r"PA ($^{\circ}$)",'VSYS':r"V$_{\rm{sys}}$ (km s$^{-1}$)",'RHI':r"R$_{\rm{HI}}$ ('')",'VHI':r"V$_{\rm{HI}}$ (km s$^{-1}$)",'XCENTER':r"X (pix)",'YCENTER':r"Y (pix)",'VDISP':r"V$_{\rm{disp}}$ (km s$^{-1}$)"}
 
     #   Now set the number of rows and columns needed for the triangle box plots
     nRow=len(PltKeys)
@@ -93,7 +93,7 @@ def BootstrapBoxPlot(GalaxyDict,GeneralDict,BootstrapParams):
                     if xKey=='POSITIONANGLE':
                         XUse=AdjustPA(XUse,xBFVal)
                     if yKey=='POSITIONANGLE':
-                        YUse=AdjustPA(YUse,xBFVal)
+                        YUse=AdjustPA(YUse,yBFVal)
                     #   Scatter the points
                     ax.scatter(XUse,YUse,marker='o',color='#f44336',s=100,alpha=0.5)
                 #   Add the best fit value
@@ -113,7 +113,7 @@ def BootstrapBoxPlot(GalaxyDict,GeneralDict,BootstrapParams):
         XKey=XKeys[Key]
         EKey=EKeys[Key]
         #   Set the placement of the panels
-        placement=[PltOpts['left']+4.25*PltOpts['w'],PltOpts['base']+(5.25-i)*PltOpts['h']+(1-i)*0.25*PltOpts['h'],3.0*PltOpts['w'],1.5*PltOpts['h']]
+        placement=[PltOpts['left']+4.25*PltOpts['w'],PltOpts['base']+(6.25-i)*PltOpts['h']+(1-i)*0.5*PltOpts['h'],4.0*PltOpts['w'],1.5*PltOpts['h']]
         #   Add the panel
         ax=fig.add_axes(placement)
         #   Label and format the panels
@@ -131,6 +131,7 @@ def BootstrapBoxPlot(GalaxyDict,GeneralDict,BootstrapParams):
                 ax.plot(BootstrapParams[j][XKey],BootstrapParams[j][Key],color='#f44336',lw=3,alpha=0.1)
         #   Add the best fitting model
         ax.errorbar(BestFit[XKey],BestFit[Key],yerr=np.abs(BestFit[EKey]),color='#008da9',lw=5,ls='-',alpha=0.9)
+        ax.set_ylim(bottom=0.)
         
     #   Set the plot name
     PltName=GalaxyDict['WRKP_ResultsFolder']+GalaxyDict['ObjName']+"_GeoBoxPlot.png"
