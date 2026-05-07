@@ -46,7 +46,7 @@ F	F
 #	Radial Velocity Fitting flags  (constant  — fixed)
 T	T
 #	Velocity Dispersion Fitting flags  (constant  — fixed)
-T	F
+T	T
 #	Vertical Velocity Fitting flags  (constant  — fixed)
 T	T
 #	dvdz Fitting flags  (constant  — fixed)
