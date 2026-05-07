@@ -24,5 +24,6 @@ def main():
 #   This bit is necessary for multiprocessing
 if __name__=="__main__":
     freeze_support()
+    mp.set_start_method('spawn')
     main()
 
