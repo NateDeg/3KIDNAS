@@ -61,7 +61,7 @@ def GetGeometryEstimates(step,Cat,GalaxyDict,RTDict):
     if MinUse2 <=0.:
         IncEst=89.
     else:
-        IncEst=np.arccos(np.sqrt(MinUse2/MajUse2))*180./np.pi
+        IncEst=np.arccos(np.sqrt(MinUse2)/np.sqrt(MajUse2))*180./np.pi
     #   Store the inclination estimate in the GalaxyDict and return it.
     GalaxyDict['IncEst']=IncEst
     return GalaxyDict
