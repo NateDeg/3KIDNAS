@@ -175,7 +175,23 @@ c       The next step is to do beam corrections
 
 c       Finally do a check on the profile to make sure that we have the PA in the right direction
 c           Note that this only goes to nRings-1 as the last ring is the extra one added beyond the SD limit and can potentially be a NaN
-      LeadingVelProfile=sum(EstimatedProfile(2,1:nRings-1)-VSys)
+c      LeadingVelProfile=sum(EstimatedProfile(2,1:nRings-1)-VSys)
+      do i=1, nRings-1
+        print*, "Leading Vel Check", i
+     &        ,EstimatedProfile(2,1:nRings-1)-VSys
+      enddo
+      print*, "Leading Vel Term",LeadingVelProfile
+
+      LeadingVelProfile=0.
+      do i=1, nRings-1
+        if (EstimatedProfile(2,i-1).eq.
+     &      EstimatedProfile(2,i-1)) then
+            LeadingVelProfile=LeadingVelProfile
+     &          +(EstimatedProfile(2,i-1)-VSys)
+        endif
+      enddo
+      print*, "New Leading Vel term", LeadingVelProfile
+    
 
       print*, "PA Ini",PA
       if(LeadingVelProfile .le. 0.) then
