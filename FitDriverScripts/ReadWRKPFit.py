@@ -122,14 +122,18 @@ def LoadBootstrappedFit(FileName):
         #   Read the file
         Fit=open(FileName,"r")
         Lines=Fit.readlines()
-        #   Load in the SN estimates
-        
         #   Set the lines that start the noise, geometry, and profile values
-        NoiseLineIndx=8
-        ProfileStartLine=30
-        GeoLineStart=16
+        BootstrapIndx=4
+        NoiseLineIndx=9
+        ProfileStartLine=31
+        GeoLineStart=17
         #   Figure out the number of profile values
-        nR=nRLineSet(Lines[27])
+        nR=nRLineSet(Lines[28])
+        #   Load in the number of bootstraps, successes, and outliers
+        nBootstraps=NoiseLineAssign(Lines[BootstrapIndx])
+        nBS_Success=NoiseLineAssign(Lines[BootstrapIndx+1])
+        nOutliers=NoiseLineAssign(Lines[BootstrapIndx+2])
+        
         #   Load in the geometric parameters
         XCent,XErr=GeoLineAssign(Lines[GeoLineStart],nR)
         YCent,YErr=GeoLineAssign(Lines[GeoLineStart+1],nR)

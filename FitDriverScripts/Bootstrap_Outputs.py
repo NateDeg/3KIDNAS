@@ -40,6 +40,7 @@ def WriteBootstrappedFitOutputFile_Text(GalaxyDict):
  
     HeaderStr+="\nnBootstraps\t"+str(GalaxyDict['nBootstraps'])+"\n"
     HeaderStr+="nBootstrap_Fits\t"+str(Model['nFits'])+"\n"
+    HeaderStr+="Max_NOutliers\t"+str(Model['MaxOutlier'])+"\n"
     
     #   And now write out the S/N information
     HeaderStr+="\nCube Noise\n"
