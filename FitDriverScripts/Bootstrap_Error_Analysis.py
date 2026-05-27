@@ -2,6 +2,7 @@ import sys as sys
 import os as os
 import copy as copy
 import numpy as np
+import scipy as sp
 
 import astropy
 from astropy.io import fits
@@ -83,11 +84,18 @@ def EstimateUncertaintiesFromBootstraps(GeneralDict,GalaxyDict,BootstrapModels):
     #   Loop through each key
     #for i in range(1):
     #    key=AvgKeys[i]
+    NOutlierArr=np.zeros(len(AvgKeys))
+    count=0
     for key in AvgKeys:
         #   Set the error key
         ErrKey=key+"_ERR"
         GalaxyDict['BestFitModel']=BootsrapErrors_ForParam(key,ErrKey,GalaxyDict['BestFitModel'],BootstrapModels)
+        print("Outlier Testing")
+        print(GalaxyDict['BestFitModel'][key+"_Outliers"])
         #print(key,GalaxyDict['BestFitModel'][ErrKey])
+        NOutlierArr[count]=np.nanmax(GalaxyDict['BestFitModel'][key+"_Outliers"])
+        count+=1
+    GalaxyDict['BestFitModel']['MaxOutlier']=int(np.nanmax(NOutlierArr))
     return GalaxyDict['BestFitModel']
 
 def BootsrapErrors_ForParam(key,ErrKey,Model,BootstrapModels):
@@ -101,13 +109,16 @@ def BootsrapErrors_ForParam(key,ErrKey,Model,BootstrapModels):
     nBootstraps=len(BootstrapModels)
     #   Set the number of successful bootstraps needed for a ring
     TargSuccessFrac=0.
+    OutlierThreshold=5.
     nSuccessNeeded=TargSuccessFrac*nBootstraps
     #   Set a keyword for the mean value
     MeanKey=key+"_BS_MEAN"
+    OutlierKey=key+"_Outliers"
 
     #   Initialize the mean and error arrays
     MeanArr=np.zeros(nR)
     ErrArr=np.zeros(nR)
+    NOutlier=np.zeros(nR)
     CurrIndx=-1
     #for i in range(1):
     for i in range(nR):
@@ -131,21 +142,31 @@ def BootsrapErrors_ForParam(key,ErrKey,Model,BootstrapModels):
                 elif BootstrapArr[j]-Model[key][0] < -180.:
                     BootstrapArr[j]=BootstrapArr[j]+360.
                 #print("After corr",i,j,BootstrapArr[j],BootstrapArr[0])
-        MeanArr[CurrIndx]=np.mean(BootstrapArr)
-        ErrArr[CurrIndx]=np.std(BootstrapArr)
-        print(key,i,nFits,len(BootstrapModels),nSuccessNeeded)
-        print("First Mean and Err", MeanArr[CurrIndx],ErrArr[CurrIndx])
+        #MeanArr[CurrIndx]=np.mean(BootstrapArr)
+        #ErrArr[CurrIndx]=np.std(BootstrapArr)
+        #   We want to get the median and MAD statistic for the bootstrap array.  We are using these rather than mean and RMS as they are more resilient to outliers.
+        MeanArr[CurrIndx]=np.median(BootstrapArr)
+        #   The MAD statistic needs a factor of 1.4825 to make it comparable to the RMS
+        ErrArr[CurrIndx]=1.4825*sp.stats.median_abs_deviation(BootstrapArr)
+        #   For checking on outliers, we need to start get the normalized difference of the current bootstrap array.
+        NormDiff=(BootstrapArr-MeanArr[CurrIndx])/ErrArr[CurrIndx]
+        #   Then we can select all outliers
+        Outliers=NormDiff[NormDiff>=OutlierThreshold]
+        #   And get the number by using the length
+        NOutlier[CurrIndx]=len(Outliers)
+        #print(key,i,nFits,len(BootstrapModels),nSuccessNeeded)
+        #print("First Mean and Err", MeanArr[CurrIndx],ErrArr[CurrIndx])
         if nFits < nSuccessNeeded:
             MeanArr=np.delete(MeanArr,CurrIndx)
             ErrArr=np.delete(ErrArr,CurrIndx)
             Model[key]=np.delete(Model[key],CurrIndx)
             CurrIndx-=1
             
-
     
     Model[ErrKey]=ErrArr
     Model[MeanKey]=MeanArr
     Model[ErrKey]=np.sqrt(ErrArr**2.+(MeanArr-Model[key])**2.)
+    Model[OutlierKey]=NOutlier
     
     #   Round the averages before sending them back
     RoundMeasures(key,Model)
