@@ -54,7 +54,7 @@ ccccc
       real RTest
       real Noise_SDLim
 
-      real LeadingVelProfile
+      real LeadingVelProfile, TrailingVelProfile
 
 
       real AvgSD, AvgRC, AvgR
@@ -182,19 +182,34 @@ c      LeadingVelProfile=sum(EstimatedProfile(2,1:nRings-1)-VSys)
       enddo
       print*, "Leading Vel Term",LeadingVelProfile
 
+
+      TrailingVelProfile=0.
+      do i=-nRings+1, -1
+        if (EstimatedProfile(2,i-1).eq.
+     &      EstimatedProfile(2,i-1)) then
+            TrailingVelProfile=TrailingVelProfile
+     &          +(EstimatedProfile(2,i-1)-VSys)
+        endif
+      enddo
+      print*, "Trailin Vel term", TrailingVelProfile
+
       LeadingVelProfile=0.
       do i=1, nRings-1
         if (EstimatedProfile(2,i-1).eq.
      &      EstimatedProfile(2,i-1)) then
             LeadingVelProfile=LeadingVelProfile
      &          +(EstimatedProfile(2,i-1)-VSys)
+            print*, 'leading'
+     &          ,EstimatedProfile(2,i-1)-VSys
+     &          ,EstimatedProfile(2,i-1),VSys
         endif
       enddo
       print*, "New Leading Vel term", LeadingVelProfile
-    
+
 
       print*, "PA Ini",PA
-      if(LeadingVelProfile .le. 0.) then
+      if(LeadingVelProfile
+     &          .le. TrailingVelProfile) then
         PA=PA+Pi
         print*, "PA Adjust 1",PA
         if(PA .ge. 2.*pi) PA=PA-2.*pi    !Keep the PA between 0<PA<Phi
