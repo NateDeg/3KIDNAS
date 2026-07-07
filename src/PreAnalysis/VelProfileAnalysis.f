@@ -286,4 +286,40 @@ c       points
       end subroutine
 ccccccc
 
+
+cccccc
+      subroutine EstimateVSysAndEdges_Simple(nChannels,VelProfile
+     &              ,FracLimit,VSys,Edges)
+      implicit none
+      integer, intent(IN) :: nChannels
+      real,intent(IN) :: VelProfile(0:1,0:nChannels-1)
+      real,intent(IN) :: FracLimit
+      real,intent(OUT) :: VSys,Edges(0:1)
+
+      integer i
+
+      do i=0,nChannels-1
+        if (VelProfile(1,i) .ge. 0.) then
+            Edges(0)=VelProfile(0,i)
+            goto 300
+        endif
+      enddo
+ 300  continue
+
+      do i=nChannels-1, 0, -1
+        if (VelProfile(1,i) .ge. 0.) then
+            Edges(1)=VelProfile(0,i)
+            goto 400
+        endif
+      enddo
+ 400  continue
+
+c           Use the edges to get VSys
+      VSys=(Edges(0)+Edges(1))/2.
+c      print*, "Estimated VSys", VSys
+
+      return
+      end subroutine
+ccccccccc
+
       end module
