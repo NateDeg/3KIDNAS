@@ -270,9 +270,9 @@ c
       BoundCheck=.True.
       if( i .ge. Cube%DH%nPixels(0).or. i .lt. 0) then
         BoundCheck=.False.
-      elseif( j .ge. Cube%DH%nPixels(1).or. i .lt. 0) then
+      elseif( j .ge. Cube%DH%nPixels(1).or. j .lt. 0) then
         BoundCheck=.False.
-      elseif( k .ge. Cube%DH%nChannels.or. i .lt. 0) then
+      elseif( k .ge. Cube%DH%nChannels.or. k .lt. 0) then
         BoundCheck=.False.
       endif
 
