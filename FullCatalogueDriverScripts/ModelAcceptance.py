@@ -27,7 +27,7 @@ def SetCutLimits():
     This function sets the hard limits for the automated acceptance
     """
     #
-    lim_nR=4
+    lim_nR=5
     #   The inclination limits are for flagging purposes
     lim_Inc=25.
     lim_IncU=75.
@@ -38,8 +38,13 @@ def SetCutLimits():
     lim_deltaSinI=0.15
     
     lim_FluxDiff=1.25
-    limVRot=75.
+    limVRot=0.75
+    limSD=0.75
     
+    nOutlierMax=0.1
+
+    limSN=0.75
+
     limDict=locals()
     return limDict
     
@@ -66,7 +71,7 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
     #   Build a model check key that can be used to add to the flags file
     ModelCheckDict={}
     #CheckKeys=['FitAchieved','nRings','size','Inc','VSys_Err','PA_Err','deltaSinI','NaNErrs','VelLims']
-    CheckKeys=['FitAchieved','nRings','Inc','Inc_Err','PA_Err','deltaSinI','NaNErrs','VelLims','VRotErrs','FluxCheck','VSys_Err']
+    CheckKeys=['FitAchieved','nRings','Inc','Inc_Err','PA_Err','deltaSinI','NaNErrs','VelLims','VRotErrs','FluxCheck','VSys_Err','SDErrs','OutlierCheck']
     for key in CheckKeys:
         ModelCheckDict[key]=0
 
@@ -91,6 +96,18 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
         #   If the limits are equal to the number of rings, we do want to flag it, but not remove it
         if nR == CutLimits['lim_nR']:
             ModelCheckDict['nRings']=2
+        #   The next check is on the number of outliers
+        if Model['Model']['nOutliers']/Model['Model']['nBootstraps']> CutLimits['nOutlierMax']:
+            AutoSuccess=0
+            ModelCheckDict['OutlierCheck']=1
+        elif Model['Model']['nOutliers']>0.1:
+            ModelCheckDict['OutlierCheck']=2
+            
+        print(Model['Model'].keys())
+        print(Model['Model']['SN_Integrated'])
+        if np.log10(Model['Model']['SN_Integrated']) <= CutLimits['limSN'][0]:
+            AutoSuccess=0
+            
         #   Check on the PA, Inc, and VSys errors
         i=0
         for key in ProfKeys:
@@ -120,10 +137,17 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
             AutoSuccess=0
             ModelCheckDict['VelLims']=1
         #   Check the median velocity errors
-        MedVRotErr=np.median(Model['Model']['VROT_ERR'])
-        if MedVRotErr > CutLimits['limVRot']:
+        VRatio=Model['Model']['VROT_ERR']/Model['Model']['VROT']
+        VRatMet=np.median(VRatio)
+        if VRatMet > CutLimits['limVRot']:
            AutoSuccess=0
            ModelCheckDict['VRotErrs']=1
+        #   Also check the median SD errors
+        SDRatio=Model['Model']['SURFDENS_ERR']/Model['Model']['SURFDENS']
+        SDRatMet=np.median(SDRatio)
+        if SDRatMet > CutLimits['limSD']:
+           AutoSuccess=0
+           ModelCheckDict['SDErrs']=1
             
         #   Check on the flux
         FluxSuccess=CheckCubeFluxDiff(Model,CutLimits)
@@ -239,8 +263,8 @@ def AddChecksToFlagFile(Model,ModelNames,ModelCheckDict,CutLimits):
     FlagDict['nCells']=int(content[5])
     FlagDict['NormGoodness']=float(content[7])
     #   Now set the additional flags based on the fits
-    TargFlags=['FitFlag','nRingsFlag','PAErrFlag','MedianVErrFlag','VSysErrFlag','NormFluxDiffFlag','IncErrFlag','IncFlag','NaNErrFlag']
-    MatchedFlags={'FitFlag':'FitAchieved','nRingsFlag':'nRings','PAErrFlag':'PA_Err','MedianVErrFlag':'VRotErrs','VSysErrFlag':'VSys_Err','NormFluxDiffFlag':'FluxCheck','IncErrFlag':'Inc_Err','IncFlag':'Inc','NaNErrFlag':'NaNErrs'}
+    TargFlags=['FitFlag','nRingsFlag','PAErrFlag','MedianVErrFlag','VSysErrFlag','NormFluxDiffFlag','IncErrFlag','IncFlag','NaNErrFlag','OutlierFlag']
+    MatchedFlags={'FitFlag':'FitAchieved','nRingsFlag':'nRings','PAErrFlag':'PA_Err','MedianVErrFlag':'VRotErrs','VSysErrFlag':'VSys_Err','NormFluxDiffFlag':'FluxCheck','IncErrFlag':'Inc_Err','IncFlag':'Inc','NaNErrFlag':'NaNErrs','OutlierFlag':'OutlierCheck'}
 
  
     for key in TargFlags:
