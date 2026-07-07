@@ -8,6 +8,8 @@ import copy as copy
 
 import astropy
 from astropy.io import fits
+
+from . import GeometryEstimates as GE
  
 def LoadSoFiATemplate(DefaultTemplate):
     DefFile=open(DefaultTemplate,'r')
@@ -53,24 +55,40 @@ def RunSoFiA(GeneralDict,GalaxyDict):
     return GalaxyDict
     
 def LoadSoFiAOutput(ObjDict):
+
+    #   For now, we need to set the method for getting the inclination here.  In the future this should be a runtime option.
+    IncMethod='WALLABY_Like'
+    #   Start by setting the file name of the SoFiA catalogue
     File=ObjDict['SoFiA_CatFileName']
+    #   Check that the SoFiA file exists
     if os.path.exists(File):
+        #   If so, load in the relevant inputs
         FSum,Ell_Maj,Ell_Min,PA,X,Y,Z=np.loadtxt(File,unpack=True,skiprows=13,usecols=(15,27,28,33,3,4,5))
+        #   Note that the SoFiA run was successful
+        SoFiASucces=True
     else:
+        #   If the file doesn't exist, send back an empty geometry dictionary.
         Geo={'Name':None ,'Ell_Maj':None,'Ell_Min':None,'PA':None,'IncApprox':None,'X':None,'Y':None,'Z':None,'SoFiASucces':False,'MaskVal':0}
         return Geo
-    
-    
-    IncApprox=np.arccos(Ell_Min/Ell_Maj)*180./np.pi
-    SoFiASucces=True
-#IncApprox=np.array([5.1,3.2])
-    #print(isinstance(IncApprox,float))
-    if isinstance(IncApprox,float)  :
-        Geo={'Ell_Maj':Ell_Maj,'Ell_Min':Ell_Min,'PA':PA,'IncApprox':IncApprox,'X':X,'Y':Y,'Z':Z,'SoFiASucces':SoFiASucces,'MaskVal':1}
+    #   It is possible that the SoFiA run will find multiple entries rather than a single run.
+    #       As such, we'll start by checking if Ell_Maj is a float or not
+    if isinstance(Ell_Maj,float)  :
+        #   If it is a float, we don't have to sort anything and can set the useable params
+        WorkingDict={'Ell_MajU':Ell_Maj,'Ell_MinU':Ell_Min,'XU':X,'YU':Y,'ZU':Z,'MaxFluxIndx':0,'PAU':PA}
     else:
+        #   If it is an array, we need to get the entry with the maximum flux
         MaxFluxIndx=np.where(FSum==np.max(FSum))[0][0]
-        Geo={'Ell_Maj':Ell_Maj[MaxFluxIndx],'Ell_Min':Ell_Min[MaxFluxIndx],'PA':PA[MaxFluxIndx],'IncApprox':IncApprox[MaxFluxIndx],'X':X[MaxFluxIndx],'Y':Y[MaxFluxIndx],'Z':Z[MaxFluxIndx],'SoFiASucces':SoFiASucces,'MaskVal':MaxFluxIndx+1}
-
+        #   Now we'll set the working dictionary based on this entry
+        WorkingDict={'Ell_MajU':Ell_Maj[MaxFluxIndx],'Ell_MinU':Ell_Min[MaxFluxIndx],'XU':X[MaxFluxIndx],'YU':Y[MaxFluxIndx],'ZU':Z[MaxFluxIndx],'MaxFluxIndx':MaxFluxIndx,'PAU':PA[MaxFluxIndx]}
+    #   Now that we have these set up, we do need the beam size in pixels
+    BeamPix=np.abs(ObjDict['CubeHeader']['BMAJ']/ObjDict['CubeHeader']['CDELT1'])
+    #   And set up a temporary dictionary needed for the GeometryEstimates function
+    TempSoFiADict={'ell_maj':WorkingDict['Ell_MajU'],'ell_min':WorkingDict['Ell_MinU'],'kin_pa':WorkingDict['PAU'],'ell_pa':WorkingDict['PAU']}
+    #   Get the position angle and inclination estimate
+    PA,IncApprox=GE.GetGeometryEstimates(TempSoFiADict,BeamPix,IncMethod)
+    #   Store everything needed in a dictionary
+    Geo={'Ell_Maj':WorkingDict['Ell_MajU'],'Ell_Min':WorkingDict['Ell_MajU'],'PA':PA,'IncApprox':IncApprox,'X':WorkingDict['XU'],'Y':WorkingDict['YU'],'Z':WorkingDict['ZU'],'SoFiASucces':SoFiASucces,'MaskVal':WorkingDict['MaxFluxIndx']+1}
+    #   And return the dictionary
     return Geo
 
 
