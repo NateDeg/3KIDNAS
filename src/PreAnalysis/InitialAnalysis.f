@@ -93,7 +93,12 @@ c           Get the inclination and position angle estimates
 c           Estimate Vsys from the observed velocity profile
 
       ProfShape=shape(ObservedVelocityProfile)
-      call EstimateVSysAndEdges(ProfShape(2)
+c      call EstimateVSysAndEdges(ProfShape(2)
+c     &                  ,ObservedVelocityProfile
+c     &                  ,0.3,VSys,VEdges)   !/src/PreAnalysis/VelProfileAnalysis.f
+
+
+      call EstimateVSysAndEdges_Simple(ProfShape(2)
      &                  ,ObservedVelocityProfile
      &                  ,0.3,VSys,VEdges)   !/src/PreAnalysis/VelProfileAnalysis.f
 c       Check that VSys lives between the limits
@@ -201,9 +206,12 @@ c      PA=PA+Pi/2.
       print*, "Shape huh", Incl*180./Pi,PA*180./Pi
       print*, "SoFiA shape", CatItem%EllipseInc,CatItem%EllipsePA
       Incl=CatItem%EllipseInc*Pi/180.
-      PA=(CatItem%EllipsePA-90.)*Pi/180.
+      PA=(CatItem%EllipsePA+90.)*Pi/180.
       if(PA .lt. 0.) then
         PA=PA+2.*Pi
+      endif
+      if(PA .gt. 2.*Pi) then
+        PA=PA-2.*Pi
       endif
 
       return
