@@ -130,9 +130,9 @@ def LoadBootstrappedFit(FileName):
         #   Figure out the number of profile values
         nR=nRLineSet(Lines[28])
         #   Load in the number of bootstraps, successes, and outliers
-        nBootstraps=NoiseLineAssign(Lines[BootstrapIndx])
-        nBS_Success=NoiseLineAssign(Lines[BootstrapIndx+1])
-        nOutliers=NoiseLineAssign(Lines[BootstrapIndx+2])
+        nBootstraps=NoiseLineAssign(Lines[BootstrapIndx])[0]
+        nBS_Success=NoiseLineAssign(Lines[BootstrapIndx+1])[0]
+        nOutliers=NoiseLineAssign(Lines[BootstrapIndx+2])[0]
         
         #   Load in the geometric parameters
         XCent,XErr=GeoLineAssign(Lines[GeoLineStart],nR)
@@ -203,7 +203,7 @@ def LoadBootstrappedFit(FileName):
             ,'RA':RA,'RA_ERR':RAErr
             ,'DEC':DEC,'DEC_ERR':DECErr
             ,'VDISP':VDisp,'VDISP_ERR':VDispErr
-            ,'FITAchieved':FitAchieved,'CHI2':-1,'KFlag':KFlag,'POSITIONANGLE_G':PA_G,'POSITIONANGLE_ERR_G':PA_GErr}
+            ,'FITAchieved':FitAchieved,'CHI2':-1,'KFlag':KFlag,'POSITIONANGLE_G':PA_G,'POSITIONANGLE_ERR_G':PA_GErr,'nBootstraps':nBootstraps,'nBS_Success':nBS_Success,'nOutliers':nOutliers}
         AvgDict['SURFDENS_FACEON']=AvgDict['SURFDENS']
         AvgDict['SURFDENS_FACEON_ERR']=AvgDict['SURFDENS_ERR']
         #AvgDict['ExtendedSDProfile']=SDExtendedProfile
