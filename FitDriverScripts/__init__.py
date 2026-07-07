@@ -12,3 +12,4 @@ from . import Bootstrap_Outputs as BO
 from . import GeometryCorrection as GC
 from . import BootstrapModelPlot as BMP
 from . import FullSingleGalaxyFit as FSGF
+from . import GeometryEstimates as GE 
