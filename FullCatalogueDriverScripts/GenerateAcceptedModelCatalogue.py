@@ -175,8 +175,8 @@ def GenerateAcceptedModelOutpouts(Cat,RTDict):
     
     ScalingParams=['SDMethodFlag', 'RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','dist_model','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_Err']
     ScalingParamNames=['SDMethodFlag','RHI_flag','RHI_AS','RHI_low_AS','RHI_high_AS','dist_model','RHI_kpc','RHI_low_kpc','RHI_high_kpc','VHI_flag','VHI','VHI_Err']
-    FlagParams=['KFlag']
-    FlagParamNames=['KFlag']
+    FlagParams=['nBootstraps','nOutliers','KFlag']
+    FlagParamNames=['nBootstraps','nOutliers','KFlag']
     
     ResultsDict=IniResultsDict(Cat,KeyParams,SuccesParams,ProfParams,ExtendedProfParams,ScalingParams,FlagParams)
     #print("Results Dictionary", ResultsDict)
