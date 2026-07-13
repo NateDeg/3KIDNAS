@@ -57,7 +57,7 @@ def GetBootstrapModel(GeneralDict,GalaxyDict,Step):
     #   Store the SoFiA geometry estimates into the Galaxy Dictionary
     if SoFiAGeo['SoFiASucces']:
         GalaxyDict['Inc_EstimateU']=SoFiAGeo['IncApprox']
-        GalaxyDict['PS_EstimateU']=SoFiAGeo['PA']
+        GalaxyDict['PA_EstimateU']=SoFiAGeo['PA']
         #   Also adjust the mask file as is needed
         SD.AdjustMaskFile(GalaxyDict['MaskNameU'],SoFiAGeo['MaskVal'])
         #   Now we can go through the process of running WRKP again
