@@ -105,7 +105,7 @@ def DetermineSuccess(Model,CutLimits,ModelNames,BeamSize_Pix):
             
         print(Model['Model'].keys())
         print(Model['Model']['SN_Integrated'])
-        if np.log10(Model['Model']['SN_Integrated']) <= CutLimits['limSN'][0]:
+        if np.log10(Model['Model']['SN_Integrated']) <= CutLimits['limSN']:
             AutoSuccess=0
             
         #   Check on the PA, Inc, and VSys errors
