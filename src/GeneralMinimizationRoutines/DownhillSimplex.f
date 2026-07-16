@@ -96,6 +96,7 @@ c
                         p(i,j)=psum(j)
                     enddo
                     call funk(psum,ytry)
+                    y(i)=ytry
                 endif
             enddo
             iter=iter+ndim
