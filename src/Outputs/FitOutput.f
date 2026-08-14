@@ -153,6 +153,7 @@ c
       character(3) VersStr
       character(10) format_string
       real BeamArea
+      real SpecNoise
 
 c           The best fitting tilted ring model should have been made in Galaxy fit, so we
 c           don't need to do the conversion of a parameter vector to tilted ring parameters
@@ -163,8 +164,10 @@ c      BeamArea=ObservedBeam%BeamMajorAxis*ObservedBeam%BeamMinorAxis
       BeamArea=2.*Pi*abs((ObservedBeam%BeamSigmaVector(0)
      &                      *ObservedBeam%BeamSigmaVector(1)))
 
-
-      call BuildTiltedRingModel(ModelTiltedRing,idum)
+      SpecNoise=ObservedDC%DH%Uncertainty
+     &             *abs(ObservedDC%DH%ChannelSize)
+      call BuildTiltedRingModel(ModelTiltedRing,idum,SpecNoise
+     &          ,ObservedDC,ObservedBeam)
 c       Create the point-source data cube
       call FillDataCubeWithTiltedRing(ModelDC,ModelTiltedRing)
 c      print*, "Filled DC", sum(ModelDC%Flux),pixelarea

@@ -25,6 +25,7 @@ c
       real,INTENT(OUT) :: chi2
       real pixelarea
       integer i
+      real NoiseSpec
 
       logical BadModelFlag
 
@@ -75,8 +76,10 @@ c      CheckForPhysicality()
 c      if Unphysical
 c        chi2=+1e20
 
-
-      call BuildTiltedRingModel(ModelTiltedRing,idum)
+      NoiseSpec=ObservedDC%DH%Uncertainty
+     &             *abs(ObservedDC%DH%ChannelSize)
+      call BuildTiltedRingModel(ModelTiltedRing,idum,NoiseSpec
+     &          ,ObservedDC,ObservedBeam)
 c       Create the point-source data cube
       call FillDataCubeWithTiltedRing(ModelDC,ModelTiltedRing)
 c      print*, "Filled DC", sum(ModelDC%Flux)

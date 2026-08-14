@@ -16,15 +16,19 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
       contains
 
 ccccccc
-      subroutine Ring_CalcNumParticles(R,cmode,CloudSurfDens)
+      subroutine Ring_CalcNumParticles(R,cmode,CloudSurfDens,Noise
+     &          ,AvgChannelsPerPix)
       use CommonConsts
       implicit none
       Type(Ring), INTENT(INOUT):: R
       integer,INTENT(IN) ::cmode
       real, INTENT(IN) :: CloudSurfDens
+      real,INTENT(IN) :: Noise
+      real,INTENT(IN) :: AvgChannelsPerPix
       real Pixel_Ring
       real DensMultiplications
       real Rl,Rh
+
 
 c           Get the rough area of the ring in pixels
 c      Pixel_Ring=2.*Pi*R%Rmid*R%Rwidth /pixelarea      !Original in 3DBarolo GalMod
@@ -35,9 +39,16 @@ c      Pixel_Ring=Pi*(Rh**2.-Rl**2)/pixelarea
 c       Calculate a term to get the rough number of clouds per pixel area.  It is normalized by
 c           the surface density so that each particle has roughly the same amount of flux
       DensMultiplications=CloudSurfDens
-     &                      *((R%Sigma)**real(cmode))
+     &               *((R%Sigma/Noise)**real(cmode))
+c      DensMultiplications=CloudSurfDens
+c     &                      *((Noise)**real(cmode))
 c           Get an integer number of particles
-      R%nParticles=int(DensMultiplications*Pixel_Ring)+1
+c      R%nParticles=int(DensMultiplications*Pixel_Ring)+1
+
+c      DensMultiplications=CloudSurfDens
+      R%nParticles=int(DensMultiplications
+     &          *Pixel_Ring*AvgChannelsPerPix)+1
+
 c      print*, "Single Ring PA",R%PositionAngle*180./Pi
 c      print*, "Single Ring Center",R%CentPos
 c      print*, "Number of particles", R%nParticles,R%Sigma
