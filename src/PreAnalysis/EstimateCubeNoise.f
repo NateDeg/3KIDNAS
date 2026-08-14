@@ -37,11 +37,11 @@ ccccc
      &                      ,CountLims(DimSwitch,1:2))
         do jj=1,2
             DimSwitch=2
-            call SetLims(Cube,frac,DimSwitch,ii
+            call SetLims(Cube,frac,DimSwitch,jj
      &                      ,CountLims(DimSwitch,1:2))
             do kk=1,2
                 DimSwitch=3
-                call SetLims(Cube,frac,DimSwitch,ii
+                call SetLims(Cube,frac,DimSwitch,kk
      &                      ,CountLims(DimSwitch,1:2))
 c       Once all the limits are calculated, get square of the flux in each subbox
                 call GetSubBox(Cube,CountLims,count,sum)
