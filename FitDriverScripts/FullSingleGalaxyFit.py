@@ -29,6 +29,8 @@ def GalaxyFit():
     
     #   Get the various program and file locations
     GeneralDict,KeyRTParams=SFL.GetFileAndFolderLocationAndNames()
+    #   Set the default fitting parameters
+    GeneralDict['FittingOptsDict']=GFP.DefaultRuntimeOptions()
     #   Figure out the input parameter file
     ParamFile=GFP.GetRuntimeArguments()
     #   Read in the runtime parameters
