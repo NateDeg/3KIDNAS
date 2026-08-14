@@ -88,6 +88,27 @@ def OverwriteDefaults(GeneralDict,RTParams,KeyRTParams):
             GeneralDict[key]=RTVal
         except:
             pass
+    #   We also want to check the fitting options
+    for key in GeneralDict['FittingOptsDict']['MethodParams']:
+        try:
+            RTVal=vars(RTParams)[key]
+            print("Changing value for parameter", key, "to", RTVal)
+            GeneralDict['FittingOptsDict'][key]=RTVal
+        except:
+            pass
+            
+    #       The fitting options need to be split into constant and fixed keys
+    for key in GeneralDict['FittingOptsDict']['FittingParams']:
+        try:
+            RTVal=vars(RTParams)[key]
+            RTVal=RTVal.split()
+            print("Changing value for parameter", key, "to", RTVal)
+            GeneralDict['FittingOptsDict'][key]['Constant']=RTVal[0]
+            GeneralDict['FittingOptsDict'][key]['Fixed']=RTVal[1]
+            
+        except:
+            pass
+    
     #   Now set all the key parameters from the runtime file and story them in a galaxy specific dictionary.  This will make it easier to generalize later functions to take in the general dictionary and a specific galaxy dictionary.
     GalaxyDict={}
     KeyList=KeyRTParams[0][:]
@@ -125,3 +146,48 @@ def SetCurrentRunVariables(GalaxyDict):
     return GalaxyDict
 
 
+def DefaultRuntimeOptions():
+    """
+    This function sets a variety of default runtime options
+    Returns
+        -------
+        DefaultOpts : dictionary
+            A dictionary containing the default runtime parameter values
+    """
+
+    DefaultOpts={}
+    DefaultOpts['FittingAlgorithm']=1
+    DefaultOpts['LikeFnc']=1
+    DefaultOpts['ParamConversion']=1
+    DefaultOpts['MomMapCalc']=3
+    DefaultOpts['CentMethod']=0
+    DefaultOpts['ShapeMethod']=0
+    DefaultOpts['SizeMethod']=0
+    DefaultOpts['VProfileMethod']=0
+    DefaultOpts['SD_LogSwitch']=0
+    DefaultOpts['CloudMode']=0
+    DefaultOpts['cdens']=100
+    DefaultOpts['BeamSmear']=2.5
+    DefaultOpts['SDLim_NoiseFactor']=1.0
+    DefaultOpts['NRings']=-1
+    DefaultOpts['RingPerBeam']=2
+    DefaultOpts['XFitting']={'Constant':"T",'Fixed':"F"}
+    DefaultOpts['YFitting']={'Constant':"T",'Fixed':"F"}
+    DefaultOpts['IncFitting']={'Constant':"T",'Fixed':"F"}
+    DefaultOpts['PAFitting']={'Constant':"T",'Fixed':"F"}
+    DefaultOpts['VSysFitting']={'Constant':"T",'Fixed':"F"}
+    DefaultOpts['VRotFitting']={'Constant':"F",'Fixed':"F"}
+    DefaultOpts['VRadFitting']={'Constant':"T",'Fixed':"T"}
+    DefaultOpts['VDispFitting']={'Constant':"T",'Fixed':"T"}
+    DefaultOpts['VVertFitting']={'Constant':"T",'Fixed':"T"}
+    DefaultOpts['dvdzFitting']={'Constant':"T",'Fixed':"T"}
+    DefaultOpts['SDFitting']={'Constant':"F",'Fixed':"F"}
+    DefaultOpts['ZHeightFitting']={'Constant':"T",'Fixed':"T"}
+    DefaultOpts['ZGradFitting']={'Constant':"T",'Fixed':"T"}
+
+    DefaultOpts['LineKeyMap']={'FittingAlgorithm':1,'LikeFnc':3,'ParamConversion':5,'MomMapCalc':7,'CentMethod':12,'ShapeMethod':14,'SizeMethod':16,'VProfileMethod':18,'SD_LogSwitch':20,'CloudMode':22,'cdens':24,'BeamSmear':26,'SDLim_NoiseFactor':28,'NRings':30,'RingPerBeam':32,'XFitting':34,'YFitting':36,'IncFitting':38,'PAFitting':40,'VSysFitting':42,'VRotFitting':44,'VRadFitting':46,'VDispFitting':48,'VVertFitting':50,'dvdzFitting':52,'SDFitting':54,'ZHeightFitting':56,'ZGradFitting':58}
+    
+    DefaultOpts['FittingParams']=['XFitting','YFitting','IncFitting','PAFitting','VSysFitting','VRotFitting','VRadFitting','VDispFitting','VVertFitting','dvdzFitting','SDFitting','ZHeightFitting','ZGradFitting']
+    DefaultOpts['MethodParams']=['FittingAlgorithm','LikeFnc','ParamConversion','MomMapCalc','CentMethod','ShapeMethod','SizeMethod','VProfileMethod','SD_LogSwitch','CloudMode','cdens','BeamSmear','SDLim_NoiseFactor','NRings','RingPerBeam']
+
+    return DefaultOpts
