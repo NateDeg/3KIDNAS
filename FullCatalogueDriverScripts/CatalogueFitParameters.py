@@ -131,9 +131,9 @@ def SetupRTDictionaries(RTParams,KeyRTParams):
                     print("The target type is", VarType)
                     print("exiting program")
                     exit()
-            #   If the variable isn't required for that catalogue, it will be saved and used in the single galaxy fitting program
+            #   If the variable isn't required for that catalogue, it will be saved as a string and used in the single galaxy fitting program
             else:
-                NewGalaxyRTVals[x]=vars(RTParams)[x]
+                NewGalaxyRTVals[x]=str(vars(RTParams)[x])
             
     #   Once done parsing everything, double check that all keywords are accounted for
 
