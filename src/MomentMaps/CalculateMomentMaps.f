@@ -36,7 +36,7 @@ c      print*, shape(DC%Flux),idum
         do j=0,DC%DH%nPixels(1)-1
 
             do Moment=0,2
-                call CalculateGeneralMoment(DC%DH%nChannels-1
+                call CalculateGeneralMoment(DC%DH%nChannels
      &          ,DC%Channels(0:DC%DH%nChannels-1)
      &          ,DC%Flux(i,j,0:DC%DH%nChannels-1)
      &          ,Moment,Maps%Flux(i,j,Moment))
