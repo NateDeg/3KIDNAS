@@ -280,7 +280,8 @@ c       get final units of Jy/pixel
 c       The cell brighness needs to be in Jy/pixel
 c      print*, "DataCube Units ", DC%DH%FUnit
       if(DC%DH%FUnit .eq. 'Jy/beam'
-     &       .or. DC%DH%FUnit .eq. 'Jy/Beam') then
+     &       .or. DC%DH%FUnit .eq. 'Jy/Beam'
+     &      .or. DC%DH%FUnit .eq. 'Jy Beam-1') then
 c              The beam area in pixels should already be
 c                   calculated in the beam allocation.
         BeamArea=Beam%BeamAreaPixels
