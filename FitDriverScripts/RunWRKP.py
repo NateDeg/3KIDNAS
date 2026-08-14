@@ -1,6 +1,7 @@
 import sys as sys
 import os as os
 import copy as copy
+import numpy as np
 
 def LoadDefaultWRKPFiles(GeneralDict):
     print("Loading in default WRKP control files")
@@ -14,9 +15,10 @@ def LoadDefaultWRKPFiles(GeneralDict):
     Main_In_Lines=MainIn.readlines()
     MainIn.close()
     #   Do the same for the options file
-    OptionsIn=open(OptionsFile,"r")
-    WRKP_Options_Lines=OptionsIn.readlines()
-    OptionsIn.close()
+    #OptionsIn=open(OptionsFile,"r")
+    #WRKP_Options_Lines=OptionsIn.readlines()
+    #OptionsIn.close()
+    WRKP_Options_Lines=GenerateDefaultFittingOptionsFile(GeneralDict)
     #   Store all the default line information into the general dictionary and return it
     GeneralDict['MainWRKPInputLines']=Main_In_Lines
     GeneralDict['MainWRKPOptionsLines']=WRKP_Options_Lines
@@ -73,9 +75,12 @@ def WriteWRKPOptionsFile(WorkingOptionsLines,GalaxyDict,BootstrapSwitch):
         RStr=",".join(RStr)
         RStr+="\n"
         BootStrLabel="#  If using a grid, supply the radius array in arcsecs\n"
-        WorkingOptionsLines.insert(31,BootStrLabel)
-        WorkingOptionsLines.insert(32,RStr)
-    
+        #WorkingOptionsLines.insert(31,BootStrLabel)
+        #WorkingOptionsLines.insert(32,RStr)
+        
+        WorkingOptionsLines=np.insert(WorkingOptionsLines,31,BootStrLabel)
+        WorkingOptionsLines=np.insert(WorkingOptionsLines,32,RStr)
+
     #   Now write the contents to the temporary options file
     oFile=open(GalaxyDict['FittingOptionsFile'],'w')
     for x in WorkingOptionsLines:
@@ -113,3 +118,37 @@ def RunWRKP(GeneralDict,GalaxyDict,BSSwitch):
     os.system(ClnCmd)
     #   Finally return the galaxy dictionary
     return GalaxyDict
+
+def GenerateDefaultFittingOptionsFile(GeneralDict):
+    """
+    This function writes an array of lines containing the full set of fitting options
+    
+        Parameters
+        ----------
+        GeneralDict : dictionary
+            A dictionary containing the general arguments for 3KIDNAS
+    
+        Returns
+        -------
+        Lines : array of strings
+            An array of strings that act as the lines for the fitting options file.
+    """
+
+    Lines=np.empty(59,dtype='object')
+    for i in range(59):
+        Lines[i]="\n"
+    
+    FittingKeys=['XFitting','YFitting','IncFitting','PAFitting','VSysFitting','XFitting','XFitting','VRotFitting','VRadFitting','VDispFitting','VVertFitting','dvdzFitting','SDFitting','ZHeightFitting','ZGradFitting']
+
+    OptKeys=['FittingAlgorithm','LikeFnc','ParamConversion','MomMapCalc','CentMethod','ShapeMethod','SizeMethod','VProfileMethod','SD_LogSwitch','CloudMode','cdens','BeamSmear','SDLim_NoiseFactor','NRings','RingPerBeam']
+
+
+    for key in OptKeys:
+        Indx=GeneralDict['FittingOptsDict']['LineKeyMap'][key]
+        Lines[Indx]=str(GeneralDict['FittingOptsDict'][key])+"\n"
+        
+    for key in FittingKeys:
+        Indx=GeneralDict['FittingOptsDict']['LineKeyMap'][key]
+        Lines[Indx]=str(GeneralDict['FittingOptsDict'][key]['Constant'])+"\t"+str(GeneralDict['FittingOptsDict'][key]['Fixed'])+"\n"
+
+    return Lines
