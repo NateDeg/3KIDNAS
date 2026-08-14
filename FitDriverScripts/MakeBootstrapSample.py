@@ -79,10 +79,14 @@ def WriteBootstrapFile(GeneralDict,GalaxyDict,Step):
     #print(VCenter)
     
     GeoStr+=str(VCenter)+"\t"
-    GeoStr+=str((Model['POSITIONANGLE'][0]+90.)*np.pi/180.)+"\t"
-    GeoStr+=str(Model['INCLINATION'][0]*np.pi/180.)+"\n"
+    #GeoStr+=str((Model['POSITIONANGLE'][0]+90.)*np.pi/180.)+"\t"
+    #GeoStr+=str(Model['INCLINATION'][0]*np.pi/180.)+"\n"
     
-    ExplanatoryStr="#    The geometry used for bootstrap resampling (centre pt. in pixels plus PA & INC in radians) \n"
+    GeoStr+=str((Model['POSITIONANGLE'][0]+90.))+"\t"
+    GeoStr+=str(Model['INCLINATION'][0])+"\n"
+    
+    
+    ExplanatoryStr="#    The geometry used for bootstrap resampling (centre pt. in pixels plus PA & INC in degress) \n"
     f.write(ExplanatoryStr)
     f.write(GeoStr)
     
