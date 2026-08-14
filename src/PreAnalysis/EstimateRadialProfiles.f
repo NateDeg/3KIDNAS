@@ -123,7 +123,11 @@ c       Now it's necessary to figure out the number of rings to model
 c       When not using an input profile, use the modelable switch
       if(FittingOptions%nTargRings .eq. -1) then
 c        nRings=sum(ModelerableRingSwitch)
-        nRings=sum(ModelerableRingSwitch)+1 !Add an extra ring trial
+        nRings=sum(ModelerableRingSwitch)+1 !Add an extra ring to deal with faint flux
+c           However, if this is more than the maximum number of rings, just stop as the issue the extra ring is trying to solve shouldn't be an issue.
+        if(nRings .gt. nRingsMax) then
+            nRings=nRingsMax
+        endif
 c       Otherwise use the number of input rings
       else
         nRings=FittingOptions%nTargRings
@@ -490,13 +494,6 @@ c     &          ,i, TempRadialProfile(1,i-1),Noise_SDLim,Avg(1)
       endif
 
 c           Do a third check for low and high SD values (and replace them with the limits)
-c      if (ProfilePt(1) .le. SDLims(1)) then
-cc      if (ProjectedProfilePt(1) .le. SDLims(1)) then
-c        print*, "Low SD initial estimate"
-c     &                  ,ProfilePt(0:2),SDLims(1)
-c        ProfilePt(1)=SDLims(1)
-c        ModelSwitch = 0      !TEMPORARY FOR TESTING PURPOSES
-c      endif
       if (ProfilePt(1) .ge. SDLims(2)) then
         print*, "High SD initial estimate"
         ProfilePt(1)=SDLims(2)
@@ -555,7 +552,6 @@ c           For this ring loop to the right
      &                      ,RadialProfile(0,i)
      &                      ,RadialProfile(1:2,k)
                         RadialProfile(1:2,i)=RadialProfile(1:2,k)
-                        exit
                     endif
                 enddo
 c           If there is no ring with a viable value is found, then there is no point in running the fit, so we'll stop here
