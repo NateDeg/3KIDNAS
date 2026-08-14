@@ -69,11 +69,7 @@ c           Set up the array of parameter guesses and chi^2 values needed
       ALLOCATE(paramGuesses(PVModel%nParams+1,
      &          PVModel%nParams))
       ALLOCATE(chiArray(PVModel%nParams+1))
-c           Create an array of parameter guesses
 
-
-      call TiltedRingModelComparison(PVModel%Param,chi2)
-      print*, "Initial model fit", chi2
       IniGuessWidth=1.
       ftol=0.005
 
@@ -92,7 +88,7 @@ c           Make the set of initial guesses
      &              ParamGuesses(1,1:PVModel%nParams)
       PV_FirstFit%BestLike=chiArray(1)
 
-      IniGuessWidth=0.5
+      IniGuessWidth=0.25
       ftol=ftol/5.
 
 c           Make the set of initial guesses
