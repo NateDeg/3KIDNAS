@@ -60,6 +60,7 @@ c
     
 c
       DV=2.*TR%R(ringIndx)%VRot/abs(DC%DH%ChannelSize)
+      DV=DV*sin(TR%R(ringIndx)%Inclination)
       DDisp=2.*sqrt(2.)*TR%R(ringIndx)%VDisp/abs(DC%DH%ChannelSize)
       DR=2.*TR%R(ringIndx)%Rmid
 
