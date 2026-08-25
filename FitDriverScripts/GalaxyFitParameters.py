@@ -166,7 +166,7 @@ def DefaultRuntimeOptions():
     DefaultOpts['VProfileMethod']=0
     DefaultOpts['SD_LogSwitch']=0
     DefaultOpts['CloudMode']=0
-    DefaultOpts['cdens']=100
+    DefaultOpts['cdens']=20
     DefaultOpts['BeamSmear']=2.5
     DefaultOpts['SDLim_NoiseFactor']=1.0
     DefaultOpts['NRings']=-1
