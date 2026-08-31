@@ -109,6 +109,16 @@ c           convert the best model to a TR model
       call ParamToTiltedRing(PVModel,ModelTiltedRing
      &          ,TR_FittingOptions)
 
+
+      if(PFlags%Linear_Log_SDSwitch .eq. 0) then
+        ModelTiltedRing%R(0:ModelTiltedRing%nRings-1)%Sigma=
+     &      ModelTiltedRing%R(0:ModelTiltedRing%nRings-1)%SigUse
+      elseif(PFlags%Linear_Log_SDSwitch .eq. 1) then
+        ModelTiltedRing%R(0:ModelTiltedRing%nRings-1)%Sigma=
+     &   10.**(ModelTiltedRing%R(0:ModelTiltedRing%nRings-1)%SigUse) 
+      endif
+
+
 c       Deallocate the model vector at the end
 c      call DeAllocateParamVector(PVModel)
       DEALLOCATE(chiArray)
