@@ -37,7 +37,8 @@ def SetCutLimits():
     lim_IncErr=15.
     lim_deltaSinI=0.15
     
-    lim_FluxDiff=1.25
+    #lim_FluxDiff=1.25
+    lim_FluxDiff=0.5
     limVRot=0.75
     limSD=0.75
     
@@ -231,14 +232,16 @@ def CheckCubeFluxDiff(Model,CutLimits):
         #   Now mask the difference and cube data
         DData=DData*MData
         CData=CData*MData
+        
+        DiffTot=np.abs(np.nansum(DData)/np.nansum(CData))
         #   Normalize the masked difference cube
-        NormDiff=1000.*DData/Model['Model']['RMS']
+        #NormDiff=1000.*DData/Model['Model']['RMS']
         #   Get the total flux
-        CTot=np.nansum(CData)
+        #CTot=np.nansum(CData)
         #   Get the total number of cells
-        nCells=np.nansum(MData)
+        #nCells=np.nansum(MData)
         #   Get the rms of the normalized difference cube
-        DiffTot=np.sqrt(np.nansum(NormDiff**2.)/(nCells))
+        #DiffTot=np.sqrt(np.nansum(NormDiff**2.)/(nCells))
     except:
         DiffTot=0.
         CTot=1.
