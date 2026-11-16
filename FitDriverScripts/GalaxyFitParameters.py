@@ -52,8 +52,6 @@ def ReadParamFile(FileName):
         ModTest : python module
             A module containing all the runtime arguments
     """
-    #print("About to import parameter file ", FileName)
-    #print("Absolute path to parameter file:",os.path.abspath(FileName))
     #   Convert the path to an absolute path
     AbsPath=os.path.abspath(FileName)
     #   Figure out the path and the module names by splitting the absolute path
@@ -67,8 +65,6 @@ def ReadParamFile(FileName):
     sys.path.append(Package)
     #   Finally use the importlib module to import the module
     import importlib.util
-    #print("Package", Package)
-    #print("ModName", ModName)
     #   Start by setting the instance for loading in a module
     spec = importlib.util.spec_from_file_location(name="RTParams",location=AbsPath)
     #   And now set it so that the module can be loaded.
@@ -80,7 +76,6 @@ def ReadParamFile(FileName):
 
 def OverwriteDefaults(GeneralDict,RTParams,KeyRTParams):
     #   First loop through all the default key values and see if they are re-set in the runtime parameters
-    #print(GeneralDict.keys())
     for key in GeneralDict.keys():
         try:
             RTVal=vars(RTParams)[key]
@@ -184,6 +179,9 @@ def DefaultRuntimeOptions():
     DefaultOpts['SDFitting']={'Constant':"F",'Fixed':"F"}
     DefaultOpts['ZHeightFitting']={'Constant':"T",'Fixed':"T"}
     DefaultOpts['ZGradFitting']={'Constant':"T",'Fixed':"T"}
+    #   Add in a default for the random seed
+    DefaultOpts['RanSeed']=-3
+
 
     DefaultOpts['LineKeyMap']={'FittingAlgorithm':1,'LikeFnc':3,'ParamConversion':5,'MomMapCalc':7,'CentMethod':12,'ShapeMethod':14,'SizeMethod':16,'VProfileMethod':18,'SD_LogSwitch':20,'CloudMode':22,'cdens':24,'BeamSmear':26,'SDLim_NoiseFactor':28,'NRings':30,'RingPerBeam':32,'XFitting':34,'YFitting':36,'IncFitting':38,'PAFitting':40,'VSysFitting':42,'VRotFitting':44,'VRadFitting':46,'VDispFitting':48,'VVertFitting':50,'dvdzFitting':52,'SDFitting':54,'ZHeightFitting':56,'ZGradFitting':58}
     

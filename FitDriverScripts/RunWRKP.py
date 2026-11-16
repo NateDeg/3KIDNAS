@@ -10,17 +10,8 @@ def LoadDefaultWRKPFiles(GeneralDict):
     Infile=GeneralDict['WRKP_GeneralMainIn']
     OptionsFile=GeneralDict['WRKP_GeneralOptionsIn']
     
-    #   Open up the default main input file and read in all the lines and store them
-    MainIn=open(Infile,"r")
-    Main_In_Lines=MainIn.readlines()
-    MainIn.close()
-    #   Do the same for the options file
-    #OptionsIn=open(OptionsFile,"r")
-    #WRKP_Options_Lines=OptionsIn.readlines()
-    #OptionsIn.close()
     WRKP_Options_Lines=GenerateDefaultFittingOptionsFile(GeneralDict)
     #   Store all the default line information into the general dictionary and return it
-    GeneralDict['MainWRKPInputLines']=Main_In_Lines
     GeneralDict['MainWRKPOptionsLines']=WRKP_Options_Lines
     return GeneralDict
     
@@ -32,24 +23,51 @@ def NameWRKPRunFiles(GalaxyDict,BootstrapSwitch):
     
     return GalaxyDict
 
-def WriteWRKPMainFile(WorkingMainLines,GalaxyDict):
-
+def WriteWRKPMainFile(GalaxyDict,GeneralDict,BootstrapSwitch):
+    """
+    This function writes the main input file for running the single galaxy fitter Fortran program.
+    Parameters
+        ----------
+        GalaxyDict : dictionary
+            A dictionary containing the parameters for the specific galaxy
+        
+        GeneralDict : dictionary
+            A dictionary containing the general arguments for 3KIDNAS
+            
+        BootstrapSwitch : integer
+            A switch to determine if fitting a bootstrap sample or the primary fit.
+    
+    """
+    #   Start by setting the line array
+    nLines=19
+    WorkingMainLines=np.empty(nLines,dtype='object')
+    #   Initialize all those lines to be end line strings
+    for i in range(nLines):
+        WorkingMainLines[i]="\n"
+    
     #   Set the name of the cube to be fit
     WorkingMainLines[1]=GalaxyDict['CubeNameU']+"\n"
     #   Set the name of the fitting options file
     WorkingMainLines[3]=GalaxyDict['FittingOptionsFile']+"\n"
-    #   Set the name of the object
-    WorkingMainLines[15]=GalaxyDict['ObjNameU']+"\n"
-    #   Set the name of the folder that will contain the outputs
-    WorkingMainLines[13]=GalaxyDict['TargFolderU']+"\n"
-    
-    #   Set up the portion of the file to deal with SoFiA shape estimates
+    #   Set the mask option to 1
+    WorkingMainLines[5]=str(2)+"\n"
+    #   Set the option that we'll use a SoFiA estimate for the shape
     WorkingMainLines[8]=str(1)+"\n"
-    if len(WorkingMainLines) <= 18:
-        WorkingMainLines.insert(10,GalaxyDict['SoFiAShapeFile']+"\n")
-    else:
-        WorkingMainLines[10]=GalaxyDict['SoFiAShapeFile']+"\n"
-
+    #   Set up the portion of the file to deal with SoFiA shape estimates
+    WorkingMainLines[10]=GalaxyDict['SoFiAShapeFile']+"\n"
+    #   Set the random seed to be used
+    #       If it's the first fit, use the original seed
+    if BootstrapSwitch ==0:
+        GeneralDict['FittingOptsDict']['RanSeedU']=GeneralDict['FittingOptsDict']['RanSeed']
+    #   Otherwise use the updated seed
+    WorkingMainLines[12]=str(GeneralDict['FittingOptsDict']['RanSeedU'])+"\n"
+    #   Set the name of the folder that will contain the outputs
+    WorkingMainLines[14]=GalaxyDict['TargFolderU']+"\n"
+    #   Set the name of the object
+    WorkingMainLines[16]=GalaxyDict['ObjNameU']+"\n"
+        #   We also need a dummy for the cube RMS
+    WorkingMainLines[18]=str(1.0)+"\n"
+    
     #   Now that we have the main input file contents written, we can write out the file
     mFile=open(GalaxyDict['MainInputFile'],'w')
     for x in WorkingMainLines:
@@ -93,13 +111,11 @@ def RunWRKP(GeneralDict,GalaxyDict,BSSwitch):
     print("Running WRKP")
     
     #   First copy the general Main lines to a local set
-    WorkingMainLines=copy.copy(GeneralDict['MainWRKPInputLines'])
+    #WorkingMainLines=copy.copy(GeneralDict['MainWRKPInputLines'])
     #   Next name the temporary WRKP Files for the run
     GalaxyDict=NameWRKPRunFiles(GalaxyDict,0)
     #   Now write up the main input file
-    WriteWRKPMainFile(WorkingMainLines,GalaxyDict)
-    #   Once this is done, we can get rid of the WorkingMainLines
-    del WorkingMainLines
+    WriteWRKPMainFile(GalaxyDict,GeneralDict,BSSwitch)
     #   Now we'll do a similar process for the fitting options:
     #       First copy general options lines to a local variable
     WorkingOptionsLines=copy.copy(GeneralDict['MainWRKPOptionsLines'])
@@ -118,6 +134,7 @@ def RunWRKP(GeneralDict,GalaxyDict,BSSwitch):
     os.system(ClnCmd)
     #   Finally return the galaxy dictionary
     return GalaxyDict
+    
 
 def GenerateDefaultFittingOptionsFile(GeneralDict):
     """

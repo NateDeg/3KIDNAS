@@ -90,6 +90,8 @@ def GalaxyFit():
     #           Split the bootstrap fits over some number of parameters
     pool=mp.Pool(processes=nProcessors)
     BootstrapModels=pool.starmap(BootstrapRunStep, [(i,GeneralDict,GalaxyDict) for i in range(GalaxyDict['nBootstraps'])],chunksize=1)
+    
+    
     #for i in range(GalaxyDict['nBootstraps']):
     #    BootstrapModels[i]=BootstrapRunStep(i,GeneralDict,GalaxyDict)
 
@@ -135,5 +137,7 @@ def GalaxyFit():
    
 
 def BootstrapRunStep(step,GeneralDict,GalaxyDict):
+    #   Set the random seed to use in this bootstrap
+    GeneralDict['FittingOptsDict']['RanSeedU']=GeneralDict['FittingOptsDict']['RanSeed']-step-1
     BootstrapModel=BEA.GetBootstrapModel(GeneralDict,GalaxyDict,step)
     return BootstrapModel

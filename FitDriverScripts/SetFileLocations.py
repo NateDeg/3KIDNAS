@@ -1,6 +1,17 @@
 import os as os
 
 def GetFileAndFolderLocationAndNames():
+    """
+    This function gets the current folder and then sets the location of a variety of the relative paths needed for 3KIDNAS
+    Returns
+        -------  
+        FileDict : Dictionary
+            A dictionary containing the name of all the various paths, executables, and associated files.
+        
+        KeyParamList : list of strings
+            A list containing the names of all key parameters that must be included in the input file.
+    """
+
     #   Get the current directory for future writing
     CurrDir=os.getcwd()
     #   Get the WRKP directory
