@@ -138,6 +138,10 @@ def GalaxyFit():
 
 def BootstrapRunStep(step,GeneralDict,GalaxyDict):
     #   Set the random seed to use in this bootstrap
-    GeneralDict['FittingOptsDict']['RanSeedU']=GeneralDict['FittingOptsDict']['RanSeed']-step-1
+    RS=int(GeneralDict['FittingOptsDict']['RanSeed'])
+    if RS <=0:
+        GeneralDict['FittingOptsDict']['RanSeedU']=RS-step-1
+    else:
+        GeneralDict['FittingOptsDict']['RanSeedU']=RS+step+1
     BootstrapModel=BEA.GetBootstrapModel(GeneralDict,GalaxyDict,step)
     return BootstrapModel

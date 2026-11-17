@@ -186,6 +186,6 @@ def DefaultRuntimeOptions():
     DefaultOpts['LineKeyMap']={'FittingAlgorithm':1,'LikeFnc':3,'ParamConversion':5,'MomMapCalc':7,'CentMethod':12,'ShapeMethod':14,'SizeMethod':16,'VProfileMethod':18,'SD_LogSwitch':20,'CloudMode':22,'cdens':24,'BeamSmear':26,'SDLim_NoiseFactor':28,'NRings':30,'RingPerBeam':32,'XFitting':34,'YFitting':36,'IncFitting':38,'PAFitting':40,'VSysFitting':42,'VRotFitting':44,'VRadFitting':46,'VDispFitting':48,'VVertFitting':50,'dvdzFitting':52,'SDFitting':54,'ZHeightFitting':56,'ZGradFitting':58}
     
     DefaultOpts['FittingParams']=['XFitting','YFitting','IncFitting','PAFitting','VSysFitting','VRotFitting','VRadFitting','VDispFitting','VVertFitting','dvdzFitting','SDFitting','ZHeightFitting','ZGradFitting']
-    DefaultOpts['MethodParams']=['FittingAlgorithm','LikeFnc','ParamConversion','MomMapCalc','CentMethod','ShapeMethod','SizeMethod','VProfileMethod','SD_LogSwitch','CloudMode','cdens','BeamSmear','SDLim_NoiseFactor','NRings','RingPerBeam']
+    DefaultOpts['MethodParams']=['FittingAlgorithm','LikeFnc','ParamConversion','MomMapCalc','CentMethod','ShapeMethod','SizeMethod','VProfileMethod','SD_LogSwitch','CloudMode','cdens','BeamSmear','SDLim_NoiseFactor','NRings','RingPerBeam','RanSeed']
 
     return DefaultOpts
