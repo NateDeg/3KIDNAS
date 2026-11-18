@@ -552,12 +552,14 @@ c           For this ring loop to the right
      &                      ,RadialProfile(0,i)
      &                      ,RadialProfile(1:2,k)
                         RadialProfile(1:2,i)=RadialProfile(1:2,k)
+                        goto 200
                     endif
                 enddo
 c           If there is no ring with a viable value is found, then there is no point in running the fit, so we'll stop here
                 print*, "No ring with an acceptable"
      &                  //" surface density found"
                 stop
+ 200            continue
 c           After the first ring is done, there must be at least one value to the left of the empty ring.  We'll use that value for the current ring
         else
                 do k=i,0,-1
