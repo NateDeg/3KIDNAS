@@ -260,6 +260,9 @@ c           code will work in pixel space
      &                  ,Beam%BeamMajorAxis,DC%DH%PixelSize(0))
       call Length_PixelConversion(Beam%BeamMinorAxis
      &                  ,Beam%BeamMinorAxis,DC%DH%PixelSize(0))
+c       Also convert the beam position angle to radians
+      call GeneralAngularConversion(Beam%BeamUnitsSwitch(1)
+     &          ,Beam%BeamPositionAngle)
 
       return
       end subroutine
