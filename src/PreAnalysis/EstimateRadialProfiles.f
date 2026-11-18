@@ -131,6 +131,10 @@ c           However, if this is more than the maximum number of rings, just stop
 c       Otherwise use the number of input rings
       else
         nRings=FittingOptions%nTargRings
+c           While it should be impossible for nTargRings to be larger than the max, in the off chance this happens, truncate back down to nRingsMax
+        if(nRings .gt. nRingsMax) then
+            nRings=nRingsMax
+        endif
       endif
       print*, "Total modelable number of rings", nRings,nRingsMax
       if(nRings .eq. 0) then
