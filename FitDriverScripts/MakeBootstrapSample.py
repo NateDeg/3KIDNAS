@@ -89,7 +89,20 @@ def WriteBootstrapFile(GeneralDict,GalaxyDict,Step):
     ExplanatoryStr="#    The geometry used for bootstrap resampling (centre pt. in pixels plus PA & INC in degress) \n"
     f.write(ExplanatoryStr)
     f.write(GeoStr)
-    
+
+    ExplanatoryStr="#    The seed used to generate the random numbers \n"
+    f.write(ExplanatoryStr)
+    #   Set the random seed to use in this bootstrap
+    RS=int(GeneralDict['FittingOptsDict']['RanSeed'])*GalaxyDict['nBootstraps']
+    if RS==0:
+        RS=GalaxyDict['nBootstraps']
+    if RS <=0:
+        RSUse=RS-Step-1
+    else:
+        RSUse=RS+Step+1
+    RStr=str(RSUse)+"\n"
+    f.write(RStr)
+
     
     f.close()
  

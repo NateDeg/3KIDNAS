@@ -13,6 +13,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
       use DataCubeOutputsMod
 
       use PhysCoordMod
+      use BasicRanNumGen
 
       implicit none
 
@@ -55,15 +56,13 @@ c       First make a difference cube using the observed cube and model cube
       
 
 c       Now resample the difference cube and place it into the bootstrap cube
-c      call BlockResampleCube(BootstrapCube,DifferenceCube
-c     &                      ,MaskCube,ObservedBeam
-c     &                      ,SpatialBlackSize,VelBlockSize)
 
       call BlockResampleCube_Phys2(BootstrapCube,DifferenceCube
      &                      ,CoordArr,ObservedBeam
      &                      ,SpatialBlackSize,VelBlockSize
      &                      ,BS_Cent%CentX, BS_Cent%CentY
-     &                      ,BS_Cent%CentV, BS_Cent%PA, BS_Cent%Inc)
+     &                      ,BS_Cent%CentV, BS_Cent%PA, BS_Cent%Inc
+     &                      ,idum)
 
       SampleFile="Resampled_DifferenceCube_1x1x2.fits"
       call WriteDataCubeToFITS(BootstrapCube
@@ -82,81 +81,14 @@ c      print*, "Coord array shape", shape(CoordArr)
 cccccccc
 
 
-cccc
-c       This routine resamples some cube
-c
-      subroutine BlockResampleCube(NewCube,BaseCube
-     &              ,CubeMask,Beam
-     &              ,SblockSize,VblockSize)
-      implicit none
-      Type(DataCube),INTENT(IN) :: BaseCube,CubeMask
-      Type(Beam2D), INTENT(IN) :: Beam
-      real,INTENT(IN) ::SblockSize,VblockSize
-      Type(DataCube), INTENT(INOUT) :: NewCube
-
-      integer bSizePix, bSizeChan
-
-      integer nblocks_Dim(0:2)
-      integer i,j,k, blockID(3)
-
-      real,ALLOCATABLE :: DataBlock(:,:,:)
-
-      print*, "Resampling cube"
-
-c           First initialize the new cube that will be filled with block samples
-c       Set the header to match the
-      NewCube%DH=BaseCube%DH
-      call AllocateDataCube(NewCube)        !/src/ObjectDefinitions/DataCube.f
-c       Next set up the block size in pixels/channels
-      bSizeChan=NINT(VblockSize)
-      bSizePix=NINT(SblockSize*Beam%BeamMajorAxis)
-      print*, "Block size", bSizePix,bSizeChan
-c           Now we can allocate the data block array that will be filled with the base cube's data
-      ALLOCATE(DataBlock(bSizePix,bSizePix,bSizeChan))
-
-      do i=0,1
-        nblocks_Dim(i)=BaseCube%DH%nPixels(i)/bSizePix
-      enddo
-      nblocks_Dim(2)=BaseCube%DH%nChannels/bSizeChan
-      print*, "Number of blocks per dim", nblocks_Dim
-
-
-c       Loop through all the blocks
-      do i=0,nblocks_Dim(0)
-c      do i=0,0
-        blockID(1)=i
-        do j=0,nblocks_Dim(1)
-c        do j=0,0
-            blockID(2)=j
-c            do k=0,0
-            do k=0,nblocks_Dim(2)
-                blockID(3)=k
-c                   For each block, select a subsection of the base cube
-                call SelectDataBlock(BaseCube,DataBlock
-     &              ,bSizePix,bSizeChan,CubeMask)
-c                   Now that we have a data block, we can fill in the appropriate section of the data cube
-                call FillInCubeByBlock(NewCube,DataBlock
-     &              ,bSizePix,bSizeChan,blockID)
-
-            enddo
-        enddo
-      enddo
-
-c       Get rid of the data block memory
-      DEALLOCATE(DataBlock)
-
-      return
-      end subroutine
-ccccccc
-
-
 ccccc
 c           This routine selects a subsection of data from the
 c               main cube that may be correlated
       subroutine SelectDataBlock(BaseCube,DataBlock
-     &              ,bSizePix,bSizeChan,CubeMask)
+     &              ,bSizePix,bSizeChan,CubeMask,idum)
       implicit none
 
+      integer, INTENT(INOUT) :: idum
       integer, INTENT(IN) :: bSizePix,bSizeChan
       Type(DataCube),INTENT(IN) :: BaseCube,CubeMask
       real, INTENT(INOUT) :: DataBlock(bSizePix,bSizePix,bSizeChan)
@@ -175,7 +107,8 @@ c           Set up the limits for the random selections to make sure everything 
 c       Nose select the low limits randomly and set the upper limits accordingly
 100   continue
       do i=1,3
-        call RANDOM_NUMBER(RandVal)
+c        call RANDOM_NUMBER(RandVal)
+        RandVal=ran2(idum)
         LowCut(i)=int(RanSize(i)*RandVal)
         if(i .le. 2) then
             HighCut(i)=LowCut(i)+bSizePix-1
@@ -305,90 +238,6 @@ cccccc
 
 
 
-cccc
-c       This routine resamples some cube
-c
-      subroutine BlockResampleCube_Phys(NewCube,BaseCube
-     &              ,CoordArr,Beam
-     &              ,SblockSize,VblockSize)
-      implicit none
-      Type(DataCube),INTENT(IN) :: BaseCube
-      real,INTENT(IN) :: CoordArr(3,0:BaseCube%DH%nPixels(0)-1
-     &                      ,0:BaseCube%DH%nPixels(1)-1
-     &                      ,0:BaseCube%DH%nChannels-1)
-      Type(Beam2D), INTENT(IN) :: Beam
-      real,INTENT(IN) ::SblockSize,VblockSize
-      Type(DataCube), INTENT(INOUT) :: NewCube
-
-      real DeltaRange(3)
-
-      integer bSizePix, bSizeChan
-
-      integer nblocks_Dim(0:2)
-      integer i,j,k, blockID(3),CentIndx(3)
-
-      real,ALLOCATABLE :: DataBlock(:,:,:)
-      
-
-      print*, "Resampling cube"
-
-c           First initialize the new cube that will be filled with block samples
-c       Set the header to match the
-      NewCube%DH=BaseCube%DH
-      call AllocateDataCube(NewCube)        !/src/ObjectDefinitions/DataCube.f
-c       Next set up the block size in pixels/channels
-      bSizeChan=NINT(VblockSize)
-      bSizePix=NINT(SblockSize*Beam%BeamMajorAxis)
-      print*, "Block size", bSizePix,bSizeChan
-c           Now we can allocate the data block array that will be filled with the base cube's data
-      ALLOCATE(DataBlock(bSizePix,bSizePix,bSizeChan))
-
-      do i=0,1
-        nblocks_Dim(i)=BaseCube%DH%nPixels(i)/bSizePix
-      enddo
-      nblocks_Dim(2)=BaseCube%DH%nChannels/bSizeChan
-      print*, "Number of blocks per dim", nblocks_Dim
-
-
-      DeltaRange(1)=5.
-      DeltaRange(2)=2.*3.14
-      DeltaRange(3)=3.
-
-c       Loop through all the blocks
-      do i=0,nblocks_Dim(0)-1
-c      do i=0,0
-        blockID(1)=i
-        CentIndx(1)=(i+0.5)*(bSizePix)
-        do j=0,nblocks_Dim(1)-1
-c        do j=0,0
-            blockID(2)=j
-            CentIndx(2)=(j+0.5)*(bSizePix)
-c            do k=0,0
-            do k=0,nblocks_Dim(2)-1
-                blockID(3)=k
-                CentIndx(3)=(k+0.5)*(bSizeChan)
-c                   For each block, select a subsection of the base cube
-                call SelectDataBlock_Phys(BaseCube
-     &              ,DataBlock
-     &              ,bSizePix,bSizeChan, CentIndx
-     &              ,CoordArr
-     &              ,DeltaRange)
-c                   Now that we have a data block, we can fill in the appropriate section of the data cube
-                call FillInCubeByBlock(NewCube,DataBlock
-     &              ,bSizePix,bSizeChan,blockID)
-
-            enddo
-        enddo
-      enddo
-
-c       Get rid of the data block memory
-      DEALLOCATE(DataBlock)
-
-      return
-      end subroutine
-ccccccc
-
-
 
 ccccc
 c           This routine selects a subsection of data from the
@@ -396,9 +245,9 @@ c               main cube that may be correlated
       subroutine SelectDataBlock_Phys(BaseCube,DataBlock
      &              ,bSizePix,bSizeChan, PtIndx
      &              ,CoordArr
-     &              ,DeltaRange)
+     &              ,DeltaRange,idum)
       implicit none
-
+      integer, INTENT(INOUT) :: idum
       integer, INTENT(IN) :: bSizePix,bSizeChan
       Type(DataCube),INTENT(IN) :: BaseCube
       real,INTENT(IN) :: CoordArr(3,0:BaseCube%DH%nPixels(0)-1
@@ -425,7 +274,8 @@ c           Set up the limits for the random selections to make sure everything 
 c       Nose select the low limits randomly and set the upper limits accordingly
 100   continue
       do i=1,3
-        call RANDOM_NUMBER(RandVal)
+c        call RANDOM_NUMBER(RandVal)
+        RandVal=ran2(idum)
         LowCut(i)=int(RanSize(i)*RandVal)
         if(i .le. 2) then
             HighCut(i)=LowCut(i)+bSizePix-1
@@ -435,10 +285,8 @@ c       Nose select the low limits randomly and set the upper limits accordingly
             Cent(i)=LowCut(i)+((bSizeChan-1)/2)
         endif
       enddo
-c      print*, "Blck Center Coords", CoordArr(1:3
-c     &          ,PtIndx(1),PtIndx(2),PtIndx(3))
-c      print*, "Rand Center Coords",CoordArr(1:3
-c     &          ,Cent(1),Cent(2),Cent(3))
+
+c
       do i=1,3
         if(i .le. 2) then
             if(Cent(i) .ge. BaseCube%DH%nPixels(i-1)) goto 100
@@ -446,33 +294,16 @@ c     &          ,Cent(1),Cent(2),Cent(3))
             if(Cent(i) .ge. BaseCube%DH%nChannels) goto 100
         endif
       enddo
-
+c
       do i=1,3
         Block_RandDiffs(i)=CoordArr(i
      &          ,PtIndx(1),PtIndx(2),PtIndx(3))
      &          -CoordArr(i
      &          ,Cent(1),Cent(2),Cent(3))
-c        print*, i, Block_RandDiffs(i)
         if(abs(Block_RandDiffs(i)) .gt. DeltaRange(i)) goto 100
       enddo
-      print*, "Diff", Block_RandDiffs
-c      print*, LowCut, Cent
-c           Check that the midpoint of the block is inside the mask
-c      if(CubeMask%Flux(Cent(1),Cent(2),Cent(3)) .lt. 1) goto 100
 
       Dir=1
-c      do i=1,3
-c        call RANDOM_NUMBER(RandVal)
-c        if(RandVal .lt. 0.5) then
-c            Dir=1
-c        else
-c            Dir=-1
-c            Temp=LowCut(i)
-c            LowCut(i)=HighCut(i)
-c            HighCut(i)=Temp
-c        endif
-c      enddo
-
       DataBlock=0.
 c       Now fill in the data block
       ii=0
@@ -546,8 +377,9 @@ c
       subroutine BlockResampleCube_Phys2(NewCube,BaseCube
      &              ,CoordArr,Beam
      &              ,SblockSize,VblockSize
-     &              ,XC,YC,VSys,PA,Inc)
+     &              ,XC,YC,VSys,PA,Inc,idum)
       implicit none
+      integer,INTENT(INOUT) :: idum
       Type(DataCube),INTENT(IN) :: BaseCube
       real,INTENT(IN) :: CoordArr(3,0:BaseCube%DH%nPixels(0)-1
      &                      ,0:BaseCube%DH%nPixels(1)-1
@@ -603,7 +435,7 @@ c                print*, i,j,k
      &              ,bSizePix,bSizeChan, CentIndx
      &              ,CoordArr
      &              ,DeltaRange
-     &              ,XC,YC,VSys,PA,Inc)
+     &              ,XC,YC,VSys,PA,Inc,idum)
 
 c                   For each block, select a subsection of the base cube
 c                call SelectDataBlock_Phys(BaseCube
@@ -636,9 +468,10 @@ c               main cube that may be correlated
      &              ,bSizePix,bSizeChan, PtIndx
      &              ,CoordArr
      &              ,DeltaRange
-     &              ,XC,YC,VSys,PA,Inc)
+     &              ,XC,YC,VSys,PA,Inc,idum)
       implicit none
 
+      integer, INTENT(INOUT) :: idum
       integer, INTENT(IN) :: bSizePix,bSizeChan
       Type(DataCube),INTENT(IN) :: BaseCube
       real,INTENT(IN) :: CoordArr(3,0:BaseCube%DH%nPixels(0)-1
@@ -660,7 +493,8 @@ c
 c           First randomly select the delta values
 100   continue
       do i=1,3
-        call RANDOM_NUMBER(RandVal)
+c        call RANDOM_NUMBER(RandVal)
+        RandVal=ran2(idum)
         Delta(i)=(2.*RandVal-1) *DeltaRange(i)
       enddo
 c      print*, "Shift in physical coordinates", Delta,PtIndx

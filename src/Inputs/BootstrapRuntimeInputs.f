@@ -52,22 +52,9 @@ c       Get the center of the cube for geometry based resampling
       read(10,*) BS_Cent%CentX,BS_Cent%CentY,BS_Cent%CentV
      &              ,BS_Cent%PA
       BS_Cent%PA=BS_Cent%PA*Pi/180.
-
-c           Get the base name for the outputs
-c      read(10,*)
-c      read(10,'(A)') BaseOutName
-c           Get the base name of the objects
-c      read(10,*)
-c      read(10,'(A)') OutputFolder
-c       Get the number of bootstrap samples to make
-c      read(10,*)
-c      read(10,*) nBootstrap
-c       Get the noise in mJy
-c      read(10,*)
-c      read(10,*) RMS
 c       Get the random seed
-c      read(10,*)
-c      read(10,*) idum
+      read(10,*)
+      read(10,*) idum
 
 
       close(10)
