@@ -37,7 +37,7 @@ def CatalogueDriverMain():
    
 
     #nTot=1
-    nTot=len(Cat)
+    nTot=SetNumGal(SGDict,Cat)
     nProcessors=RTDict['nProcessors']
     pool=mp.Pool(processes=nProcessors,maxtasksperchild=1)
     pool.starmap(RunGalaxyFit, [(i,Cat,RTDict,SGDict) for i in range(nTot)],chunksize=1)
@@ -70,7 +70,8 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
 
     #for i in range(len(Cat)):
     #    print(i,Cat['name'][i])
-    Indx=Cat['SizeIndx'][step]
+    #Indx=Cat['SizeIndx'][step]
+    Indx=GetGalIndx(step,Cat,SGDict)
 
     #   Set up all the names that will be needed to write the input file
     GalaxyDict=RSGF.GetGalaxyDictNames(Indx,Cat,RTDict)
@@ -99,3 +100,37 @@ def RunGalaxyFit(step,Cat,RTDict,SGDict):
     ResultsFile=RTDict['TargFolder']+GalaxyDict['name_underscore']+"/"+GalaxyDict['name_underscore']+"_BSModel.txt"
     if os.path.isfile(ResultsFile):
         GAMC.AddProvenanceKeywords(GalaxyDict,RTDict)
+
+        
+def GetGalIndx(step,Cat,SGDict):
+    """Set the name of the galaxy to be fit."""
+    #   If this is a single fit test, it may be the case that a specific galaxy name has been supplied.
+    if 'SingleFitTest' not in SGDict.keys() or 'FitSpecificGalaxy' not in SGDict.keys():
+        Indx=Cat['SizeIndx'][step]
+    else:
+        Name=SGDict['FitSpecificGalaxy']
+        try:
+            Indx=Cat.index[Cat['name']==Name][0]
+        except:
+            print("Target galaxy not in catalogue.")
+            print(Name)
+            print("Ending test run now")
+            exit()
+    return Indx
+
+        
+def SetNumGal(SGDict,Cat):
+    """Check the number of galaxies that will be run."""
+
+    #   Check if the SingleFitCheck has been initialized
+    #       If it hasn't, fit the full catalogue
+    if 'SingleFitTest' not in SGDict.keys():
+        nGal=len(Cat)
+    else:
+        #   If it has been set to True (note that the input format will save this to a string) only fit a single galaxy
+        if SGDict['SingleFitTest']=="True":
+            nGal=1
+        #   Otherwise fit the whole catalouge
+        else:
+            nGal=len(Cat)
+    return nGal
