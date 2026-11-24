@@ -14,6 +14,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
 
       use PhysCoordMod
       use GenBootstrapMod
+      use BasicRanNumGen
 
       implicit none
 
@@ -55,7 +56,8 @@ c           Go through all channels and randomly flip across the major axis
      &                  ,BS_Cent%CentX, BS_Cent%CentY
      &                  ,BS_Cent%CentV, BS_Cent%PA, BS_Cent%Inc
      &                  ,FlipType
-     &                  ,VelBlockSize)
+     &                  ,VelBlockSize
+     &                  ,idum)
 
 c      SampleFile="FlippedMajorAxis_DifferenceCube.fits"
 c      call WriteDataCubeToFITS(BootstrapCube
@@ -67,7 +69,8 @@ c     &          ,ObservedBeam,trim(SampleFile),"Flipped")
      &                  ,BS_Cent%CentX, BS_Cent%CentY
      &                  ,BS_Cent%CentV, BS_Cent%PA, BS_Cent%Inc
      &                  ,FlipType
-     &                  ,VelBlockSize)
+     &                  ,VelBlockSize
+     &                  ,idum)
 
 c      SampleFile="DoubleFlipped_DifferenceCube.fits"
 c      call WriteDataCubeToFITS(BootstrapCube
@@ -93,8 +96,10 @@ c           and randomly chooses to flip across the major axis
      &              ,CoordArr
      &              ,XC,YC,VSys,PA,Inc
      &              ,FlipType
-     &              ,VBlockSize)
+     &              ,VBlockSize
+     &              ,idum)
       implicit none
+      integer,INTENT(INOUT) :: idum
       Type(DataCube), INTENT(INOUT) :: Cube
       real,INTENT(IN):: XC,YC,VSys,PA,Inc
       real,INTENT(IN) :: CoordArr(3,0:Cube%DH%nPixels(0)-1
@@ -118,7 +123,7 @@ c           and randomly chooses to flip across the major axis
       do i=0,Cube%DH%nChannels-1
 c        print*, "hmm", count
 c        do i=30,30
-        call RANDOM_NUMBER(RandVal)
+        RandVal=ran2(idum)
 c        print*, i, RandVal
         if(RandVal .ge. 0.5) then
 c            print*, "Flip Channel spatially"
