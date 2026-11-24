@@ -140,7 +140,7 @@ def BootstrapRunStep(step,GeneralDict,GalaxyDict):
     #   Set the random seed to use in this bootstrap
     RS=int(GeneralDict['FittingOptsDict']['RanSeed'])
     if RS==0:
-        RS==1
+        RS=1
     if RS <=0:
         GeneralDict['FittingOptsDict']['RanSeedU']=RS-step-1
     else:
